@@ -5,7 +5,7 @@
         <p ng-show="!missionLoading" style="white-space:pre-wrap;">{{serverErrorMessage}}</p>
     </md-content>
     <form ng-show="loadSuccess" layout-fill layout="row" flex name="profileForm" ng-cloak>
-        <md-tabs flex md-selected="2" md-border-bottom md-autoselect md-swipe-content="true">
+        <md-tabs flex md-selected="2" md-border-bottom md-autoselect>
             <md-tab label='Launch Site'>
                  <md-tab-content>
                     <md-content layout-fill flex layout-padding layout="row" layout-align="space-around center">
@@ -26,7 +26,7 @@
                     </md-content>
                 </md-tab-content>
             </md-tab>
-            <md-tab label='Launch Vehicle'>
+            <md-tab label='Launch Vehicle' md-on-select="runTutorial()">
                 <md-tab-content>
                     <md-content flex layout-fill layout='column' layout-gt-sm="row" layout-align='space-around center' layout-align-gt-sm='space-around start'>
                         <md-radio-group flex-gt-sm="33" style="width:100%" layout-padding layout="column" layout-align="start center" ng-model="builderType">
@@ -114,8 +114,8 @@
                     </md-content>
                 </md-tab-content>
             </md-tab>
-            <md-tab label='Flight Profile'>
-                <md-tab-content><!-- md-swipe-left="open('sidenav')">-->
+            <md-tab label='Flight Profile' md-on-select="runTutorial()">
+                <md-tab-content>
                     <md-content layout-padding layout-fill flex layout='column' layout-gt-sm='row' layout-align='space-between start'>
                         <md-content flex layout-fill>
                             <md-content layout="row" layout-align="space-between center">
