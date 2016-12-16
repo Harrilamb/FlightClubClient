@@ -11,16 +11,23 @@ angular.module('FlightClub').controller('IndexCtrl', function ($scope, $mdSidena
     $scope.client = base;
     $scope.server = base + port + '/FlightClub';
     var api_url = $scope.server + '/api/v1';
+    
+    $scope.cookies = {
+        AUTHTOKEN: 'fc_authToken',
+        BLANKCANVASINFO: 'fc_bcInfo',
+        SIMCOUNT: 'fc_simCount',
+        THEME: 'fc_theme'
+    };
 
-    $scope.token = $cookies.get('authToken');
+    $scope.token = $cookies.get($scope.cookies.AUTHTOKEN);
     $scope.authorised = false;
     $scope.permissions = [];
     $scope.canCreateUser = false;
     
     $scope.showSidenav = true;
     $scope.$on('viewBroadcast', function(event, args) {
-        $scope.isHome = args === 'home';
-        $scope.showSidenav = (args === 'home' || args === 'results' || args === 'world');
+        $scope.isBuilder = args === 'build';
+        $scope.showSidenav = (args === 'build' || args === 'results' || args === 'world');
     });
 
     $scope.httpRequest = function (dest, method, data, successfn, errorfn) {
@@ -41,7 +48,7 @@ angular.module('FlightClub').controller('IndexCtrl', function ($scope, $mdSidena
             $scope.canCreateUser = $scope.hasPermission('createUser');
             
             if (!$scope.authorised) {
-                $cookies.remove('authToken');
+                $cookies.remove($scope.cookies.AUTHTOKEN);
             }
         });
     }
@@ -50,7 +57,7 @@ angular.module('FlightClub').controller('IndexCtrl', function ($scope, $mdSidena
         if ($scope.theme)
             $interval.cancel(themer);
         else {
-            $scope.theme = $cookies.get('fc_theme');
+            $scope.theme = $cookies.get($scope.cookies.THEME);
             if($scope.theme === undefined)
                 $scope.theme = 'fc_dark';
         }
@@ -100,7 +107,7 @@ angular.module('FlightClub').controller('IndexCtrl', function ($scope, $mdSidena
     
     $scope.toggleTheme = function() {
         $scope.theme = $scope.theme === 'fc_dark' ? 'fc_default' : 'fc_dark';
-        $cookies.put('fc_theme', $scope.theme);
+        $cookies.put($scope.cookies.THEME, $scope.theme);
     };
     
     $scope.supports_html5_storage = function() {

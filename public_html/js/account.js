@@ -38,7 +38,7 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
                     var now = new Date();
                     var expiryDate = new Date(now.getTime() + 1000 * parseInt(data.Success.maxAge));
 
-                    $cookies.put('authToken', data.Success.authToken, {'expires': expiryDate});
+                    $cookies.put($scope.$parent.cookies.AUTHTOKEN, data.Success.authToken, {'expires': expiryDate});
                     $scope.$parent.token = data.Success.authToken;
                     $scope.$parent.authorised = true;
             
@@ -60,7 +60,7 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
             });
     
         } else {
-            $cookies.remove('authToken');
+            $cookies.remove($scope.$parent.cookies.AUTHTOKEN);
             $scope.$parent.authorised = false;
             $scope.$parent.permissions.length = 0;
             $scope.$parent.token = undefined;

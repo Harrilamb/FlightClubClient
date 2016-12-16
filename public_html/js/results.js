@@ -210,11 +210,11 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $mdDial
     };
 
     $scope.overrideLive = function () {
-        if ($cookies.get('authToken') === undefined)
+        if ($cookies.get($scope.$parent.cookies.AUTHTOKEN) === undefined)
             return;
 
         var queryString = window.location.search.substring(1);
-        queryString += '&auth=' + $cookies.get('authToken');
+        queryString += '&auth=' + $cookies.get($scope.$parent.cookies.AUTHTOKEN);
         $scope.$parent.httpRequest('/live/init?' + queryString, 'GET', null,
                 function (data) {
                     $scope.overrideStatus = data.Success ? "check" : "close";
@@ -443,7 +443,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $mdDial
          
         if ($scope.supports_html5_storage()) {
             var donateRequest = window['localStorage']['fc_donateRequest'];
-            if (donateRequest === undefined && $cookies.get('simCount') >= 3) {
+            if (donateRequest === undefined && $cookies.get($scope.$parent.cookies.SIMCOUNT) >= 3) {
                 
                 var confirm = $mdDialog.confirm()
                         .title('Support me on Patreon!')

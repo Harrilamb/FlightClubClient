@@ -29,7 +29,8 @@ angular.module('FlightClub').config(function ($routeProvider, $locationProvider,
 
     $locationProvider.html5Mode(true);
     $routeProvider
-            .when("/share/", {templateUrl: "/pages/home.html", controller: "HomeCtrl", reloadOnSearch: false})
+            .when("/", {templateUrl: "/pages/home.html", controller: "HomeCtrl"})
+            .when("/build/", {templateUrl: "/pages/build.html", controller: "BuildCtrl", reloadOnSearch: false})
             .when("/account/", {templateUrl: "/pages/account.html", controller: "AccountCtrl"})
             .when("/docs/", {controller: function () {
                     window.location.replace('/docs/');
@@ -40,7 +41,7 @@ angular.module('FlightClub').config(function ($routeProvider, $locationProvider,
             .when("/results/", {templateUrl: "/pages/results.html", controller: "ResultsCtrl", reloadOnSearch: false})
             .when("/media/", {templateUrl: "/pages/media.html", controller: "MediaCtrl"})
             .when("/world/", {templateUrl: "/pages/world.html", controller: "WorldCtrl", reloadOnSearch: false})
-            .otherwise({redirectTo: '/share'});
+            .otherwise({redirectTo: '/'});
 });
 
 angular.module('FlightClub').directive('int', function () {
