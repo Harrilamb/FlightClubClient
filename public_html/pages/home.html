@@ -1,272 +1,341 @@
 <md-content id="home" layout-fill flex layout="column">
-  <form layout-fill layout="row" flex name="profileForm" ng-cloak>
-    <md-tabs flex md-selected="3" md-border-bottom md-autoselect>
-      <md-tab label='{{launchSites[form.Mission.launchsite].name}}'>
-        <md-tab-content>
-          <md-content layout-fill flex layout-padding layout-margin layout="row" layout-align="space-around center">
-            <md-grid-list layout-padding layout-margin layout-fill
-                          md-cols-xs="1" md-cols-sm="2" md-cols-md="4" md-cols-gt-md="6"
-                          md-row-height-gt-md="1:1" md-row-height="2:2"
-                          md-gutter="12px" md-gutter-gt-sm="8px">
-              <md-grid-tile ng-repeat="site in launchSites"
-                            md-rowspan="1"
-                            md-colspan="1"
-                            md-colspan-gt-sm="2">
-                <md-button ng-class="{'md-primary':launchSites[form.Mission.launchsite] === site}" layout-fill class="bolder md-raised" ng-click='selectSite($event, site)'>
-                  <md-icon flex style="height:96px;width:96px" md-svg-src="{{'images/' + site.code + '.svg'}}"></md-icon>
-                  <div flex>{{site.name}}</div>
-                </md-button>
-              </md-grid-tile>
-            </md-grid-list>
-          </md-content>
-        </md-tab-content>
-      </md-tab>
-      <md-tab label='{{launchVehicles[form.Mission.launchvehicle].name}}'>
-        <md-tab-content>
-          <md-content layout-fill flex layout-padding layout-margin layout="row" layout-align="space-around center">
-            <md-grid-list layout-padding layout-margin layout-fill
-                          md-cols-xs="1" md-cols-sm="2" md-cols-md="4" md-cols-gt-md="6"
-                          md-row-height-gt-md="1:1" md-row-height="2:2"
-                          md-gutter="12px" md-gutter-gt-sm="8px">
-              <md-grid-tile ng-repeat="veh in launchVehicles"
-                            md-rowspan="1"
-                            md-colspan="1"
-                            md-colspan-gt-sm="2">
-                <md-button ng-class="{'md-primary':launchVehicles[form.Mission.launchvehicle] === veh}" layout-fill class="bolder md-raised" ng-click='selectVehicle($event, veh)'>
-                  <md-icon flex style="height:96px;width:96px" md-svg-src="{{'images/' + veh.code + '.svg'}}"></md-icon>
-                  <div flex>{{veh.name}}</div>
-                </md-button>
-              </md-grid-tile>
-            </md-grid-list>
-          </md-content>
-        </md-tab-content>
-      </md-tab>
-      <md-tab label='{{payloads[form.Mission.Payload.code].name}}'>
-        <md-tab-content>
-          <md-content layout-fill flex layout-padding layout-margin layout="row" layout-align="space-around center">
-            <md-grid-list layout-padding layout-margin layout-fill
-                          md-cols-xs="1" md-cols-sm="2" md-cols-md="4" md-cols-gt-md="6"
-                          md-row-height-gt-md="1:1" md-row-height="2:2"
-                          md-gutter="12px" md-gutter-gt-sm="8px">
-              <md-grid-tile ng-repeat="payload in payloads"
-                            md-rowspan="1"
-                            md-colspan="1"
-                            md-colspan-gt-sm="2">
-                <md-button ng-class="{'md-primary':payloads[form.Mission.Payload.code] === payload}" layout-fill class="bolder md-raised" ng-click='selectPayload($event, payload)'>
-                  <md-icon flex style="height:96px;width:96px" md-svg-src="{{'images/' + payload.code + '.svg'}}"></md-icon>
-                  <div flex>{{payload.name}}</div>
-                </md-button>
-              </md-grid-tile>
-            </md-grid-list>
-          </md-content>
-        </md-tab-content>
-      </md-tab>
-      <md-tab label='Flight Profile'>
-        <md-tab-content>
-          <md-content layout-padding layout-fill flex layout='column' layout-gt-sm='row' layout-align='space-between start'>
+    <md-content ng-show="!loadSuccess" flex layout-fill layout-padding layout="column" layout-align="center center">
+        <md-progress-circular ng-show="missionLoading" md-mode="indeterminate"></md-progress-circular>
+        <p ng-show="missionLoading" ng-bind-html="missionLoadingMessage"></p>
+        <p ng-show="!missionLoading" style="white-space:pre-wrap;">{{serverErrorMessage}}</p>
+    </md-content>
+    <form ng-show="loadSuccess" layout-fill layout="row" flex name="profileForm" ng-cloak>
+        <md-tabs flex md-selected="2" md-border-bottom md-autoselect md-swipe-content="true">
+            <md-tab label='Launch Site'>
+                 <md-tab-content>
+                    <md-content layout-fill flex layout-padding layout="row" layout-align="space-around center">
+                        <md-grid-list layout-fill
+                                      md-cols-xs="1" md-cols-sm="2" md-cols-md="4" md-cols-gt-md="6"
+                                      md-row-height-gt-md="1:1" md-row-height="2:2"
+                                      md-gutter="12px" md-gutter-gt-sm="8px">
+                            <md-grid-tile layout-padding ng-repeat="site in launchSites"
+                                          md-rowspan="1"
+                                          md-colspan="1"
+                                          md-colspan-gt-sm="2">
+                                <md-button ng-class="{'md-accent':launchSites[form.Mission.launchsite] === site,'md-primary':launchSites[form.Mission.launchsite] !== site}" layout-padding layout-fill class="bolder md-raised" ng-click='selectSite(site)'>
+                                    <md-icon flex style="height:144px;width:144px" md-svg-src="{{'images/' + site.code + '.svg'}}"></md-icon>
+                                    <md-grid-tile-footer><h3>{{site.name}}</h3></md-grid-tile-footer>
+                                </md-button>
+                            </md-grid-tile>
+                        </md-grid-list>
+                    </md-content>
+                </md-tab-content>
+            </md-tab>
+            <md-tab label='Launch Vehicle'>
+                <md-tab-content>
+                    <md-content flex layout-fill layout='column' layout-gt-sm="row" layout-align='space-around center' layout-align-gt-sm='space-around start'>
+                        <md-radio-group flex-gt-sm="33" style="width:100%" layout-padding layout="column" layout-align="start center" ng-model="builderType">
+                            <md-content layout="column" layout-sm="row" layout-align="space-around center" layout-fill>
+                                <md-content layout-padding layout="row" layout-align="center center" layout-fill>
+                                    <md-radio-button flex value="previous">
+                                        <label>Use vehicle from existing mission:</label>
+                                    </md-radio-button>
+                                    <md-input-container flex class="md-block">
+                                        <md-select ng-model="selectedVeh" name="selectedVeh" aria-label="SelectPastVehicle" ng-disabled="builderType !== 'previous'">
+                                            <md-option ng-repeat="mission in allMissions" ng-show="mission.display || authorised" value="{{mission.code}}" ng-click="selectMissionVehicle(mission.code)">{{mission.name}}</md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </md-content>
+                                <md-content layout-padding layout="row" layout-align="center center" layout-fill>
+                                    <md-radio-button flex value="custom">
+                                        <label>Customize</label>
+                                        <md-tooltip md-direction="bottom">Allow Editing Of This Vehicle</md-tooltip>
+                                    </md-radio-button>
+                                    <md-button class="md-raised" aria-label="add" ng-click='incrementEntity()' ng-disabled="builderType !== 'custom'">
+                                        <md-tooltip md-direction="bottom">Add Stage</md-tooltip>
+                                        <md-icon class="material-icons">add</md-icon>
+                                    </md-button>
+                                </md-content>
+                            </md-content>
+                            <md-divider layout-fill></md-divider>
+                            <md-content flex layout="column" layout-sm="row" layout-align='space-around center' layout-fill>
+                                <md-input-container class="md-block">
+                                    <md-tooltip md-direction="bottom">The entire mass of the stuff on top of the top stage</md-tooltip>
+                                    <label>Payload Mass (kg)</label>
+                                    <input ng-model="form.Mission.Payload.mass" ng-change="recalcDV()">
+                                </md-input-container>
+                                <div>
+                                    <span>Payload ΔV (estimate): {{payloadDV}} km/s</span>
+                                    <md-tooltip md-direction="bottom">This doesn't take gravity losses or atmospheric losses into account. Adding boosters to stages makes this less accurate.</md-tooltip>
+                                </div>
+                            </md-content>
+                        </md-radio-group>
+                        <md-content layout-padding flex layout-fill>
+                            <md-list flex layout='column'>
+                                <md-list-item class="md-3-line" ng-repeat-start="stage in form.Mission.Vehicle.Stages">
+                                    <div class="md-list-item-text">
+                                        <h3>{{stage.stageName}}</h3>
+                                        <h4 ng-show="stage.Engines[0] === undefined" style="color:red">This stage has no engines!!!</h4>
+                                        <h4 ng-repeat="engineConfig in stage.Engines">{{engineConfig.number}} x {{engineConfig.Engine.name}}</h4>
+                                        <p hide show-gt-xs>Dry mass: {{stage.dryMass / 1000.0}}t // Propellant mass: {{stage.propMass / 1000.0}}t/{{stage.fuelCapacity / 1000.0}}t // Total mass: {{(stage.dryMass + stage.propMass) / 1000.0}}t</p>
+                                        <p hide-gt-xs>Dry mass: {{stage.dryMass / 1000.0}}t</p>
+                                        <p hide-gt-xs>Propellant mass: {{stage.propMass / 1000.0}}t/{{stage.fuelCapacity / 1000.0}}t</p>
+                                        <p hide-gt-xs>Total mass: {{(stage.dryMass + stage.propMass) / 1000.0}}t</p>
+                                    </div>
+                                    <md-button style="min-width:0" ng-click="incrementEntity(stage)" ng-disabled="builderType !== 'custom'">
+                                        <md-tooltip md-direction="bottom">Add Booster</md-tooltip>
+                                        <md-icon class="material-icons">add</md-icon>
+                                    </md-button>
+                                    <md-button style="min-width:0" ng-click="openStageEditDialog($event, $index, stage)" ng-disabled="builderType !== 'custom'">
+                                        <md-tooltip md-direction="bottom">Edit This Stage</md-tooltip>
+                                        <md-icon class="material-icons">mode_edit</md-icon>
+                                    </md-button>
+                                    <md-button style="min-width:0" ng-click="removeEntity(null, $index)" ng-disabled="builderType !== 'custom'">
+                                        <md-tooltip md-direction="bottom">Remove Stage From Vehicle</md-tooltip>
+                                        <md-icon class="material-icons">close</md-icon>
+                                    </md-button>
+                                    <md-divider></md-divider>
+                                </md-list-item>
+                                <md-list-item class="md-3-line" ng-repeat-end ng-repeat="booster in stage.Boosters">
+                                    <md-icon class="material-icons md-48">subdirectory_arrow_right</md-icon>
+                                    <div class="md-list-item-text">
+                                        <h3>{{booster.stageName}}</h3>
+                                        <h4 ng-show="booster.Engines[0] === undefined" style="color:red">This booster has no engines!!!</h4>
+                                        <h4 ng-repeat="engineConfig in booster.Engines">{{engineConfig.number}} x {{engineConfig.Engine.name}}</h4>
+                                        <p>Dry mass: {{booster.dryMass / 1000.0}}t // Propellant mass: {{booster.propMass / 1000.0}}t/{{booster.fuelCapacity / 1000.0}}t // Total mass: {{(booster.dryMass + booster.propMass) / 1000.0}}t</p>
+                                    </div>
+                                    <md-button style="min-width:0" ng-click="openBoosterEditDialog($event, stage, $index, booster)" ng-disabled="builderType !== 'custom'">
+                                        <md-tooltip md-direction="bottom">Edit This Booster</md-tooltip>
+                                        <md-icon class="material-icons">mode_edit</md-icon>
+                                    </md-button>
+                                    <md-button style="min-width:0" ng-click="removeEntity(stage, $index)" ng-disabled="builderType !== 'custom'">
+                                        <md-tooltip md-direction="bottom">Remove Booster From Stage</md-tooltip>
+                                        <md-icon class="material-icons">close</md-icon>
+                                    </md-button>
+                                    <md-divider></md-divider>
+                                </md-list-item>
+                            </md-list>
+                        </md-content>
+                    </md-content>
+                </md-tab-content>
+            </md-tab>
+            <md-tab label='Flight Profile'>
+                <md-tab-content><!-- md-swipe-left="open('sidenav')">-->
+                    <md-content layout-padding layout-fill flex layout='column' layout-gt-sm='row' layout-align='space-between start'>
+                        <md-content flex layout-fill>
+                            <md-content layout="row" layout-align="space-between center">
+                                <md-content>
+                                    <md-button class="md-raised md-accent" show-sm hide-gt-sm ng-show="authorised && hasPermission('editCore')" type="submit" ng-click="openAdminEditDialog($event)">
+                                        <md-tooltip md-direction="bottom">Core Settings</md-tooltip>
+                                        <md-icon class="material-icons">visibility</md-icon>
+                                    </md-button>
+                                    <md-button class="md-raised md-accent" show-sm hide-gt-sm ng-show="authorised && hasPermission('save')" type="submit" ng-click="save($event)">
+                                        <md-tooltip md-direction="bottom">Save Changes</md-tooltip>
+                                        <md-icon class="material-icons">save</md-icon>
+                                    </md-button>
+                                </md-content>
+                                <md-content>
+                                    <md-button ng-style="{'background-color': importStyle ? importStatusColor : ''}" class="md-raised" show-sm hide-gt-sm type="submit" ng-click="import()">
+                                        <md-tooltip md-direction="bottom">Import Profile</md-tooltip>
+                                        <md-icon class="material-icons">{{import_icon}}</md-icon>
+                                    </md-button>
+                                    <md-button ng-style="{'background-color': exportStyle ? exportStatusColor : ''}" class="md-raised" show-sm hide-gt-sm type="submit" ng-click="export()">
+                                        <md-tooltip md-direction="bottom">Export Profile</md-tooltip>
+                                        <md-icon class="material-icons">{{export_icon}}</md-icon>
+                                    </md-button>
+                                    <md-button class="md-raised md-primary" show-sm hide-gt-sm type="submit" ng-click="submit()">
+                                        <md-tooltip md-direction="bottom">Run Simulation!</md-tooltip>
+                                        <md-icon class="material-icons">send</md-icon>
+                                    </md-button>
+                                </md-content>
+                            </md-content>
+                            <md-list flex layout='column'>
+                                <md-content layout="row" layout-align="space-between center">
+                                    <md-subheader class="md-no-sticky">Events</md-subheader>
+                                    <md-button class="md-raised" ng-click="addEvent()">
+                                        <md-tooltip md-direction="left">Add Event</md-tooltip>
+                                        <md-icon class="material-icons">add</md-icon>
+                                    </md-button>
+                                </md-content>
+                                <md-divider></md-divider>
+                                <md-list-item class="md-2-line secondary-button-padding" ng-repeat="event in form.Mission.Events">
+                                    <div class="md-list-item-text">
+                                        <h3>{{"T" + (event.time &lt; 0 ? '' : '+') + event.time}} // {{event.name}}</h3>
+                                        <p><span ng-repeat="obj in getStageByNumber(event.stageNumbers)">{{obj.stageName + ($last?"":", ")}}</span></p>
+                                    </div>
+                                    <md-button show-sm hide-gt-sm style="min-width:0" ng-click="openEventEditDialog($event, $index, event)">
+                                        <md-tooltip md-direction="left">Edit Event</md-tooltip>
+                                        <md-icon class="material-icons">mode_edit</md-icon>
+                                    </md-button>
+                                    <md-button hide show-gt-sm style="min-width:0" ng-click="selectEvent(event)">
+                                        <md-tooltip md-direction="left">Edit Event</md-tooltip>
+                                        <md-icon class="material-icons">mode_edit</md-icon>
+                                    </md-button>
+                                    <md-button style="min-width:0" ng-click="removeEvent($index)">
+                                        <md-tooltip md-direction="left">Remove Event</md-tooltip>
+                                        <md-icon class="material-icons">close</md-icon>
+                                    </md-button>
+                                    <md-divider></md-divider>
+                                </md-list-item>
+                            </md-list>
+                        </md-content>
 
-            <md-content class="perfectHeight" style="background-color:#eee" flex layout-fill>
-              <md-list layout='column'>
-                <md-content style="background-color:#eee" layout="row" layout-align="space-between center">
-                  <md-subheader style="background-color:#eee" class="md-no-sticky">Events</md-subheader>
-                  <md-button class="md-raised md-secondary" ng-click="addEvent()">Add</md-button>
-                </md-content>
-                <md-divider></md-divider>
-                <md-list-item layout='row' layout-align='space-between center' ng-repeat="event in form.Mission.Events" ng-click="selectEvent($event, event)">
-                  <div flex class="md-secondary eventLabel">{{"T" + (event.time < 0 ? '' : '+') + event.time}}</div>
-                  <div class="md-secondary eventLabel">{{event.name}}</div>
-                  <md-divider></md-divider>
-                </md-list-item>
-              </md-list>
-            </md-content>
+                        <md-content flex layout-fill hide-xs hide-sm show-gt-sm>
+                            <md-content style="padding-top:8px" layout="row" layout-align="space-between center">
+                                <md-content>
+                                    <md-button class="md-raised md-accent" ng-show="authorised && hasPermission('editCore')" type="submit" ng-click="openAdminEditDialog($event)">
+                                        <md-tooltip md-direction="bottom">Core Settings</md-tooltip>
+                                        <md-icon class="material-icons">visibility</md-icon>
+                                    </md-button>
+                                    <md-button ng-style="{'background-color': saveStyle ? saveStatusColor : ''}" class="md-raised md-accent" ng-show="authorised && hasPermission('save')" type="submit" ng-click="save($event)">
+                                        <md-tooltip md-direction="bottom">Save Changes</md-tooltip>
+                                        <md-icon ng-show="!saving" class="material-icons">{{save_icon}}</md-icon>
+                                        <md-progress-circular class="loadCircle" ng-show="saving" md-mode="indeterminate"></md-progress-circular>
+                                    </md-button>
+                                </md-content>
+                                <md-content>
+                                    <md-button ng-style="{'background-color': importStyle ? importStatusColor : ''}" class="md-raised" type="submit" ng-click="import()">
+                                        <md-tooltip md-direction="bottom">Import Profile</md-tooltip>
+                                        <md-icon class="material-icons">{{import_icon}}</md-icon>
+                                    </md-button>
+                                    <md-button ng-style="{'background-color': exportStyle ? exportStatusColor : ''}" class="md-raised" type="submit" ng-click="export()">
+                                        <md-tooltip md-direction="bottom">Export Profile</md-tooltip>
+                                        <md-icon class="material-icons">{{export_icon}}</md-icon>
+                                    </md-button>
+                                    <md-button class="md-raised md-primary" type="submit" ng-click="submit()">
+                                        <md-tooltip md-direction="bottom">Run Simulation!</md-tooltip>
+                                        <md-icon class="material-icons">send</md-icon>
+                                    </md-button>
+                                </md-content>
+                            </md-content>
+                            <md-divider></md-divider>
+                            <md-content ng-show="selectedEvent !== null" layout="row" layout-align="space-around center">
+                                <md-content flex layout="row">
+                                    <md-input-container flex class="md-block">
+                                        <md-tooltip md-direction="bottom">This is the time that the event should happen/begin at</md-tooltip>
+                                        <label>Time (seconds from T-0)</label>
+                                        <input type="number" step="any" ng-model="selectedEvent.time" ng-change="sortEvents()" name="time" ng-required="selectedEvent!==null">
+                                        <div ng-messages="profileForm.time.$error" multiple md-auto-hide="true">
+                                            <div ng-message="required">This is required!</div>
+                                        </div>
+                                    </md-input-container>
+                                    <md-input-container flex class="md-block" ng-show="selectedEvent.type === 'GUIDANCE'">
+                                        <md-tooltip md-direction="bottom">This is the time at which the event should be complete</md-tooltip>
+                                        <label>End (seconds from T-0)</label>
+                                        <input ng-model="selectedEvent.end" name="end">
+                                    </md-input-container>
+                                </md-content>
+                                <md-input-container flex class="md-block">
+                                    <md-tooltip md-direction="bottom">You can name your events anything. Be descriptive!</md-tooltip>
+                                    <label>Name</label>
+                                    <input ng-model="selectedEvent.name" name="name" ng-required="selectedEvent!==null">
+                                    <div ng-messages="profileForm.name.$error" multiple md-auto-hide="true">
+                                        <div ng-message="required">This is required!</div>
+                                    </div>
+                                </md-input-container>
+                            </md-content>
+                            <md-content ng-show="selectedEvent !== null" layout="row" layout-align="space-around center">
+                                <md-input-container flex class="md-block">
+                                    <md-tooltip md-direction="bottom">Choose from Ignition, Cutoff, Guidance, Separation...</md-tooltip>
+                                    <label>Event Type</label>
+                                    <md-select ng-model="selectedEvent.type" name="type" ng-required="selectedEvent!==null">
+                                        <md-option ng-repeat="obj in type" value="{{obj.code}}" ng-disabled="obj.code === 'FAIRING_SEP' && getStageByNumber(selectedEvent.stageNumbers)[0].fairingMass === undefined">{{obj.name}}</md-option>
+                                    </md-select>
+                                    <div ng-messages="profileForm.type.$error" multiple md-auto-hide="true">
+                                        <div ng-message="required">This is required!</div>
+                                    </div>
+                                </md-input-container>
+                                <md-input-container flex class="md-block">
+                                    <md-tooltip md-direction="bottom">The event applies to this rocket stage in particular</md-tooltip>
+                                    <label>Stage</label>
+                                    <md-select ng-model="selectedEvent.stageNumbers" name="stage" ng-required="selectedEvent!==null" multiple>
+                                        <md-option ng-repeat-start="obj in form.Mission.Vehicle.Stages" ng-value="obj.stageNumber">{{obj.stageName}}</md-option>
+                                        <md-option ng-repeat-end ng-repeat="obj2 in obj.Boosters track by $index" ng-value="obj2.stageNumber">{{obj2.stageName}}</md-option>
+                                    </md-select>
+                                    <div ng-messages="profileForm.stage.$error" multiple md-auto-hide="true">
+                                        <div ng-message="required">This is required!</div>
+                                    </div>
+                                </md-input-container>
+                            </md-content>
+                            <md-content layout="row" layout-align="space-around center">
+                                <md-content flex layout="row" layout-align="space-around center">
+                                    <md-content ng-show="selectedEvent.type === 'IGNITION' || selectedEvent.type === 'GUIDANCE'"
+                                                flex layout="row" class="md-block">
+                                        <md-input-container flex class="md-block">
+                                            <md-tooltip md-direction="bottom">Manually control your heading: 0° pitch is level to the ground, 90° is flying vertically, etc</md-tooltip>
+                                            <label>Pitch</label>
+                                            <input ng-model="selectedEvent.Attitude.pitch">
+                                        </md-input-container>
+                                        <md-input-container flex class="md-block">
+                                            <md-tooltip md-direction="bottom">Manually control your heading: 0° yaw is flying East, 90° is flying North, etc.</md-tooltip>
+                                            <label>Yaw</label>
+                                            <input ng-model="selectedEvent.Attitude.yaw">
+                                        </md-input-container>
+                                        <md-input-container flex class="md-block">
+                                            <md-tooltip md-direction="bottom">Set the target throttle for this Guidance event. Must be between 0 and 1.</md-tooltip>
+                                            <label>Throttle</label>
+                                            <input type="number" name="throttle" min="0" max="1" step="any" ng-disabled="selectedEvent.dynamic" ng-model="selectedEvent.Attitude.throttle">
+                                            <div ng-messages="profileForm.throttle.$error" multiple md-auto-hide="true">
+                                                <div ng-message="min">Throttle must be between 0 and 1, inclusive</div>
+                                                <div ng-message="max">Throttle must be between 0 and 1, inclusive</div>
+                                            </div>
+                                        </md-input-container>
+                                        <md-input-container flex class="md-block">
+                                            <md-tooltip md-direction="bottom">Set this to do a forward or reverse gravity turn for the duration of the event.</md-tooltip>
+                                            <label>Gravity Turn</label>
+                                            <md-select ng-model="selectedEvent.Attitude.gt">
+                                                <md-option ng-repeat="obj in gravTurnSelect" value="{{obj.code}}">{{obj.name}}</md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </md-content>
+                                </md-content>
+                            </md-content>
+                            <md-content ng-show="selectedEvent.type === 'IGNITION' || selectedEvent.type === 'CUTOFF'"
+                                        layout="row" layout-align="space-around center">
+                                <md-content flex class="md-block" ng-repeat="engineConfig in getStageByNumber(selectedEvent.stageNumbers)[0].Engines">
+                                    <md-input-container style="width:90%" flex>
+                                        <md-tooltip md-direction="bottom">How many engines do you want to {{selectedEvent.type === 'IGNITION' ? 'ignite' : 'cut off'}}?</md-tooltip>
+                                        <label># of {{engineConfig.Engine.name}} engines</label>
+                                        <input ng-model="selectedEvent.Engines[$index].engineId" name="id" ng-value="engineConfig.engineId" type="hidden"/>
+                                        <input type="number" ng-model="selectedEvent.Engines[$index].number" name="engines" required min="0" max="{{engineConfig.number}}" ng-change="selectedEvent.Engines[$index].engineId = engineConfig.engineId"/>
+                                        <div ng-messages="profileForm.engines.$error" multiple md-auto-hide="true">
+                                            <div ng-message="required">Insert 0 if you don't want to use these engines</div>
+                                            <div ng-message="min">This has to be a positive integer!</div>
+                                            <div ng-message="max">This stage only has {{engineConfig.number}} {{engineConfig.Engine.name}}'s!</div>
+                                        </div>
+                                    </md-input-container>
+                                </md-content>
+                                <md-content flex class='md-block'>
+                                    <md-input-container flex class="md-block" ng-show="selectedEvent.type === 'IGNITION'">
+                                        <md-tooltip md-direction="bottom">This will activate the hoverslam algorithm for this burn. Big time-eater, so use this carefully!</md-tooltip>
+                                        <label>Is Landing Burn?</label>
+                                        <md-switch ng-model="selectedEvent.dynamic" aria-label="Hoverslam"></md-switch>
+                                    </md-input-container>
+                                </md-content>
+                            </md-content>
+                        </md-content>
+                    </md-content>
+                </md-tab-content>
+            </md-tab>
+        </md-tabs>
+    </form>
 
-            <md-content flex layout-fill>
-              <md-content ng-show="selectedEvent !== undefined">
-                <md-content layout="row" layout-align="space-around center">
-                  <md-input-container flex class="md-block">
-                    <label>Event Type</label>
-                    <md-select ng-model="selectedEvent.type" name="type" required>
-                      <md-option ng-repeat="obj in type" value="{{obj.code}}" 
-                                 ng-disabled="obj.code === 'FAIRING_SEP' && form.Mission.Payload.code !== 'SATL'">{{obj.name}}</md-option>
-                    </md-select>
-                    <div ng-messages="profileForm.type.$error" multiple md-auto-hide="true">
-                      <div ng-message="required">
-                        What type of event do you want to create?
-                      </div>
-                    </div>
-                  </md-input-container>
-                  <md-input-container flex class="md-block">
-                    <label>Name</label>
-                    <input ng-model="selectedEvent.name" name="name" required>
-                    <div ng-messages="profileForm.name.$error" multiple md-auto-hide="true">
-                      <div ng-message="required">
-                        This can be whatever you want, but make it descriptive!
-                      </div>
-                    </div>
-                  </md-input-container>
-                </md-content>
-                <md-content layout="row" layout-align="space-around center">
-                  <md-input-container flex class="md-block">
-                    <label>Stage</label>
-                    <md-select ng-model="selectedEvent.stage" name="stage" required>
-                      <md-option ng-repeat="obj in form.Mission.Stages" value="{{obj.id}}">{{obj.name}}</md-option>
-                    </md-select>
-                    <div ng-messages="profileForm.stage.$error" multiple md-auto-hide="true">
-                      <div ng-message="required">
-                        The event has to apply to one stage in particular
-                      </div>
-                    </div>
-                  </md-input-container>
-                  <div flex></div>
-                </md-content>
-                <md-content layout="row" layout-align="space-around center">
-                  <md-input-container flex class="md-block">
-                    <label>Time (seconds from T-0)</label>
-                    <input ng-model="selectedEvent.time" ng-change="sortEvents()" name="time" required>
-                    <div ng-messages="profileForm.time.$error" multiple md-auto-hide="true">
-                      <div ng-message="required">
-                        What time should this event take place?
-                      </div>
-                    </div>
-                  </md-input-container>
-                  <div flex>
-                    <md-input-container flex class="md-block" ng-show="selectedEvent.type === 'GUIDANCE'">
-                      <label>End (seconds from T-0)</label>
-                      <input ng-model="selectedEvent.end" name="end">
-                    </md-input-container>
-                  </div>
-                </md-content>
-                <md-content ng-show="selectedEvent.type === 'IGNITION'"
-                            layout="row" layout-align="space-around center">
-                  <md-input-container flex class="md-block">
-                    <label>Engines</label>
-                    <input ng-model="selectedEvent.engines" name="engines" required/>
-                    <div ng-messages="profileForm.engines.$error" multiple md-auto-hide="true">
-                      <div ng-message="required">
-                        You can't do a burn with no engines...
-                      </div>
-                    </div>
-                  </md-input-container>
-                  <md-input-container flex class="md-block">
-                    <label>Dynamic Burn</label>
-                    <md-switch ng-model="selectedEvent.dynamic" aria-label="Hoverslam"></md-switch>
-                  </md-input-container>
-                </md-content>
-                <md-content ng-show="selectedEvent.type === 'IGNITION' || selectedEvent.type === 'GUIDANCE'"
-                            layout="row" layout-align="space-around center">
-                  <md-input-container flex class="md-block">
-                    <label>Pitch</label>
-                    <input ng-model="selectedEvent.Attitude.pitch">
-                  </md-input-container>
-                  <md-input-container flex class="md-block">
-                    <label>Yaw</label>
-                    <input ng-model="selectedEvent.Attitude.yaw">
-                  </md-input-container>
-                </md-content>
-                <md-content ng-show="selectedEvent.type === 'IGNITION' || selectedEvent.type === 'GUIDANCE'"
-                            layout="row" layout-align="space-around center">
-                  <md-input-container flex class="md-block">
-                    <label>Throttle</label>
-                    <input ng-model="selectedEvent.Attitude.throttle">
-                  </md-input-container>
-                  <md-input-container flex class="md-block">
-                    <label>Gravity Turn</label>
-                    <md-select ng-model="selectedEvent.Attitude.gt">
-                      <md-option ng-repeat="obj in gravTurnSelect" value="{{obj.code}}">{{obj.name}}</md-option>
-                    </md-select>
-                  </md-input-container>
-                </md-content>
-                <md-content layout="row" layout-align="space-between center">
-                  <md-button class="md-raised md-secondary" ng-disabled="selectedEvent === null" ng-click="removeEvent()">Remove</md-button>
-                </md-content>
-              </md-content>
-            </md-content>
-
-            <md-content flex layout-fill>
-              <md-content layout="row" layout-align="space-around center">
-                <md-input-container flex class="md-block">
-                  <label>Payload Mass (kg)</label>
-                  <input ng-model="form.Mission.Payload.mass">
-                </md-input-container>
-                <md-button flex class="md-raised md-primary" type="submit" ng-click="submit()">Submit</md-button>
-              </md-content>
-              <md-content layout="row" layout-align="space-around center">
-                <md-input-container flex class="md-block">
-                  <label>{{form.Mission.Stages[0].name}} Legs</label>
-                  <md-switch ng-model="form.Mission.Stages[0].legs" aria-label="{{form.Mission.Stages[0].name}} legs"></md-switch>
-                </md-input-container>
-                <md-input-container flex class="md-block" flex ng-show="form.Mission.Stages.length === 3">
-                  <label>{{form.Mission.Stages[1].name}} Legs</label>
-                  <md-switch ng-model="form.Mission.Stages[1].legs" aria-label="{{form.Mission.Stages[1].name}} legs"></md-switch>
-                </md-input-container>
-              </md-content>
-              <md-content>
-                <md-divider></md-divider>
-                <md-content layout="row" layout-align="space-around center">
-                  <md-input-container flex class="md-block">
-                    <label>Orbits</label>
-                    <input ng-model="form.Mission.orbits" ng-disabled="!authorised">
-                  </md-input-container>
-                  <div flex></div>
-                </md-content>
-              </md-content>
-              <md-content ng-show="authorised">
-                <md-divider></md-divider>
-                <md-content layout="row" layout-align="space-around center">
-                  <md-input-container flex class="md-block">
-                    <label>Code</label>
-                    <input ng-model="form.Mission.code">
-                  </md-input-container>
-                  <md-input-container flex class="md-block">
-                    <label>Description</label>
-                    <input ng-model="form.Mission.description">
-                  </md-input-container>
-                </md-content>
-                <md-content layout="row" layout-align="space-around center">
-                  <md-input-container flex class="md-block">
-                    <label>Date</label>
-                    <input ng-model="form.Mission.date">
-                  </md-input-container>
-                  <md-input-container flex class="md-block">
-                    <label>Time</label>
-                    <input ng-model="form.Mission.time">
-                  </md-input-container>
-                </md-content>
-                <md-content layout="row" layout-align="space-around center">
-                  <md-input-container flex class="md-block">
-                    <label>Display</label>
-                    <md-switch ng-model="form.Mission.display" aria-label="Display"></md-switch>
-                  </md-input-container>
-                  <md-button flex class="md-raised" type="submit" ng-click="save($event)">Save</md-button>
-                </md-content>
-              </md-content>
-
-            </md-content>
-          </md-content>
-        </md-tab-content>
-      </md-tab>
-    </md-tabs>
-  </form>
-
-  <md-sidenav flex layout="column" class="md-sidenav-right md-whiteframe-z2" md-component-id="sidenav" md-is-locked-open="false">
-    <md-toolbar class="md-theme-indigo" layout="row" layout-align="space-between center" >
-      <div class="md-toolbar-tools" layout="row" layout-align="space-around center" flex>
-        <h1><span>Stock Profiles</span></h1>
-      </div>
-      <md-button class="md-icon-button" aria-label="Menu" ng-click="toggleNav('sidenav')">
-        <i class="material-icons">keyboard_arrow_right</i>
-      </md-button>
-    </md-toolbar>
-    <md-divider></md-divider>
-    <md-list>
-      <md-subheader class="md-no-sticky">Upcoming Missions</md-subheader>
-      <md-list-item ng-repeat="mission in upcoming" ng-show="mission.display || authorised" ng-click="selectMission(mission.code)">
-        <span class="md-secondary">{{mission.name}}</span>
-      </md-list-item>
-      <md-subheader class="md-no-sticky">Past Missions</md-subheader>
-      <md-list-item ng-repeat="mission in past" ng-show="mission.display || authorised" ng-click="selectMission(mission.code)">
-        <span class="md-secondary">{{mission.name}}</span>
-      </md-list-item>
-    </md-list>
-  </md-sidenav>
+    <md-sidenav flex layout="column" class="md-sidenav-right md-whiteframe-z2" md-component-id="sidenav" md-is-locked-open="false" md-swipe-right="close('sidenav')">
+        <md-toolbar class="md-theme-indigo" layout="row" layout-align="space-between center" >
+            <div class="md-toolbar-tools" layout="row" layout-align="space-around center" flex>
+                <h1><span>Stock Profiles</span></h1>
+            </div>
+            <md-button class="md-icon-button" aria-label="Menu" ng-click="toggleNav('sidenav')">
+                <i class="material-icons">keyboard_arrow_right</i>
+            </md-button>
+        </md-toolbar>
+        <md-list>
+            <md-subheader class="md-no-sticky">Upcoming Missions</md-subheader>
+            <md-list-item layout-align="space-between center" ng-repeat="mission in upcoming" ng-show="mission.display || authorised" ng-click="selectMission(mission)">
+                <md-progress-circular flex class="loadCircle" ng-show="loadingMission && mission === selectedMission" md-mode="indeterminate"></md-progress-circular>
+                <span flex class="md-secondary">{{mission.name}}</span>
+            </md-list-item>
+            <md-divider></md-divider>
+            <md-subheader class="md-no-sticky">Past Missions</md-subheader>
+            <md-list-item layout-align="space-between center" ng-repeat="mission in past" ng-show="mission.display || authorised" ng-click="selectMission(mission)">
+                <md-progress-circular flex class="loadCircle" ng-show="loadingMission && mission === selectedMission" md-mode="indeterminate"></md-progress-circular>
+                <span flex class="md-secondary">{{mission.name}}</span>
+            </md-list-item>
+        </md-list>
+    </md-sidenav>
 </md-content>

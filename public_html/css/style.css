@@ -1,18 +1,28 @@
-/* latin */
 @font-face {
-  font-family: 'Quicksand';
+  font-family: 'Brandon Grotesque';
   font-style: normal;
-  src: url(/fonts/Quicksand-Regular.otf) format('opentype');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+  src: url(/fonts/Brandon\ Grotesque\ Medium.otf) format('opentype');
 }
+
+/* 
+the next two chunks, or add
+    <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons" media="bogus">
+to stylesheets in index.html which will pull woff2 file from CDN
+*/
 
 /* fallback */
 @font-face {
   font-family: 'Material Icons';
   font-style: normal;
   font-weight: 400;
-  src: local('Material Icons'), local('MaterialIcons-Regular'), url(/fonts/Material-Design-Icons.woff2) format('woff2');
+  src: local('Material Icons'), local('MaterialIcons-Regular'), url(/fonts/2fcrYFNaTjcS6g4U3t-Y5ZjZjT5FdEJ140U2DJYC3mY.woff2) format('woff2');
 }
+
+/* Rules for sizing the icon. */
+.material-icons.md-18 { font-size: 18px; }
+.material-icons.md-24 { font-size: 24px; }
+.material-icons.md-36 { font-size: 36px; }
+.material-icons.md-48 { font-size: 48px; }
 
 .material-icons {
   font-family: 'Material Icons';
@@ -31,66 +41,65 @@
 }
 
 html, input, textarea, select {
-  font-family: 'Quicksand', sans-serif !important;
+  font-family: 'Brandon Grotesque', sans-serif !important;
 }
+
+/*******************************/
+/*    Some dark theme fixes    */
+/*******************************/
+
+md-progress-circular.md-fc_dark-theme:not(.loadCircle) path {
+  stroke: #ccac55;
+}
+
+md-tabs.md-fc_dark-theme .md-tab.md-active {
+  color: #eee;
+}
+
+a {
+    text-decoration: none;
+}
+
+.md-fc_dark-theme a {
+    color: #ccac55;
+}
+
+/*******************************/
+/*   I hate myself for this    */
+/*******************************/
+
+.loadCircle {
+    width: 24px !important;
+    height: 24px !important;
+    margin: auto;
+}
+
+.loadCircle svg {
+    width: 24px !important;
+    height: 24px !important;
+    transform-origin: 12px !important;
+}
+
+/*******************************/
 
 .centre {
   text-align: center;
 }
 
 /*
-  tabs content was starting way above the tab content
+  tabs content was starting way above the tab content. only important for launchpads
 */
 #home md-grid-list {
   padding-bottom: 0 !important;
 }
 
-md-menu-item {
-  padding: 0 8px;
-}
-
-md-input-container {
-  margin-bottom: 0;
-}
-
-.fixie {
-  position:fixed;
-}
-
-.fullPage {
-  top:0;
-  left:0;
-  z-index:1;
-  min-width:100%;
-}
-
-.fullHeight {
-  min-height: 100%;
-}
-
-.hide {
-  display: none;
-}
-
-.eventLabel {
-  position: relative !important;
-  top: 18px !important;
-}
-
-.perfectHeight {
-  height: 100% !important;
-}
-
+/* input has error div below. This makes select line up */
 md-select, md-switch {
-  margin-bottom: 24px !important; // input has error div below. This makes select line up
+  margin-bottom: 24px !important;
 }
 
-::-webkit-scrollbar { 
+::-webkit-scrollbar {
   display: none; 
-}
-
-.hidden {
-  display: none !important;
 }
 
 #results md-grid-tile {
@@ -101,8 +110,17 @@ md-select, md-switch {
   display: none !important;
 }
 
-md-sidenav, md-backdrop {
-  position: fixed;
+#results #wrapper {
+  overflow:hidden;
+  padding-bottom: 8px;
+}
+@-moz-document url-prefix() {
+    #results #wrapper {
+      overflow:auto;
+    }
+    #results md-grid-list {
+      top: 192px;
+    }
 }
 
 #world md-backdrop {
@@ -117,9 +135,12 @@ md-sidenav, md-backdrop {
   width: 100%;
 }
 
-#world md-menu-content {
-  background: black;
-  padding: 0;
+.cesium-widget-credits {
+    padding: 0;
+}
+
+.md-datepicker-button {
+    margin: 0 !important;
 }
 
 @media 
