@@ -1,0 +1,110 @@
+<div role="dialog" aria-label="Tutorial Step {{step.id}}" layout="column" layout-align="center stretch" md-theme="{{getOtherTheme()}}">
+
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h2><span ng-show="{{step.num>0 && step.num<5}}">{{step.num}}/4: </span>{{step.title}}</h2>
+        </div>
+    </md-toolbar>
+
+    <md-dialog-content>
+        <div class="md-dialog-content">
+            <md-content flex layout-fill layout-padding ng-show="{{step.num===0}}">
+                <p>
+                    You're about to start the Flight Club tutorial! Ready to become a rocket scientist?
+                </p>
+            </md-content>
+            <md-content flex layout-fill layout-padding ng-show="{{step.num===1}}">
+                <p>
+                    The menu in the top-right corner contains a bunch of pre-built missions 
+                    from the past and some selected future missions too. You can run these as 
+                    they are, or you can use them as templates for building your own missions. 
+                    For example, if you want to build a mission using Falcon 9, it would make a lot of sense 
+                    to take an existing Falcon 9 mission profile and you should only have to make 
+                    some small modifications.
+                </p>
+                <p>
+                    Open the menu and choose the mission 'Iridium Next Mission 1'
+                </p>
+            </md-content>
+            <md-content flex layout-fill layout-padding ng-show="{{step.num===2 && step.id===1}}">
+                <p>
+                    Great job! Now you'll notice that the list of Events has been populated. 
+                    This is the stock flight profile for Iridium Next Mission 1. If you wanted, you could hit 
+                    "Run Simulation!" now and you'd get a lovely result which is my closest guess 
+                    for this mission's profile. But we're gonna mess with it a bit first.
+                </p> 
+            </md-content>
+            <md-content flex layout-fill layout-padding ng-show="{{step.num===2 && step.id===2}}">
+                <p>
+                    See those 3 tabs at the top of the screen, just under the toolbar? 
+                    To choose a launch site for your mission, go to the first tab (yep, 
+                    the one that says 'LAUNCH SITE'. Good guess.). This part is pretty easy: click the 
+                    one you want. If it turns gold, it's been selected. Did you really need a 
+                    walkthrough for that?
+                </p>
+                <p>
+                    Go do it anyway! Select Boca Chica, Texas.
+                </p>
+            </md-content>
+            <md-content flex layout-fill layout-padding ng-show="{{step.num===2 && step.id===3}}">
+                <p>
+                    Ok this is going great so far, but here's where it starts to get hard. 
+                    The 2nd of those 3 tabs (the one that says 'LAUNCH VEHICLE') is where 
+                    you rocket scientists are gonna go to build your monstrosities. Go there now!
+                </p>
+            </md-content>
+            <md-content flex layout-fill layout-padding ng-show="{{step.num===3 && step.id===1}}">
+                <p>
+                    Choose "Use vehicle from existing mission" and you will get access to the dropdown 
+                    menu beside it, where you can select a mission to copy a vehicle from. Since we selected 
+                    the Iridium mission in Step 1, that mission's vehicle is chosen here by default.
+                </p>
+            </md-content>
+            <md-content flex layout-fill layout-padding ng-show="{{step.num===3 && step.id===2}}">
+                <p>
+                    Click "Customize" and you will be able to mess around with the vehicle structure itself - 
+                    you can add more stages using this big '+' button (if you don't want a stage, click the 'X'
+                    on the stage to be removed), add boosters to stages by clicking the '+' on the stage, 
+                    and mess with the vehicle and engine specifications by using the edit button in between the 
+                    '+' and the 'X'!
+                </p>
+                <p>
+                    Choose "Customize" and then click the edit button on the first stage: 'Falcon 9 FT Stage 1'.
+                </p>
+            </md-content>
+            <md-content flex layout-fill layout-padding ng-show="{{step.num===3 && step.id===3}}">
+                <p>
+                    You can edit engines here!
+                </p>
+            </md-content>
+            <md-content flex layout-fill layout-padding ng-show="{{step.num===3 && step.id===4}}">
+                <p>
+                    Play around for a while! When you're ready to continue the tutorial, come to the 
+                    "FLIGHT PROFILE" tab.
+                </p>
+            </md-content>
+            <md-content flex layout-fill layout-padding ng-show="{{step.num===4}}">
+                <p>
+                    I'm not looking forward to writing this one...
+                </p>
+            </md-content>
+            <md-content flex layout-fill layout-padding ng-show="{{step.num===5}}">
+                <p>          
+                    Woop! You've completed the tutorial and are either are a master 
+                    engineer or you're more confused than when you started. Definitely 
+                    one of those two options.
+                </p>
+            </md-content>
+            <md-divider flex></md-divider>
+            <md-content layout-xs="column" layout="row" layout-align="end center">
+                <span hide-xs flex></span>
+                <md-button class="md-secondary" ng-click="quit()">
+                    <span>Quit</span>
+                </md-button>
+                <md-button class="md-accent" ng-click="next()">
+                    <span>{{step.done}}</span>
+                </md-button>
+            </md-content>
+        </div>
+    </md-dialog-content>
+</div>

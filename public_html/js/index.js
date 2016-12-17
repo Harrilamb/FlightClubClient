@@ -5,7 +5,7 @@ angular.module('FlightClub').controller('IndexCtrl', function ($scope, $mdSidena
         base= 'http://localhost';
         port = ':8080';
     } else {
-        base = '//'+$location.host();
+        base = '//www.flightclub.io';
         port = ':8443';
     }
     $scope.client = base;

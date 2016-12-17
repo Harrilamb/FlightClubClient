@@ -26,12 +26,12 @@
                     </md-content>
                 </md-tab-content>
             </md-tab>
-            <md-tab label='Launch Vehicle' md-on-select="runTutorial()">
+            <md-tab label='Launch Vehicle' md-on-select="processTutorial(5)">
                 <md-tab-content>
-                    <md-content flex layout-fill layout='column' layout-gt-sm="row" layout-align='space-around center' layout-align-gt-sm='space-around start'>
+                    <md-content flex layout='column' layout-gt-sm="row" layout-align='space-around center' layout-align-gt-sm='space-around start'>
                         <md-radio-group flex-gt-sm="33" style="width:100%" layout-padding layout="column" layout-align="start center" ng-model="builderType">
                             <md-content layout="column" layout-sm="row" layout-align="space-around center" layout-fill>
-                                <md-content layout-padding layout="row" layout-align="center center" layout-fill>
+                                <md-content class="vehicleRadio1" layout-padding layout="row" layout-align="center center" layout-fill>
                                     <md-radio-button flex value="previous">
                                         <label>Use vehicle from existing mission:</label>
                                     </md-radio-button>
@@ -41,7 +41,7 @@
                                         </md-select>
                                     </md-input-container>
                                 </md-content>
-                                <md-content layout-padding layout="row" layout-align="center center" layout-fill>
+                                <md-content class="vehicleRadio2" layout-padding layout="row" layout-align="center center" layout-fill>
                                     <md-radio-button flex value="custom">
                                         <label>Customize</label>
                                         <md-tooltip md-direction="bottom">Allow Editing Of This Vehicle</md-tooltip>
@@ -114,7 +114,7 @@
                     </md-content>
                 </md-tab-content>
             </md-tab>
-            <md-tab label='Flight Profile' md-on-select="runTutorial()">
+            <md-tab label='Flight Profile' md-on-select="processTutorial(9)">
                 <md-tab-content>
                     <md-content layout-padding layout-fill flex layout='column' layout-gt-sm='row' layout-align='space-between start'>
                         <md-content flex layout-fill>
@@ -146,7 +146,7 @@
                             </md-content>
                             <md-list flex layout='column'>
                                 <md-content layout="row" layout-align="space-between center">
-                                    <md-subheader class="md-no-sticky">Events</md-subheader>
+                                    <md-subheader class="events md-no-sticky">Events</md-subheader>
                                     <md-button class="md-raised" ng-click="addEvent()">
                                         <md-tooltip md-direction="left">Add Event</md-tooltip>
                                         <md-icon class="material-icons">add</md-icon>

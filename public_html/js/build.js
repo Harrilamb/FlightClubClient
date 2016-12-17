@@ -1,4 +1,4 @@
-angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog, $mdSidenav, $cookies, $interval, $timeout, $location) {
+angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog, $mdSidenav, $cookies, $interval, $timeout, $location, $mdPanel, $mdMedia) {
 
     $scope.$parent.toolbarClass = "";
     $scope.$emit('viewBroadcast', 'build');
@@ -45,6 +45,8 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
     
     $scope.queryParams = $scope.$parent.parseQueryString(window.location.search.substring(1));
     $scope.runTutorial = $scope.queryParams.runTutorial!==undefined;
+    if($scope.runTutorial)
+        $scope.tutorialStep = $scope.queryParams.step!==undefined ? parseInt($scope.queryParams.step) : 0;
     
     $scope.httpRequest('/missions', 'GET', null, function (data) {
         fillMissions(data);
@@ -130,13 +132,12 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
         $scope.missionLoading = false;
         
         var formHash = $location.hash();
-        if (formHash) {
+        if ($scope.runTutorial) {
+            $scope.processTutorial($scope.tutorialStep);
+        } else if (formHash) {
             var formData = window.atob(formHash);
             $scope.form = JSON.parse(formData);
-            setNewMission($scope.form.Mission.code);
-        } else if ($scope.runTutorial) {
-            $scope.tutorialStep = 0;
-            $scope.runTutorial();            
+            setNewMission($scope.form.Mission.code);            
         } else if (!$cookies.get($scope.$parent.cookies.BLANKCANVASINFO)) {
             var confirm = $mdDialog.confirm()
                     .title("Welcome!")
@@ -155,123 +156,82 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
 
     };
     
-    $scope.runTutorial = function () {
+    $scope.tutorialSteps = [
+        {id: 1, num: 0, delay: 0, cont: true, title: 'Flight Club Tutorial', done: 'Yeah! :D'},
         
-        if(!$scope.runTutorial)
+        {id: 1, num: 1, delay: 0, cont: false, title: 'Selecting Pre-built Missions', done: 'Ok', el: '.sidenav-open', x: $mdPanel.xPosition.OFFSET_START, y: $mdPanel.yPosition.ALIGN_TOPS},
+        
+        {id: 1, num: 2, delay: 1000, cont: true, title: 'Selecting a Launch Site', done: 'Tell me more'},
+        {id: 2, num: 2, delay: 0, cont: false, title: 'Selecting a Launch Site', done: 'Ok', el: $('md-tab-item')[0], x: $mdPanel.xPosition.ALIGN_START, y: $mdPanel.yPosition.BELOW},
+        {id: 3, num: 2, delay: 350, cont: false, title: 'Selecting a Launch Site', done: 'This is gonna be good'},
+        
+        {id: 1, num: 3, delay: 1000, cont: true, title: 'Building a Rocket', done: 'Tell me more', el: '.vehicleRadio1', x: $mdPanel.xPosition.ALIGN_START, y: $mdPanel.yPosition.BELOW},
+        {id: 2, num: 3, delay: 0, cont: false, title: 'Building a Rocket', done: 'Ok', el: '.vehicleRadio2', x: $mdPanel.xPosition.ALIGN_START, y: $mdPanel.yPosition.BELOW},
+        {id: 3, num: 3, delay: 1000, cont: true, title: 'Building a Rocket', done: 'Tell me more', el: '.addEngines', x: $mdPanel.xPosition.ALIGN_START, y: $mdPanel.yPosition.BELOW},
+        {id: 4, num: 3, delay: 0, cont: false, title: 'Building a Rocket', done: 'Ok'},
+        
+        {id: 1, num: 4, delay: 1000, cont: true, title: 'Building a Flight Profile', done: 'Tell me more', el: '.events', x: $mdPanel.xPosition.ALIGN_START, y: $mdPanel.yPosition.BELOW},
+        
+        {id: 1, num: 5, delay: 0, cont: true, title: 'Flight Club Tutorial', done: 'Woo!'}
+    ];
+    
+    $scope.processTutorial = function (step) {
+
+        if (!$scope.runTutorial || step !== $scope.tutorialStep)
             return;
 
-        switch ($scope.tutorialStep) {
-            case 0:
-                var tutorialReady = $mdDialog.confirm()
-                        .title("Flight Club Tutorial")
-                        .textContent(
-                                'You\'re about to start the Flight Club tutorial! Ready to become a rocket scientist?'
-                                )
-                        .ariaLabel('Tutorial Ready')
-                        .ok('Yeah! :D')
-                        .cancel('No that sounds boring');
-                $mdDialog.show(tutorialReady).then(function () {
-                    $scope.tutorialStep++;
-                    $scope.runTutorial();
-                });
-                break;
-            case 1:
-                $mdDialog.show(
-                    $mdDialog.confirm()
-                        .clickOutsideToClose(true)
-                        .title('Flight Club Tutorial 1/4: Selecting Pre-built Missions')
-                        .htmlContent(
-                                '<p>The menu in the top-right corner contains a bunch of pre-built missions ' +
-                                'from the past and some selected future missions too. You can run these as ' +
-                                'they are, or you can use them as templates for building your own missions. ' +
-                                'For example, if you want to build a mission using Falcon 9, it would make a lot of sense ' +
-                                'to take an existing Falcon 9 mission profile and you should only have to make ' +
-                                'some small modifications.</p>' +
-                                '<p>Open the menu and choose the mission \'Iridium Next Mission 1\'</p>'
-                                )
-                        .ariaLabel('Tutorial Step 1')
-                        .ok('Ok let me try this')
-                        .cancel('Quit')
-                );
-                break;
-            case 2:
-                $mdDialog.show(
-                    $mdDialog.confirm()
-                        .clickOutsideToClose(true)
-                        .title('Flight Club Tutorial 2/4: Selecting a Launch Site')
-                        .htmlContent(
-                                '<p>Great job! Now you\'ll notice that the list of Events has been populated. ' +
-                                'This is the stock flight profile for Iridium Next Mission 1. If you wanted, you could hit ' +
-                                '"Run Simulation!" now and you\'d get a lovely result which is my closest guess ' +
-                                'for this mission\'s profile. But we\'re gonna mess with it a bit first.</p> ' +
-                                '<p>See those 3 tabs at the top of the screen, just under the toolbar? ' +
-                                'To choose a launch site for your mission, go to the first tab (yep, ' +
-                                'the one that says \'LAUNCH SITE\'. Good guess.). This part is pretty easy: click the ' +
-                                'one you want. If it turns gold, it\'s been selected. Did you really need a ' +
-                                'walkthrough for that?</p>' +
-                                '<p>Go do it anyway! Select Boca Chica, Texas.</p>'
-                                )
-                        .ariaLabel('Tutorial Step 2')
-                        .ok('Let\'s give it a go')
-                        .cancel('Quit')
-                );
-                break;
-            case 3:
-                var dlg = $mdDialog.confirm()
-                        .clickOutsideToClose(true)
-                        .title('Flight Club Tutorial 3/4: Building a Rocket')
-                        .htmlContent(
-                                '<p>See the 2 radio buttons marked "Use vehicle from existing mission" ' +
-                                'and "Customize"? Click the first one and you will get access to the dropdown ' +
-                                'menu beside it, where you can select a mission to copy a vehicle from. Since we selected ' +
-                                'the Iridium mission in Step 1, that mission\'s vehicle is chosen here by default.</p>' +
-                                '<p>Click "Customize" and you will be able to mess around with the vehicle structure itself - ' +
-                                'you can add more stages, add boosters to said stages, and mess with the vehicle and engine ' +
-                                'specifications. Oh, you can also change the engines attached to each stage.</p>' +
-                                '<p>Play around for a while! When you\'re ready to continue the tutorial, come to the ' +
-                                '"FLIGHT PROFILE" tab.</p>'
-                                )
-                        .ariaLabel('Tutorial Step 3')
-                        .ok('Ok I\'ll go there when I\'m done here')
-                        .cancel('Quit');
-                $mdDialog.show(dlg).then(function() {
-                    $scope.tutorialStep++;
-                });
-                break;
-            case 4:
-                var dlg = $mdDialog.confirm()
-                        .clickOutsideToClose(true)
-                        .title('Flight Club Tutorial 4/4: Building a Flight Profile')
-                        .textContent(
-                                'I\'m not looking forward to writing this one...'
-                                )
-                        .ariaLabel('Tutorial Step 4')
-                        .ok('Are we done yet?')
-                        .cancel('Quit');
-                $mdDialog.show(dlg).then(function() {
-                    $scope.tutorialStep++;
-                    $scope.runTutorial();
-                });
-                break;
-            case 5:
-                $mdDialog.show(
-                    $mdDialog.confirm()
-                        .clickOutsideToClose(true)
-                        .title('Flight Club Tutorial')
-                        .textContent(
-                                'Woop! You\'ve completed the tutorial and are either are a master ' +
-                                'engineer or you\'re more confused than when you started. Definitely ' +
-                                'one of those two options.'
-                                )
-                        .ariaLabel('Tutorial Finish')
-                        .ok('Let\'s launch some rockets!')
-                );
-                $scope.tutorialStep++;
-                break;
-            default:
-                break;
-        }            
+        if ($scope.tutorialStep < $scope.tutorialSteps.length) {
+            var step = $scope.tutorialSteps[$scope.tutorialStep];
+            setTimeout(function() {
+                $mdPanel.open(getTutorialPane(step.el, step.x, step.y));
+            }, step.delay);
+        }
 
+    };
+    
+    var getTutorialPane = function(element, x, y) {
+        
+        var position = element === undefined ? 
+                $mdPanel.newPanelPosition()
+                    .absolute()
+                    .top($mdMedia('xs')?'10%':'25%')
+                    .left($mdMedia('xs')?'10%':'25%') :
+                $mdPanel.newPanelPosition()
+                    .relativeTo(element)
+                    .addPanelPosition(x, y);
+
+        var config = {
+            attachTo: angular.element(document.body),
+            controller: function (mdPanelRef, $scope, lTheme, lSteps, lStepId, lParentScope) {
+                $scope.steps = lSteps;
+                $scope.step = $scope.steps[lStepId];
+                $scope.getOtherTheme = function () {
+                    return lTheme === 'fc_dark' ? 'fc_default' : 'fc_dark';
+                };
+                $scope.quit = function () {
+                    lParentScope.runTutorial = false;
+                    mdPanelRef.close();
+                };
+                $scope.next = function () {
+                    mdPanelRef.close();
+                    lParentScope.tutorialStep++;
+                    if($scope.step.cont) {
+                        lParentScope.processTutorial(lParentScope.tutorialStep);
+                    }
+                };
+            },
+            templateUrl: '/pages/tutorial.tmpl.html',
+            panelClass: 'tutorial-dialog-panel',
+            position: position,
+            clickOutsideToClose: true,
+            locals: {
+                lTheme: $scope.$parent.theme,
+                lSteps: $scope.tutorialSteps,
+                lStepId: $scope.tutorialStep,
+                lParentScope: $scope
+            }
+        };
+        return config;
     };
 
     var fill = function (data) {
@@ -314,12 +274,9 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
             $scope.loadingMission = false;
             $scope.form = JSON.parse(data);
             setNewMission(mission.code);
-            setTimeout(function() {
-                if ($scope.runTutorial && $scope.tutorialStep === 1 && mission.code === 'IRD1') {
-                    $scope.tutorialStep++;
-                    $scope.runTutorial();
-                }
-            }, 1000);
+            if ($scope.runTutorial && mission.code === 'IRD1') {
+                $scope.processTutorial(2);
+            }
         }, null);
     };
     
@@ -359,23 +316,8 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
 
     $scope.selectSite = function (site) {
         $scope.form.Mission.launchsite = site.code;
-        if($scope.runTutorial && $scope.tutorialStep === 2 && site.code === 'BOCA') {
-            $scope.tutorialStep++;
-            setTimeout(function() {
-                $mdDialog.show(
-                        $mdDialog.confirm()
-                        .clickOutsideToClose(true)
-                        .title('Flight Club Tutorial 2/4: Selecting a Launch Site')
-                        .htmlContent(
-                                '<p>Ok this is going great so far, but here\'s where it starts to get hard. ' +
-                                'The 2nd of those 3 tabs (the one that says \'LAUNCH VEHICLE\') is where ' +
-                                'you rocket scientists are gonna go to build your monstrosities. Go there now!</p>'
-                                )
-                        .ariaLabel('Tutorial Step 2 Success')
-                        .ok('This is gonna be good')
-                        .cancel('Quit')
-                        );
-            }, 1000);
+        if($scope.runTutorial && site.code === 'BOCA') {
+            $scope.processTutorial(4);
         }
         
     };
@@ -516,6 +458,9 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                 lStage: stage
             }
         });
+        
+        if($scope.runTutorial && $stageIndex===0)
+            $scope.processTutorial(7);
     };
 
     $scope.openBoosterEditDialog = function ($event, stage, $boosterIndex, booster) {
