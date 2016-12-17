@@ -67,6 +67,7 @@
                         </md-radio-group>
                         <md-content layout-padding flex layout-fill>
                             <md-list flex layout='column'>
+                                <md-divider></md-divider>
                                 <md-list-item class="md-3-line" ng-repeat-start="stage in form.Mission.Vehicle.Stages">
                                     <div class="md-list-item-text">
                                         <h3>{{stage.stageName}}</h3>
@@ -89,7 +90,7 @@
                                         <md-tooltip md-direction="bottom">Remove Stage From Vehicle</md-tooltip>
                                         <md-icon class="material-icons">close</md-icon>
                                     </md-button>
-                                    <md-divider></md-divider>
+                                    <md-divider ng-show="{{stage.Boosters.length===0}}"></md-divider>
                                 </md-list-item>
                                 <md-list-item class="md-3-line" ng-repeat-end ng-repeat="booster in stage.Boosters">
                                     <md-icon class="material-icons md-48">subdirectory_arrow_right</md-icon>
@@ -107,7 +108,7 @@
                                         <md-tooltip md-direction="bottom">Remove Booster From Stage</md-tooltip>
                                         <md-icon class="material-icons">close</md-icon>
                                     </md-button>
-                                    <md-divider></md-divider>
+                                    <md-divider ng-show="{{$last}}"></md-divider>
                                 </md-list-item>
                             </md-list>
                         </md-content>
@@ -330,7 +331,6 @@
                 <md-progress-circular flex class="loadCircle" ng-show="loadingMission && mission === selectedMission" md-mode="indeterminate"></md-progress-circular>
                 <span flex class="md-secondary">{{mission.name}}</span>
             </md-list-item>
-            <md-divider></md-divider>
             <md-subheader class="md-no-sticky">Past Missions</md-subheader>
             <md-list-item layout-align="space-between center" ng-repeat="mission in past" ng-show="mission.display || authorised" ng-click="selectMission(mission)">
                 <md-progress-circular flex class="loadCircle" ng-show="loadingMission && mission === selectedMission" md-mode="indeterminate"></md-progress-circular>

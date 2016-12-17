@@ -64,6 +64,14 @@ a {
     color: #ccac55;
 }
 
+md-divider.md-fc_dark-theme {
+    border-top-color: rgba(255,255,255,1);
+}
+
+md-divider.md-fc_default-theme {
+    border-top-color: rgba(0,0,0,1);
+}
+
 /*******************************/
 /*   I hate myself for this    */
 /*******************************/
