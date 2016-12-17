@@ -1,6 +1,7 @@
 angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog, $mdSidenav, $cookies, $interval, $timeout, $location, $mdPanel, $mdMedia) {
 
     $scope.$parent.toolbarClass = "";
+    $scope.$parent.toolbarTitle = "";
     $scope.$emit('viewBroadcast', 'build');
 
     $scope.missionLoading = true;
@@ -45,12 +46,27 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
     
     $scope.queryParams = $scope.$parent.parseQueryString(window.location.search.substring(1));
     $scope.runTutorial = $scope.queryParams.runTutorial!==undefined;
-    if($scope.runTutorial)
-        $scope.tutorialStep = $scope.queryParams.step!==undefined ? parseInt($scope.queryParams.step) : 0;
     
     $scope.httpRequest('/missions', 'GET', null, function (data) {
         fillMissions(data);
-    }, function(data, statusText) {
+        
+        if ($scope.runTutorial) {
+            $scope.tutorialStep = $scope.queryParams.step !== undefined ? parseInt($scope.queryParams.step) : 0;
+            $scope.processTutorial($scope.tutorialStep);
+        } else if ($location.hash()) {
+            var formData = window.atob($location.hash());
+            $scope.form = JSON.parse(formData);
+            setNewMission($scope.form.Mission.code);
+        } else if (!$cookies.get($scope.$parent.cookies.BLANKCANVASINFO)) {
+            $scope.openThemedDialog(
+                    'Welcome!',
+                    'You have a blank canvas in front of you. To load up a pre-built mission, use the menu in the top-right corner.',
+                    'Don\'t show me this again', function () {$cookies.put($scope.$parent.cookies.BLANKCANVASINFO, '1');},
+                    'Ok', null
+                );
+        }
+        
+    }, function (data, statusText) {
         $scope.missionLoading = false;
         $scope.$parent.toolbarTitle = 'It usually works, I swear';
         $scope.serverErrorMessage += 'Missions: ' + statusText + '\n';
@@ -58,28 +74,24 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
     $scope.httpRequest('/launchsites', 'GET', null, function (data) {
         $scope.launchSites = fill(data);
     }, function(data, statusText) {
-        $scope.missionLoading = false;
         $scope.$parent.toolbarTitle = 'It usually works, I swear';
         $scope.serverErrorMessage += 'LaunchSites: ' + statusText + '\n';
     });
     $scope.httpRequest('/stages?engineDetail=true', 'GET', null, function (data) {
         $scope.stageTypes = fillStages(data);
     }, function(data, statusText) {
-        $scope.missionLoading = false;
         $scope.$parent.toolbarTitle = 'It usually works, I swear';
         $scope.serverErrorMessage += 'Stages: ' + statusText + '\n';
     });
     $scope.httpRequest('/engines', 'GET', null, function (data) {
         $scope.engineTypes = fillStages(data);
     }, function(data, statusText) {
-        $scope.missionLoading = false;
         $scope.$parent.toolbarTitle = 'It usually works, I swear';
         $scope.serverErrorMessage += 'Engines: ' + statusText + '\n';
     });
     $scope.httpRequest('/companies', 'GET', null, function (data) {
         $scope.companies = fill(data);
     }, function(data, statusText) {
-        $scope.missionLoading = false;
         $scope.$parent.toolbarTitle = 'It usually works, I swear';
         $scope.serverErrorMessage += 'Companies: ' + statusText + '\n';
     });
@@ -112,48 +124,44 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
             var missionObj = {code: mission.code, name: mission.description, display: mission.display};
             var tempDate = Date.parse(mission.date.replace(/-/g, "/") + ' ' + mission.time + ' UTC');
 
+            $scope.allMissions.push(missionObj);
             if (tempDate > new Date()) {
-                $scope.allMissions.push(missionObj);
                 $scope.upcoming.push(missionObj);
             } else {
-                $scope.allMissions.push(missionObj);
                 $scope.past.push(missionObj);
             }
         }
-
-        var missionObj;
-        if ($scope.upcoming.length > 0) {
-            missionObj = $scope.upcoming[$scope.upcoming.length - 1];
-        } else {
-            missionObj = $scope.past[0];
-        }
-        $scope.selectedMission = missionObj;
+        
+        $scope.form = {
+            Mission: {
+                code: 'NONE',
+                Vehicle: {
+                    Stages: []
+                },
+                Events: []
+            }
+        };
         $scope.loadSuccess = true;
         $scope.missionLoading = false;
-        
-        var formHash = $location.hash();
-        if ($scope.runTutorial) {
-            $scope.processTutorial($scope.tutorialStep);
-        } else if (formHash) {
-            var formData = window.atob(formHash);
-            $scope.form = JSON.parse(formData);
-            setNewMission($scope.form.Mission.code);            
-        } else if (!$cookies.get($scope.$parent.cookies.BLANKCANVASINFO)) {
-            var confirm = $mdDialog.confirm()
-                    .title("Welcome!")
-                    .textContent(
-                        'You have a blank canvas in front of you. ' +
-                        'To load up a pre-built mission, use the menu in the top-right corner.'
-                    )
-                    .ariaLabel('Blank Canvas Info')
-                    .ok('Ok')
-                    .cancel('Don\'t show me this again');
-            $mdDialog.show(confirm).then(function () {
-            }, function () {
-                $cookies.put($scope.$parent.cookies.BLANKCANVASINFO, '1');
-            });
-        }
 
+    };
+
+    var fill = function (data) {
+        var list = data.data;
+        var array = {};
+        for (var i = list.length; i > 0; i--) {
+            array[list[i - 1].code] = {code: list[i - 1].code, name: list[i - 1].description};
+        }
+        return array;
+    };
+
+    var fillStages = function (data) {
+        var list = data.data;
+        var array = {};
+        for (var i = list.length; i > 0; i--) {
+            array[list[i - 1].id] = list[i - 1];
+        }
+        return array;
     };
     
     $scope.tutorialSteps = [
@@ -187,69 +195,6 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
             }, step.delay);
         }
 
-    };
-    
-    var getTutorialPane = function(element, x, y) {
-        
-        var position = element === undefined ? 
-                $mdPanel.newPanelPosition()
-                    .absolute()
-                    .top($mdMedia('xs')?'10%':'25%')
-                    .left($mdMedia('xs')?'10%':'25%') :
-                $mdPanel.newPanelPosition()
-                    .relativeTo(element)
-                    .addPanelPosition(x, y);
-
-        var config = {
-            attachTo: angular.element(document.body),
-            controller: function (mdPanelRef, $scope, lTheme, lSteps, lStepId, lParentScope) {
-                $scope.steps = lSteps;
-                $scope.step = $scope.steps[lStepId];
-                $scope.getOtherTheme = function () {
-                    return lTheme === 'fc_dark' ? 'fc_default' : 'fc_dark';
-                };
-                $scope.quit = function () {
-                    lParentScope.runTutorial = false;
-                    mdPanelRef.close();
-                };
-                $scope.next = function () {
-                    mdPanelRef.close();
-                    lParentScope.tutorialStep++;
-                    if($scope.step.cont) {
-                        lParentScope.processTutorial(lParentScope.tutorialStep);
-                    }
-                };
-            },
-            templateUrl: '/pages/tutorial.tmpl.html',
-            panelClass: 'tutorial-dialog-panel',
-            position: position,
-            clickOutsideToClose: true,
-            locals: {
-                lTheme: $scope.$parent.theme,
-                lSteps: $scope.tutorialSteps,
-                lStepId: $scope.tutorialStep,
-                lParentScope: $scope
-            }
-        };
-        return config;
-    };
-
-    var fill = function (data) {
-        var list = data.data;
-        var array = {};
-        for (var i = list.length; i > 0; i--) {
-            array[list[i - 1].code] = {code: list[i - 1].code, name: list[i - 1].description};
-        }
-        return array;
-    };
-
-    var fillStages = function (data) {
-        var list = data.data;
-        var array = {};
-        for (var i = list.length; i > 0; i--) {
-            array[list[i - 1].id] = list[i - 1];
-        }
-        return array;
     };
     
     $scope.updateUrl = function() {
@@ -309,11 +254,6 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
         }, null);
     };
 
-    // this handles moving back to homepage
-    if ($scope.$parent.selectedMission !== undefined) {
-        $scope.selectMission($scope.$parent.selectedMission);
-    }
-
     $scope.selectSite = function (site) {
         $scope.form.Mission.launchsite = site.code;
         if($scope.runTutorial && site.code === 'BOCA') {
@@ -345,6 +285,407 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
             }
         }
         return arr.sort(function(a, b){return a.stageNumber-b.stageNumber;});
+    };
+    
+    var resetstageNumbersAndEvents = function() {
+                
+        var i = 0;
+        for(var index=0;index<$scope.form.Mission.Vehicle.Stages.length;index++) {
+            
+            var obj = $scope.form.Mission.Vehicle.Stages[index];
+            obj.stageNumber = i++;
+            
+            $scope.form.Mission.Vehicle.Stages[index].Boosters.forEach(function (obj) {
+                obj.stageNumber = i++;
+            });
+        }
+    };
+    
+    $scope.removeEntity = function (parentStage, $index) {
+
+        // remove entity by stageNumber
+        if(parentStage) {
+            parentStage.Boosters.splice($index, 1);
+        } else {
+            $scope.form.Mission.Vehicle.Stages.splice($index, 1);
+        }
+
+        resetstageNumbersAndEvents();
+        $scope.recalcDV();
+    };
+    
+    $scope.incrementEntity = function(parentStage) {
+        if(parentStage) {
+            parentStage.Boosters[parentStage.Boosters.length] = {
+                Engines: [],
+                Boosters: []
+            };
+        } else {
+            $scope.form.Mission.Vehicle.Stages[$scope.form.Mission.Vehicle.Stages.length] = {
+                Engines: [],
+                Boosters: []
+            };
+        }        
+        resetstageNumbersAndEvents();
+    };
+    
+    $scope.recalcDV = function() {
+        
+        var totalDV = 0;
+        var stages = $scope.form.Mission.Vehicle.Stages;
+        
+        for(var i=0;i<stages.length;i++) {
+            
+            if(stages[i].Engines[0] === undefined)
+                continue;
+            
+            // Use Vac ISP of first engine by default
+            var isp = stages[i].Engines[0].Engine.ispVac;
+            
+            if(i===0) {
+                // for lower stages, take midpoint of SL and Vac ISP
+                isp = 0.5*(stages[i].Engines[0].Engine.ispSL+stages[i].Engines[0].Engine.ispVac);
+            } else if (stages[i].Engines.length>1) {
+                // for upper stages, specifically look for Vac engines and use them
+                for(var e=0;e<stages[i].Engines.length;e++) {
+                    if(stages[i].Engines[e].Engine.ispSL === null) {
+                        isp = stages[i].Engines[e].Engine.ispVac;
+                        break;
+                    }
+                }
+            }
+            
+            var aboveMass = 0;
+            for(var j=i+1;j<stages.length;j++) {
+                aboveMass += stages[j].dryMass + stages[j].propMass;
+                for (var k = 0; k < stages[j].Boosters.length; k++) {
+                    aboveMass += stages[j].Boosters[k].dryMass + stages[j].Boosters[k].propMass;
+                }
+                if (stages[j].fairingMass)
+                    aboveMass += stages[j].fairingMass;
+            }
+            aboveMass += parseFloat($scope.form.Mission.Payload.mass);
+            
+            var m0 = aboveMass + stages[i].dryMass + stages[i].propMass;
+            var m1 = aboveMass + stages[i].dryMass;
+            for (var j = 0; j < stages[i].Boosters.length; j++) {
+                m0 += stages[i].Boosters[j].dryMass + stages[i].Boosters[j].propMass;
+                m1 += stages[i].Boosters[j].dryMass;
+            }
+            var mf = m0 / m1;
+            
+            totalDV += 9.81*isp*Math.log(mf);
+        }
+        $scope.payloadDV = (totalDV/1000.0).toPrecision(3);
+    };
+    
+    $scope.addEvent = function () {
+        var newEvent = {
+            type: null,
+            stage: null,
+            name: null,
+            time: null,
+            dynamic: null,
+            Attitude: {
+                pitch: null,
+                yaw: null,
+                gt: null,
+                throttle: null
+            },
+            Engines: []
+        };
+        $scope.form.Mission.Events.push(newEvent);
+        $scope.sortEvents();
+        $scope.selectedEvent = newEvent;
+    };
+    $scope.removeEvent = function (index) {
+        if($scope.selectedEvent === $scope.form.Mission.Events[index])
+            $scope.selectedEvent = null;
+        $scope.form.Mission.Events.splice(index, 1);
+    };
+
+    $scope.sortEvents = function () {
+        $scope.form.Mission.Events.sort(function (a, b) {
+            if(a.time === null || a.time === undefined)
+                return 1;
+            if(b.time === null || b.time === undefined)
+                return -1;
+            return parseFloat(a.time) - parseFloat(b.time);
+        });
+    };
+    
+    $scope.export = function (ev) {       
+        
+        $scope.form.auth = {token: $scope.$parent.token};
+        var formAsJSON_string = JSON.stringify($scope.form);
+        $scope.form.auth = {token: null};
+        var formHash = window.btoa(formAsJSON_string);
+       
+        
+        $scope.exportStyle = true;
+        if($scope.supports_html5_storage()) {
+            window['localStorage']['fc_profile'] = formHash;
+            $scope.exportStatusColor = '#82CA9D';
+            $scope.export_icon = 'check';
+            $timeout(function() {
+                $scope.export_icon = 'content_copy';
+                $scope.exportStyle = false;
+            }, 4000);
+        } else {
+            $scope.exportStatusColor = '#F7977A';
+            $scope.export_icon = 'close';
+            $timeout(function() {
+                $scope.export_icon = 'content_copy';
+                $scope.exportStyle = false;
+            }, 4000);
+            $scope.openThemedDialog(
+                    'Not supported!',
+                    'Your browser doesn\'t support local storage! Upgrade, fool!',
+                    undefined,
+                    undefined,
+                    'Ok :(',
+                    undefined
+                );
+        }
+    };
+    
+    $scope.import = function (ev) {
+        
+        $scope.importStyle = true;
+        if($scope.supports_html5_storage()) {
+            var formHash = window['localStorage']['fc_profile'];
+            try {
+                var formData = window.atob(formHash);
+                $scope.form = JSON.parse(formData);
+                setNewMission($scope.form.Mission.code);
+                $scope.importStatusColor = '#82CA9D';
+                $scope.import_icon = 'check';
+                $timeout(function () {
+                    $scope.import_icon = 'content_paste';
+                    $scope.importStyle = false;
+                }, 4000);
+            } catch (err) {
+                $scope.importStatusColor = '#F7977A';
+                $scope.import_icon = 'close';
+                $timeout(function () {
+                    $scope.import_icon = 'content_paste';
+                    $scope.importStyle = false;
+                }, 4000);
+            $scope.openThemedDialog(
+                    'Import error!',
+                    err.stack.replace('\n', '<br>'),
+                    undefined,
+                    undefined,
+                    'Ok :(',
+                    undefined
+                );
+            }
+        } else {
+            $scope.importStatusColor = '#F7977A';
+            $scope.import_icon = 'close';
+            $timeout(function () {
+                $scope.import_icon = 'content_paste';
+                $scope.importStyle = false;
+            }, 4000);
+            $scope.openThemedDialog(
+                    'Not supported!',
+                    'Your browser doesn\'t support local storage! Upgrade, fool!',
+                    undefined,
+                    undefined,
+                    'Ok :(',
+                    undefined
+                );
+        }
+
+    };
+    
+    var validateEventswithStages = function() {
+        
+        var returnObj = {
+            isValid: true,
+            invalidEvents: [],
+            unusedStages: []
+        };
+        
+        var stagesReferencedInEvents = [];
+        var maxStageNumber = -1;
+        $scope.form.Mission.Vehicle.Stages.forEach(function(stage) {
+            maxStageNumber++;
+            stage.Boosters.forEach(function() {maxStageNumber++;});
+        });
+        
+        // check for events that reference non-existent stages
+        $scope.form.Mission.Events.forEach(function(event) {
+            if(event.stageNumbers === undefined)
+                returnObj.invalidEvents.push(event);
+            else {
+                for(var i=0;i<event.stageNumbers.length;i++) {
+                    stagesReferencedInEvents.push(event.stageNumbers[i]);
+                    if(event.stageNumbers[i] > maxStageNumber)
+                        returnObj.invalidEvents.push(event);
+                }
+            }
+        });
+        
+        // check for stages that have no attached events
+        $scope.form.Mission.Vehicle.Stages.forEach(function(stage) {
+           if(stagesReferencedInEvents.indexOf(stage.stageNumber)===-1)
+               returnObj.unusedStages.push(stage);
+            stage.Boosters.forEach(function(booster) {
+                if (stagesReferencedInEvents.indexOf(booster.stageNumber)===-1)
+                    returnObj.unusedStages.push(booster);
+            });
+        });
+        
+        returnObj.isValid = returnObj.invalidEvents.length===0 && returnObj.unusedStages.length===0;
+        return returnObj;
+    };
+
+    $scope.submit = function () {
+        
+        var validation = validateEventswithStages();
+        if(!validation.isValid) {
+            
+            var stageList = '<ul>';
+            validation.unusedStages.forEach(function(stage) {
+                stageList += '<li>'+stage.stageName + '</li>';
+            });
+            stageList += '</ul>';
+            
+            var eventList = '<ul>';
+            validation.invalidEvents.forEach(function(event) {
+                eventList += '<li>'+event.name + '</li>';
+            });
+            eventList += '</ul>';
+            
+            $scope.openThemedDialog(
+                    'Warning! Possible invalid profile',
+                    (validation.unusedStages.length===0?'':('There were no events assigned to the following stages:'+stageList))
+                        +(validation.invalidEvents.length===0?'':('The following events don\'t reference a valid stage:'+eventList))
+                        +'Do you want to continue? Simulation may fail.',
+                    'Go back',
+                    undefined,
+                    'Ok',
+                    processSubmit
+                );
+        } else {
+            processSubmit();
+        }
+    };
+    
+    var processSubmit = function() {
+        
+        $scope.form.auth = {token: $scope.$parent.token};
+        var formHash = $scope.updateUrl();
+        $scope.form.auth = {token: null};
+        
+        var simCount = parseInt($cookies.get($scope.$parent.cookies.SIMCOUNT));
+        $cookies.put($scope.$parent.cookies.SIMCOUNT, simCount ? simCount+1 : 1);
+        
+        window.open($scope.$parent.client + '/results/#' + formHash, '_blank');
+    };
+
+    $scope.save = function (event)
+    {
+        $scope.httpRequest('/missions/' + $scope.form.Mission.code, 'GET', null,
+                function (data) {
+                    var exists = false;
+                    if (data.error === undefined)
+                        exists = true;
+                    $scope.form.auth = {token: $scope.$parent.token};
+                    var formAsJSON_string = JSON.stringify($scope.form);
+                    if (exists) {
+                        $scope.openThemedDialog(
+                                'Update ' + $scope.form.Mission.code,
+                                'This will update ' + $scope.form.Mission.description,
+                                'Cancel', null,
+                                'Ok', function () {
+                                    $scope.saving = true;
+                                    $scope.httpRequest('/missions/' + $scope.form.Mission.code, 'PUT', formAsJSON_string, saveSuccess, saveError);
+                                }
+                        );
+                    } else {
+                        $scope.openThemedDialog(
+                                $scope.form.Mission.code + " doesn't exist yet",
+                                "This will create a new mission called '" + $scope.form.Mission.description + "'",
+                                'Cancel', null,
+                                'Ok', function () {
+                                    $scope.saving = true;
+                                    $scope.httpRequest('/missions/', 'POST', formAsJSON_string, saveSuccess, saveError);
+                                }
+                        );
+                    }
+                }, null);
+
+    };
+
+    var saveSuccess = function () {
+        $scope.saving = false;
+        $scope.saveStatusColor = '#82CA9D';
+        $scope.save_icon = 'check';
+        $scope.saveStyle = true;
+        $scope.$apply();
+        $timeout(function () {
+            $scope.save_icon = 'save';
+            $scope.saveStyle = false;
+        }, 4000);
+    };
+
+    var saveError = function () {
+        $scope.saving = false;
+        $scope.saveStatusColor = '#F7977A';
+        $scope.save_icon = 'close';
+        $scope.saveStyle = true;
+        $scope.$apply();
+        $timeout(function () {
+            $scope.save_icon = 'save';
+            $scope.saveStyle = false;
+        }, 4000);
+    };
+    
+    var getTutorialPane = function(element, x, y) {
+        
+        var position = element === undefined ? 
+                $mdPanel.newPanelPosition()
+                    .absolute()
+                    .top($mdMedia('xs')?'10%':'25%')
+                    .left($mdMedia('xs')?'10%':'25%') :
+                $mdPanel.newPanelPosition()
+                    .relativeTo(element)
+                    .addPanelPosition(x, y);
+
+        var config = {
+            attachTo: angular.element(document.body),
+            controller: function (mdPanelRef, $scope, lTheme, lSteps, lStepId, lParentScope) {
+                $scope.steps = lSteps;
+                $scope.step = $scope.steps[lStepId];
+                $scope.getOtherTheme = function () {
+                    return lTheme === 'fc_dark' ? 'fc_default' : 'fc_dark';
+                };
+                $scope.quit = function () {
+                    lParentScope.runTutorial = false;
+                    mdPanelRef.close();
+                };
+                $scope.next = function () {
+                    mdPanelRef.close();
+                    lParentScope.tutorialStep++;
+                    if($scope.step.cont) {
+                        lParentScope.processTutorial(lParentScope.tutorialStep);
+                    }
+                };
+            },
+            templateUrl: '/pages/tutorial.tmpl.html',
+            panelClass: 'dialog-panel',
+            position: position,
+            clickOutsideToClose: true,
+            locals: {
+                lTheme: $scope.$parent.theme,
+                lSteps: $scope.tutorialSteps,
+                lStepId: $scope.tutorialStep,
+                lParentScope: $scope
+            }
+        };
+        return config;
     };
 
     $scope.openStageEditDialog = function ($event, $stageIndex, stage) {
@@ -663,397 +1004,6 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                 lForm: $scope.form
             }
         });
-    };
-    
-    var resetstageNumbersAndEvents = function() {
-        
-        //var stageNumberMap = []; // maps old stageNumber to new stageNumber for updating Events
-        
-        var i = 0;
-        for(var index=0;index<$scope.form.Mission.Vehicle.Stages.length;index++) {
-            
-            var obj = $scope.form.Mission.Vehicle.Stages[index];
-            //stageNumberMap[obj.stageNumber] = i;
-            obj.stageNumber = i++;
-            
-            $scope.form.Mission.Vehicle.Stages[index].Boosters.forEach(function (obj) {
-                //stageNumberMap[obj.stageNumber] = i;
-                obj.stageNumber = i++;
-            });
-        }
-        /*
-         
-         I've decided not to do this. The user should get a warning if there are
-         unmatched events when they hit submit instead!
-
-        // make list of events belonging to that entity to remove
-        // decrement 'stage' property of all events for higher entities
-        var list = [];
-        $scope.form.Mission.Events.forEach(function(event, i) {
-            if(stageNumberMap[event.stage] === undefined) 
-                list.push(i);
-            event.stage = stageNumberMap[event.stage];
-        });
-                
-        for(var i=list.length-1;i>=0;i--) {
-            $scope.form.Mission.Events.splice(list[i], 1);
-        }
-        */
-    };
-    
-    $scope.removeEntity = function (parentStage, $index) {
-
-        // remove entity by stageNumber
-        if(parentStage) {
-            parentStage.Boosters.splice($index, 1);
-        } else {
-            $scope.form.Mission.Vehicle.Stages.splice($index, 1);
-        }
-
-        resetstageNumbersAndEvents();
-        $scope.recalcDV();
-    };
-    
-    $scope.incrementEntity = function(parentStage) {
-        if(parentStage) {
-            parentStage.Boosters[parentStage.Boosters.length] = {
-                Engines: [],
-                Boosters: []
-            };
-        } else {
-            $scope.form.Mission.Vehicle.Stages[$scope.form.Mission.Vehicle.Stages.length] = {
-                Engines: [],
-                Boosters: []
-            };
-        }        
-        resetstageNumbersAndEvents();
-    };
-    
-    $scope.recalcDV = function() {
-        
-        var totalDV = 0;
-        var stages = $scope.form.Mission.Vehicle.Stages;
-        
-        for(var i=0;i<stages.length;i++) {
-            
-            if(stages[i].Engines[0] === undefined)
-                continue;
-            
-            // Use Vac ISP of first engine by default
-            var isp = stages[i].Engines[0].Engine.ispVac;
-            
-            if(i===0) {
-                // for lower stages, take midpoint of SL and Vac ISP
-                isp = 0.5*(stages[i].Engines[0].Engine.ispSL+stages[i].Engines[0].Engine.ispVac);
-            } else if (stages[i].Engines.length>1) {
-                // for upper stages, specifically look for Vac engines and use them
-                for(var e=0;e<stages[i].Engines.length;e++) {
-                    if(stages[i].Engines[e].Engine.ispSL === null) {
-                        isp = stages[i].Engines[e].Engine.ispVac;
-                        break;
-                    }
-                }
-            }
-            
-            var aboveMass = 0;
-            for(var j=i+1;j<stages.length;j++) {
-                aboveMass += stages[j].dryMass + stages[j].propMass;
-                for (var k = 0; k < stages[j].Boosters.length; k++) {
-                    aboveMass += stages[j].Boosters[k].dryMass + stages[j].Boosters[k].propMass;
-                }
-                if (stages[j].fairingMass)
-                    aboveMass += stages[j].fairingMass;
-            }
-            aboveMass += parseFloat($scope.form.Mission.Payload.mass);
-            
-            var m0 = aboveMass + stages[i].dryMass + stages[i].propMass;
-            var m1 = aboveMass + stages[i].dryMass;
-            for (var j = 0; j < stages[i].Boosters.length; j++) {
-                m0 += stages[i].Boosters[j].dryMass + stages[i].Boosters[j].propMass;
-                m1 += stages[i].Boosters[j].dryMass;
-            }
-            var mf = m0 / m1;
-            
-            totalDV += 9.81*isp*Math.log(mf);
-        }
-        $scope.payloadDV = (totalDV/1000.0).toPrecision(3);
-    };
-    
-    $scope.addEvent = function () {
-        var newEvent = {
-            type: null,
-            stage: null,
-            name: null,
-            time: null,
-            dynamic: null,
-            Attitude: {
-                pitch: null,
-                yaw: null,
-                gt: null,
-                throttle: null
-            },
-            Engines: []
-        };
-        $scope.form.Mission.Events.push(newEvent);
-        $scope.sortEvents();
-        $scope.selectedEvent = newEvent;
-    };
-    $scope.removeEvent = function (index) {
-        if($scope.selectedEvent === $scope.form.Mission.Events[index])
-            $scope.selectedEvent = null;
-        $scope.form.Mission.Events.splice(index, 1);
-    };
-
-    $scope.sortEvents = function () {
-        $scope.form.Mission.Events.sort(function (a, b) {
-            if(a.time === null || a.time === undefined)
-                return 1;
-            if(b.time === null || b.time === undefined)
-                return -1;
-            return parseFloat(a.time) - parseFloat(b.time);
-        });
-    };
-    
-    $scope.export = function (ev) {       
-        
-        $scope.form.auth = {token: $scope.$parent.token};
-        var formAsJSON_string = JSON.stringify($scope.form);
-        $scope.form.auth = {token: null};
-        var formHash = window.btoa(formAsJSON_string);
-       
-        
-        $scope.exportStyle = true;
-        if($scope.supports_html5_storage()) {
-            window['localStorage']['fc_profile'] = formHash;
-            $scope.exportStatusColor = '#82CA9D';
-            $scope.export_icon = 'check';
-            $timeout(function() {
-                $scope.export_icon = 'content_copy';
-                $scope.exportStyle = false;
-            }, 4000);
-        } else {
-            $scope.exportStatusColor = '#F7977A';
-            $scope.export_icon = 'close';
-            $timeout(function() {
-                $scope.export_icon = 'content_copy';
-                $scope.exportStyle = false;
-            }, 4000);
-            $mdDialog.show(
-                    $mdDialog.alert()
-                    .clickOutsideToClose(true)
-                    .title('Not supported!')
-                    .textContent('Your browser doesn\'t support local storage! Upgrade, fool!')
-                    .ariaLabel('export failure')
-                    .ok(':(')
-                    .targetEvent(ev)
-                    );            
-        }
-    };
-    
-    $scope.import = function (ev) {
-        
-        $scope.importStyle = true;
-        if($scope.supports_html5_storage()) {
-            var formHash = window['localStorage']['fc_profile'];
-            try {
-                var formData = window.atob(formHash);
-                $scope.form = JSON.parse(formData);
-                setNewMission($scope.form.Mission.code);
-                $scope.importStatusColor = '#82CA9D';
-                $scope.import_icon = 'check';
-                $timeout(function () {
-                    $scope.import_icon = 'content_paste';
-                    $scope.importStyle = false;
-                }, 4000);
-            } catch (err) {
-                $scope.importStatusColor = '#F7977A';
-                $scope.import_icon = 'close';
-                $timeout(function () {
-                    $scope.import_icon = 'content_paste';
-                    $scope.importStyle = false;
-                }, 4000);
-                $mdDialog.show(
-                        $mdDialog.alert()
-                        .clickOutsideToClose(true)
-                        .title('Import error!')
-                        .htmlContent(err.stack.replace('\n', '<br>'))
-                        .ariaLabel('import failure')
-                        .ok('Ok!')
-                        .targetEvent(ev)
-                        );
-            }
-        } else {
-            $scope.importStatusColor = '#F7977A';
-            $scope.import_icon = 'close';
-            $timeout(function () {
-                $scope.import_icon = 'content_paste';
-                $scope.importStyle = false;
-            }, 4000);
-            $mdDialog.show(
-                    $mdDialog.alert()
-                    .clickOutsideToClose(true)
-                    .title('Not supported!')
-                    .textContent('Your browser doesn\'t support local storage! Upgrade, fool!')
-                    .ariaLabel('import failure')
-                    .ok('Ok!')
-                    .targetEvent(ev)
-                    );
-        }
-
-    };
-    
-    var validateEventswithStages = function() {
-        
-        var returnObj = {
-            isValid: true,
-            invalidEvents: [],
-            unusedStages: []
-        };
-        
-        var stagesReferencedInEvents = [];
-        var maxStageNumber = -1;
-        $scope.form.Mission.Vehicle.Stages.forEach(function(stage) {
-            maxStageNumber++;
-            stage.Boosters.forEach(function() {maxStageNumber++;});
-        });
-        
-        // check for events that reference non-existent stages
-        $scope.form.Mission.Events.forEach(function(event) {
-            if(event.stageNumbers === undefined)
-                returnObj.invalidEvents.push(event);
-            else {
-                for(var i=0;i<event.stageNumbers.length;i++) {
-                    stagesReferencedInEvents.push(event.stageNumbers[i]);
-                    if(event.stageNumbers[i] > maxStageNumber)
-                        returnObj.invalidEvents.push(event);
-                }
-            }
-        });
-        
-        // check for stages that have no attached events
-        $scope.form.Mission.Vehicle.Stages.forEach(function(stage) {
-           if(stagesReferencedInEvents.indexOf(stage.stageNumber)===-1)
-               returnObj.unusedStages.push(stage);
-            stage.Boosters.forEach(function(booster) {
-                if (stagesReferencedInEvents.indexOf(booster.stageNumber)===-1)
-                    returnObj.unusedStages.push(booster);
-            });
-        });
-        
-        returnObj.isValid = returnObj.invalidEvents.length===0 && returnObj.unusedStages.length===0;
-        return returnObj;
-    };
-
-    $scope.submit = function () {
-        
-        var validation = validateEventswithStages();
-        if(!validation.isValid) {
-            
-            var stageList = '<ul>';
-            validation.unusedStages.forEach(function(stage) {
-                stageList += '<li>'+stage.stageName + '</li>';
-            });
-            stageList += '</ul>';
-            
-            var eventList = '<ul>';
-            validation.invalidEvents.forEach(function(event) {
-                eventList += '<li>'+event.name + '</li>';
-            });
-            eventList += '</ul>';
-            
-            var confirm = $mdDialog.confirm()
-                    .title("Warning! Possible invalid profile")
-                    .htmlContent(
-                        (validation.unusedStages.length===0?'':('There were no events assigned to the following stages:'+stageList))
-                        +(validation.invalidEvents.length===0?'':('The following events don\'t reference a valid stage:'+eventList))
-                        +'Do you want to continue? Simulation may fail.'
-                    )
-                    .ariaLabel('Update Confirmation')
-                    .targetEvent(event)
-                    .ok('Ok')
-                    .cancel('Go back');
-            $mdDialog.show(confirm).then(function () {
-                processSubmit();
-            }, null);
-        } else {
-            processSubmit();
-        }
-    };
-    
-    var processSubmit = function() {
-        
-        $scope.form.auth = {token: $scope.$parent.token};
-        var formHash = $scope.updateUrl();
-        $scope.form.auth = {token: null};
-        
-        var simCount = parseInt($cookies.get($scope.$parent.cookies.SIMCOUNT));
-        $cookies.put($scope.$parent.cookies.SIMCOUNT, simCount ? simCount+1 : 1);
-        
-        window.open($scope.$parent.client + '/results/#' + formHash, '_blank');
-    };
-
-    $scope.save = function (event)
-    {
-        $scope.httpRequest('/missions/' + $scope.form.Mission.code, 'GET', null,
-                function (data) {
-                    var exists = false;
-                    if (data.error === undefined)
-                        exists = true;
-                    $scope.form.auth = {token: $scope.$parent.token};
-                    var formAsJSON_string = JSON.stringify($scope.form);
-                    if (exists)
-                    {
-                        var confirm = $mdDialog.confirm()
-                                .title("Update " + $scope.form.Mission.code)
-                                .textContent('This will update ' + $scope.form.Mission.description)
-                                .ariaLabel('Update Confirmation')
-                                .targetEvent(event)
-                                .ok('Ok')
-                                .cancel('Cancel');
-                        $mdDialog.show(confirm).then(function () {
-                            $scope.saving = true;
-                            $scope.httpRequest('/missions/' + $scope.form.Mission.code, 'PUT', formAsJSON_string, saveSuccess, saveError);
-                        }, null);
-                    } else
-                    {
-                        var confirm = $mdDialog.confirm()
-                                .title($scope.form.Mission.code + " doesn't exist yet")
-                                .textContent("This will create a new mission called '" + $scope.form.Mission.description + "'")
-                                .ariaLabel('Create Confirmation')
-                                .targetEvent(event)
-                                .ok('Ok')
-                                .cancel('Cancel');
-                        $mdDialog.show(confirm).then(function () {
-                            $scope.saving = true;
-                            $scope.httpRequest('/missions/', 'POST', formAsJSON_string, saveSuccess, saveError);
-                        }, null);
-                    }
-                }, null);
-
-    };
-
-    var saveSuccess = function () {
-        $scope.saving = false;
-        $scope.saveStatusColor = '#82CA9D';
-        $scope.save_icon = 'check';
-        $scope.saveStyle = true;
-        $scope.$apply();
-        $timeout(function () {
-            $scope.save_icon = 'save';
-            $scope.saveStyle = false;
-        }, 4000);
-    };
-
-    var saveError = function () {
-        $scope.saving = false;
-        $scope.saveStatusColor = '#F7977A';
-        $scope.save_icon = 'close';
-        $scope.saveStyle = true;
-        $scope.$apply();
-        $timeout(function () {
-            $scope.save_icon = 'save';
-            $scope.saveStyle = false;
-        }, 4000);
     };
 
 });

@@ -1,4 +1,4 @@
-angular.module('FlightClub').controller('IndexCtrl', function ($scope, $mdSidenav, $cookies, $location, $window, $interval) {
+angular.module('FlightClub').controller('IndexCtrl', function ($scope, $mdSidenav, $cookies, $location, $window, $interval, $mdMedia, $mdPanel) {
     
     var base, port;
     if($location.host() === 'localhost') {
@@ -26,7 +26,6 @@ angular.module('FlightClub').controller('IndexCtrl', function ($scope, $mdSidena
     
     $scope.showSidenav = true;
     $scope.$on('viewBroadcast', function(event, args) {
-        $scope.isBuilder = args === 'build';
         $scope.showSidenav = (args === 'build' || args === 'results' || args === 'world');
     });
 
@@ -116,5 +115,50 @@ angular.module('FlightClub').controller('IndexCtrl', function ($scope, $mdSidena
         } catch (e) {
             return false;
         }
+    };
+    
+    $scope.openThemedDialog = function(title, text, quitText, quit, okText, ok) {
+            
+        var position = $mdPanel.newPanelPosition().absolute()
+                .top($mdMedia('xs') ? '10%' : '25%').left($mdMedia('xs') ? '10%' : '25%');
+
+        var config = {
+            attachTo: angular.element(document.body),
+            controller: function (mdPanelRef, $scope, lTheme, lTitle, lText, lQuitText, lQuit, lOkText, lOk) {
+                $scope.title = lTitle;
+                $scope.text = lText;
+                $scope.okText = lOkText;
+                $scope.quitText = lQuitText;
+                $scope.getOtherTheme = function () {
+                    return lTheme === 'fc_dark' ? 'fc_default' : 'fc_dark';
+                };
+                $scope.quit = function () {
+                    if (lQuit)
+                        lQuit();
+                    mdPanelRef.close();
+                };
+                $scope.ok = function () {
+                    if (lOk)
+                        lOk();
+                    mdPanelRef.close();
+                };
+            },
+            templateUrl: '/pages/themedDlg.tmpl.html',
+            panelClass: 'dialog-panel',
+            position: position,
+            clickOutsideToClose: true,
+            targetEvent: event,
+            hasBackdrop: true,
+            locals: {
+                lTheme: $scope.theme,
+                lTitle: title,
+                lText: text,
+                lQuitText: quitText,
+                lQuit: quit,
+                lOkText: okText,
+                lOk: ok
+            }
+        };
+        $mdPanel.open(config);
     };
 });
