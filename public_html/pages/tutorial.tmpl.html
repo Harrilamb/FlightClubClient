@@ -75,10 +75,21 @@
             </md-content>
             <md-content flex layout-fill layout-padding ng-show="{{step.num===3 && step.id===3}}">
                 <p>
-                    You can edit engines here!
+                    Just like with Missions, you can choose a pre-built Stage template here to get you started
                 </p>
             </md-content>
             <md-content flex layout-fill layout-padding ng-show="{{step.num===3 && step.id===4}}">
+                <p>
+                    Then you can add and edit all of the Engines to be attached to the Stage here!
+                </p>
+            </md-content>
+            <md-content flex layout-fill layout-padding ng-show="{{step.num===3 && step.id===5}}">
+                <p>
+                    Finally, you can customize all other (non-Engine) properties of the Stage here, like 
+                    dry mass, propellant mass, fairing properties, etc.
+                </p>
+            </md-content>
+            <md-content flex layout-fill layout-padding ng-show="{{step.num===3 && step.id===6}}">
                 <p>
                     Play around for a while! When you're ready to continue the tutorial, come to the 
                     "FLIGHT PROFILE" tab.
@@ -86,7 +97,93 @@
             </md-content>
             <md-content flex layout-fill layout-padding ng-show="{{step.num===4 && step.id===1}}">
                 <p>
-                    I'm not looking forward to writing this one...
+                    This is the most important part of the whole site: creating a flight profile.
+                    If you've ever watched a rocket launch, you know what the flight profile should look
+                    like already: 1st Stage <b>Ignition</b> followed by <b>Launch</b>. Some <b>Guidance</b>
+                    before 1st Stage <b>Cutoff</b> and <b>Stage Separation</b>, then the 2nd Stage 
+                    <b>Ignition</b>. Some more <b>Guidance</b> maneuvers for a few minutes before 
+                    the 2nd Stage <b>Cutoff</b>.
+                </p>
+                <p>
+                    Done. The semantics are just "What time does each thing happen?" and "What parameters should
+                    the Guidance maneuvers have?" That's really all there is to it.
+                </p>
+                <p>
+                    For example, click "Edit Event" on the first Event in the list: "Main Engine Ignition".
+                </p>
+            </md-content>
+            <md-content flex layout-fill layout-padding ng-show="{{step.num===4 && step.id===2}}">
+                <p>
+                    Here we have 2 fields where you can set the time the event is due to happen,
+                    and you can also set a name for the Event. The name is for display purposes
+                    only, so be creative and descriptive!
+                </p>
+            </md-content>
+            <md-content flex layout-fill layout-padding ng-show="{{step.num===4 && step.id===3}}">
+                <p>
+                    For <b>Guidance</b> type events, you will also see a field here marked "End". Guidance
+                    maneuvers are not meant to be instantaneous, so a start and an end time is required. For example,
+                    a throttle maneuver with a throttle setting of 0.5, a start time of 0, and an end time of 10
+                    will steadily increase or decrease the stage's throttle so that it reaches 0.5 at exactly T+10.
+                    Leaving the "End" field empty will cause the stage to perform the maneuver as fast as it can.
+                </p>
+            </md-content>
+            <md-content flex layout-fill layout-padding ng-show="{{step.num===4 && step.id===4}}">
+                <p>
+                    The Event Type dropdown gives you the different options for Events, including
+                    <b>Ignition</b>, <b>Cutoff</b>, <b>Stage Separation</b>, <b>Fairing Separation</b>
+                    and more. Your choice here will change the availability of some other fields, 
+                    but we'll come back to that.
+                </p>
+                <p>
+                    The Stage field is obvious: which Stage does this Event apply to? You can choose
+                    multiple Stages for one Event.
+                </p>
+            </md-content>
+            <md-content flex layout-fill layout-padding ng-show="{{step.num===4 && step.id===5}}">
+                <p>
+                    For <b>Ignition</b> and <b>Guidance</b> type events, you can add Heading and Throttle
+                    values. Pitch is defined as degrees above or below level flight. So an airplane
+                    (should) fly at 0°, while a rocket on the pad has a pitch of 90°. This property must obey
+                    -90°&lt;Pitch&lt;90°
+                </p>
+            </md-content>
+            <md-content flex layout-fill layout-padding ng-show="{{step.num===4 && step.id===6}}">
+                <p>
+                    <em>Yaw</em> is defined as degrees counterclockwise of Eastward flight. 90° is flying towards
+                    the North Pole, 180° is flying West, and 270° is flying South.
+                </p>
+            </md-content>
+            <md-content flex layout-fill layout-padding ng-show="{{step.num===4 && step.id===7}}">
+                <p>
+                    <em>Throttle</em> takes a floating point number and must obey 0&lt;Throttle&lt;1.
+                </p>
+            </md-content>
+            <md-content flex layout-fill layout-padding ng-show="{{step.num===4 && step.id===8}}">
+                <p>
+                    Finally, <em>Gravity Turn</em> can be used as a shortcut in certain situations if it's difficult
+                    or impossible to know what <em>Pitch</em> and <em>Yaw</em> should be. A <em>Forward Gravity Turn</em>
+                    aligns the Thrust vector with the velocity vector (so you're thrusting in the direction of motion) and
+                    a <em>Reverse Gravity Turn</em> does exactly the opposite. <em>Reverse</em> is very useful for 
+                    retropropulsion.
+                </p>
+            </md-content>
+            <md-content flex layout-fill layout-padding ng-show="{{step.num===4 && step.id===9}}">
+                <p>
+                    For <b>Ignition</b> and <b>Cutoff</b> type events, you can set the number of engines
+                    to be Ignited/Cutoff. For example for SpaceX's landing burns, not all engines are lit.
+                    In vehicles with more than one engine type, there will be a separate input field for each
+                    engine here.
+                </p>
+            </md-content>
+            <md-content flex layout-fill layout-padding ng-show="{{step.num===4 && step.id===10}}">
+                <p>
+                    If you want to land your rocket stage safely on the ground again, it can be tricky to get the
+                    timing of the landing burn ignition - as well as the throttle settings - exactly right. So
+                    Flight Club does it for you! If you want your stage to hit 0m/s velocity at 0m altitude, flick
+                    the <em>Dynamic Burn</em> switch. Use with caution though, if activated too far above the surface,
+                    these calculations can clog up your entire simulation. Try and wait until you have around 5-10km 
+                    altitude left before starting these burns.
                 </p>
             </md-content>
             <md-content flex layout-fill layout-padding ng-show="{{step.num===5}}">

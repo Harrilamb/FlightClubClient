@@ -50,14 +50,17 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
     $scope.httpRequest('/missions', 'GET', null, function (data) {
         fillMissions(data);
         
-        if ($scope.runTutorial) {
-            $scope.tutorialStep = $scope.queryParams.step !== undefined ? parseInt($scope.queryParams.step) : 0;
-            $scope.processTutorial($scope.tutorialStep);
-        } else if ($location.hash()) {
+        if($location.hash()) {
             var formData = window.atob($location.hash());
             $scope.form = JSON.parse(formData);
             setNewMission($scope.form.Mission.code);
-        } else if (!$cookies.get($scope.$parent.cookies.BLANKCANVASINFO)) {
+        }
+        $scope.$apply();
+        
+        if ($scope.runTutorial) {
+            $scope.tutorialStep = $scope.queryParams.step !== undefined ? parseInt($scope.queryParams.step) : 0;
+            $scope.processTutorial($scope.tutorialStep);
+        } else if (!$location.hash() && !$cookies.get($scope.$parent.cookies.BLANKCANVASINFO)) {
             $scope.openThemedDialog(
                     'Welcome!',
                     'You have a blank canvas in front of you. To load up a pre-built mission, use the menu in the top-right corner.',
@@ -166,21 +169,27 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
     
     $scope.tutorialSteps = [
         {id: 1, num: 0, delay: 0, cont: true, title: 'Flight Club Tutorial', done: 'Yeah! :D'},
-        
         {id: 1, num: 1, delay: 0, cont: false, title: 'Selecting Pre-built Missions', done: 'Ok', el: '.sidenav-open', x: $mdPanel.xPosition.ALIGN_END, y: $mdPanel.yPosition.BELOW},
-        
         {id: 1, num: 2, delay: 1000, cont: true, title: 'Selecting a Launch Site', done: 'Tell me more'},
         {id: 2, num: 2, delay: 0, cont: false, title: 'Selecting a Launch Site', done: 'Ok', el: $('md-tab-item')[0], x: $mdPanel.xPosition.ALIGN_START, y: $mdPanel.yPosition.BELOW},
-        {id: 3, num: 2, delay: 350, cont: false, title: 'Selecting a Launch Site', done: 'This is gonna be good'},
-        
+        {id: 3, num: 2, delay: 350, cont: false, title: 'Selecting a Launch Site', done: 'Ok'},
         {id: 1, num: 3, delay: 1000, cont: true, title: 'Building a Rocket', done: 'Tell me more', el: '.vehicleRadio1', x: $mdPanel.xPosition.ALIGN_START, y: $mdPanel.yPosition.BELOW},
         {id: 2, num: 3, delay: 0, cont: false, title: 'Building a Rocket', done: 'Ok', el: '.vehicleRadio2', x: $mdPanel.xPosition.ALIGN_START, y: $mdPanel.yPosition.BELOW},
-        {id: 3, num: 3, delay: 1000, cont: true, title: 'Building a Rocket', done: 'Tell me more', el: '.addEngines', x: $mdPanel.xPosition.ALIGN_START, y: $mdPanel.yPosition.BELOW},
-        {id: 4, num: 3, delay: 0, cont: false, title: 'Building a Rocket', done: 'Ok'},
-        
-        {id: 1, num: 4, delay: 1000, cont: true, title: 'Building a Flight Profile', done: 'Tell me more', el: '.events', x: $mdPanel.xPosition.ALIGN_START, y: $mdPanel.yPosition.BELOW},
-        
-        {id: 1, num: 5, delay: 0, cont: true, title: 'Flight Club Tutorial', done: 'Woo!'}
+        {id: 3, num: 3, delay: 1000, cont: true, title: 'Building a Rocket', done: 'Tell me more', el: '.vehicle1', x: $mdPanel.xPosition.ALIGN_START, y: $mdPanel.yPosition.BELOW},
+        {id: 4, num: 3, delay: 1000, cont: true, title: 'Building a Rocket', done: 'Tell me more', el: '.vehicle2', x: $mdPanel.xPosition.ALIGN_START, y: $mdPanel.yPosition.BELOW},
+        {id: 5, num: 3, delay: 1000, cont: true, title: 'Building a Rocket', done: 'Tell me more', el: '.vehicle3', x: $mdPanel.xPosition.ALIGN_START, y: $mdPanel.yPosition.BELOW},
+        {id: 6, num: 3, delay: 0, cont: false, title: 'Building a Rocket', done: 'Ok'},
+        {id: 1, num: 4, delay: 1000, cont: false, title: 'Building a Flight Profile', done: 'Ok', el: '#eventList md-list-item', x: $mdPanel.xPosition.ALIGN_START, y: $mdPanel.yPosition.BELOW},
+        {id: 2, num: 4, delay: 1000, cont: true, title: 'Building a Flight Profile', done: 'Tell me more', el: $mdMedia('gt-sm')?'.event1':'.event11', x: $mdMedia('gt-sm')?$mdPanel.xPosition.OFFSET_START:$mdPanel.xPosition.ALIGN_START, y: $mdMedia('gt-sm')?$mdPanel.yPosition.ALIGN_TOPS:$mdPanel.yPosition.BELOW},
+        {id: 3, num: 4, delay: 0, cont: true, title: 'Building a Flight Profile', done: 'Tell me more', el: $mdMedia('gt-sm')?'.event1':'.event11', x: $mdMedia('gt-sm')?$mdPanel.xPosition.OFFSET_START:$mdPanel.xPosition.ALIGN_START, y: $mdMedia('gt-sm')?$mdPanel.yPosition.ALIGN_TOPS:$mdPanel.yPosition.BELOW},
+        {id: 4, num: 4, delay: 1000, cont: true, title: 'Building a Flight Profile', done: 'Tell me more', el: $mdMedia('gt-sm')?'.event2':'.event21', x: $mdMedia('gt-sm')?$mdPanel.xPosition.OFFSET_START:$mdPanel.xPosition.ALIGN_START, y: $mdMedia('gt-sm')?$mdPanel.yPosition.ALIGN_TOPS:$mdPanel.yPosition.BELOW},
+        {id: 5, num: 4, delay: 1000, cont: true, title: 'Building a Flight Profile', done: 'What about Yaw?', el: $mdMedia('gt-sm')?'.event3':'.event31', x: $mdMedia('gt-sm')?$mdPanel.xPosition.OFFSET_START:$mdPanel.xPosition.ALIGN_START, y: $mdMedia('gt-sm')?$mdPanel.yPosition.ALIGN_TOPS:$mdPanel.yPosition.BELOW},
+        {id: 6, num: 4, delay: 0, cont: true, title: 'Building a Flight Profile', done: 'And throttle?', el: $mdMedia('gt-sm')?'.event3':'.event31', x: $mdMedia('gt-sm')?$mdPanel.xPosition.OFFSET_START:$mdPanel.xPosition.ALIGN_START, y: $mdMedia('gt-sm')?$mdPanel.yPosition.ALIGN_TOPS:$mdPanel.yPosition.BELOW},
+        {id: 7, num: 4, delay: 0, cont: true, title: 'Building a Flight Profile', done: 'What\'s Gravity Turn?', el: $mdMedia('gt-sm')?'.event3':'.event31', x: $mdMedia('gt-sm')?$mdPanel.xPosition.OFFSET_START:$mdPanel.xPosition.ALIGN_START, y: $mdMedia('gt-sm')?$mdPanel.yPosition.ALIGN_TOPS:$mdPanel.yPosition.BELOW},
+        {id: 8, num: 4, delay: 0, cont: true, title: 'Building a Flight Profile', done: 'Tell me more', el: $mdMedia('gt-sm')?'.event3':'.event31', x: $mdMedia('gt-sm')?$mdPanel.xPosition.OFFSET_START:$mdPanel.xPosition.ALIGN_START, y: $mdMedia('gt-sm')?$mdPanel.yPosition.ALIGN_TOPS:$mdPanel.yPosition.BELOW},
+        {id: 9, num: 4, delay: 1000, cont: true, title: 'Building a Flight Profile', done: 'Keep going', el: $mdMedia('gt-sm')?'.event4':'.event41', x: $mdMedia('gt-sm')?$mdPanel.xPosition.OFFSET_START:$mdPanel.xPosition.ALIGN_START, y: $mdMedia('gt-sm')?$mdPanel.yPosition.ALIGN_TOPS:$mdPanel.yPosition.BELOW},
+        {id: 10, num: 4, delay: 0, cont: true, title: 'Building a Flight Profile', done: 'Cool!', el: $mdMedia('gt-sm')?'.event4':'.event41', x: $mdMedia('gt-sm')?$mdPanel.xPosition.OFFSET_START:$mdPanel.xPosition.ALIGN_START, y: $mdMedia('gt-sm')?$mdPanel.yPosition.ALIGN_TOPS:$mdPanel.yPosition.BELOW},
+        {id: 1, num: 5, delay: 1000, cont: true, title: 'Flight Club Tutorial', done: 'Woo!'}
     ];
     
     $scope.processTutorial = function (step) {
@@ -261,8 +270,12 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
         }
         
     };
-    $scope.selectEvent = function (event) {
+    $scope.selectEvent = function (event, $eventIndex) {
         $scope.selectedEvent = $scope.selectedEvent === event ? null : event;
+
+        if($scope.runTutorial && $eventIndex===0)
+            $scope.processTutorial(12);        
+        
     };
     $scope.getStageByNumber = function(numArray) {
         if(!$scope.form || numArray === undefined)
@@ -927,7 +940,7 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                 $scope.selectedEvent = jQuery.extend(true, {}, lEvent);
                 $scope.type = $scope.parentScope.type;
                 $scope.stages = $scope.parentScope.form.Mission.Vehicle.Stages;
-                $scope.stageEngines = $scope.parentScope.form.Mission.Vehicle.Stages[$scope.selectedEvent.stage].Engines;
+                $scope.stageEngines = $scope.parentScope.form.Mission.Vehicle.Stages[$scope.selectedEvent.stageNumbers[0]].Engines;
                 $scope.gravTurnSelect = $scope.parentScope.gravTurnSelect;
                 
                 $scope.cancel = function () {
@@ -952,6 +965,9 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                 lEvent: event
             }
         });
+        
+        if($scope.runTutorial && $eventIndex===0)
+            $scope.processTutorial(12);
     };
 
     $scope.openAdminEditDialog = function ($trigger) {

@@ -115,7 +115,7 @@
                     </md-content>
                 </md-tab-content>
             </md-tab>
-            <md-tab label='Flight Profile' md-on-select="processTutorial(9)">
+            <md-tab label='Flight Profile' md-on-select="processTutorial(11)">
                 <md-tab-content>
                     <md-content layout-padding layout-fill flex layout='column' layout-gt-sm='row' layout-align='space-between start'>
                         <md-content flex layout-fill>
@@ -145,9 +145,9 @@
                                     </md-button>
                                 </md-content>
                             </md-content>
-                            <md-list flex layout='column'>
+                            <md-list id="eventList" flex layout='column'>
                                 <md-content layout="row" layout-align="space-between center">
-                                    <md-subheader class="events md-no-sticky">Events</md-subheader>
+                                    <md-subheader class="md-no-sticky">Events</md-subheader>
                                     <md-button class="md-raised" ng-click="addEvent()">
                                         <md-tooltip md-direction="left">Add Event</md-tooltip>
                                         <md-icon class="material-icons">add</md-icon>
@@ -163,7 +163,7 @@
                                         <md-tooltip md-direction="left">Edit Event</md-tooltip>
                                         <md-icon class="material-icons">mode_edit</md-icon>
                                     </md-button>
-                                    <md-button hide show-gt-sm style="min-width:0" ng-click="selectEvent(event)">
+                                    <md-button hide show-gt-sm style="min-width:0" ng-click="selectEvent(event, $index)">
                                         <md-tooltip md-direction="left">Edit Event</md-tooltip>
                                         <md-icon class="material-icons">mode_edit</md-icon>
                                     </md-button>
@@ -205,7 +205,7 @@
                                 </md-content>
                             </md-content>
                             <md-divider></md-divider>
-                            <md-content ng-show="selectedEvent !== null && selectedEvent !== undefined" layout="row" layout-align="space-around center">
+                            <md-content class="event1" ng-show="selectedEvent !== null && selectedEvent !== undefined" layout="row" layout-align="space-around center">
                                 <md-content flex layout="row">
                                     <md-input-container flex class="md-block">
                                         <md-tooltip md-direction="bottom">This is the time that the event should happen/begin at</md-tooltip>
@@ -230,7 +230,7 @@
                                     </div>
                                 </md-input-container>
                             </md-content>
-                            <md-content ng-show="selectedEvent !== null && selectedEvent !== undefined" layout="row" layout-align="space-around center">
+                            <md-content class="event2" ng-show="selectedEvent !== null && selectedEvent !== undefined" layout="row" layout-align="space-around center">
                                 <md-input-container flex class="md-block">
                                     <md-tooltip md-direction="bottom">Choose from Ignition, Cutoff, Guidance, Separation...</md-tooltip>
                                     <label>Event Type</label>
@@ -253,7 +253,7 @@
                                     </div>
                                 </md-input-container>
                             </md-content>
-                            <md-content layout="row" layout-align="space-around center">
+                            <md-content class="event3" layout="row" layout-align="space-around center">
                                 <md-content flex layout="row" layout-align="space-around center">
                                     <md-content ng-show="selectedEvent.type === 'IGNITION' || selectedEvent.type === 'GUIDANCE'"
                                                 flex layout="row" class="md-block">
@@ -286,7 +286,7 @@
                                     </md-content>
                                 </md-content>
                             </md-content>
-                            <md-content ng-show="selectedEvent.type === 'IGNITION' || selectedEvent.type === 'CUTOFF'"
+                            <md-content class="event4" ng-show="selectedEvent.type === 'IGNITION' || selectedEvent.type === 'CUTOFF'"
                                         layout="row" layout-align="space-around center">
                                 <md-content flex class="md-block" ng-repeat="engineConfig in getStageByNumber(selectedEvent.stageNumbers)[0].Engines">
                                     <md-input-container style="width:90%" flex>
