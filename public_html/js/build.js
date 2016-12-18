@@ -50,17 +50,24 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
     $scope.httpRequest('/missions', 'GET', null, function (data) {
         fillMissions(data);
         
+        var blankCanvas = false;
         if($location.hash()) {
             var formData = window.atob($location.hash());
             $scope.form = JSON.parse(formData);
             setNewMission($scope.form.Mission.code);
+        } else {
+            blankCanvas = true;
+            $scope.selectMission($scope.past[$scope.past.length-1]);
         }
+        
+        $scope.loadSuccess = true;
+        $scope.missionLoading = false;
         $scope.$apply();
         
         if ($scope.runTutorial) {
             $scope.tutorialStep = $scope.queryParams.step !== undefined ? parseInt($scope.queryParams.step) : 0;
             $scope.processTutorial($scope.tutorialStep);
-        } else if ($scope.form.Mission.code==='NONE' && !$cookies.get($scope.$parent.cookies.BLANKCANVASINFO)) {
+        } else if (blankCanvas && !$cookies.get($scope.$parent.cookies.BLANKCANVASINFO)) {
             $scope.openThemedDialog(
                     'Welcome!',
                     'You have a blank canvas in front of you. To load up a pre-built mission, use the menu in the top-right corner.',
@@ -134,18 +141,6 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                 $scope.past.push(missionObj);
             }
         }
-        
-        $scope.form = {
-            Mission: {
-                code: 'NONE',
-                Vehicle: {
-                    Stages: []
-                },
-                Events: []
-            }
-        };
-        $scope.loadSuccess = true;
-        $scope.missionLoading = false;
 
     };
 

@@ -147,7 +147,6 @@ angular.module('FlightClub').controller('IndexCtrl', function ($scope, $mdSidena
             panelClass: 'dialog-panel',
             position: position,
             clickOutsideToClose: true,
-            targetEvent: event,
             hasBackdrop: true,
             locals: {
                 lTheme: $scope.theme,
