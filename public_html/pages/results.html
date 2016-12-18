@@ -31,7 +31,6 @@
                     <i class="material-icons">keyboard_arrow_right</i>
                 </md-button>
             </md-toolbar>
-            <md-divider></md-divider>
             <md-list>
                 <md-subheader class="md-no-sticky">Options</md-subheader>
                 <md-list-item ng-click="goToWorld()">
@@ -43,7 +42,6 @@
                 <md-list-item ng-click="overrideLive()" ng-show="authorised && hasPermission('overrideLive')">
                     <i class="material-icons" ng-show="overrideAttempted">{{overrideStatus}}</i><span class="md-secondary">Override Live Plot</span>
                 </md-list-item>
-                <md-divider></md-divider>
                 <md-subheader class="md-no-sticky">More Simulation Data</md-subheader>
                 <md-list-item ng-click="toggleNav('warnings')" ng-show="warnings.length > 0">
                     <span class="md-secondary">Warnings</span>
@@ -57,7 +55,6 @@
                 <md-list-item ng-click="toggleNav('orbit')">
                     <span class="md-secondary">Orbital Params</span>
                 </md-list-item>
-                <md-divider></md-divider>
             </md-list>
         </md-sidenav>
 
@@ -70,7 +67,6 @@
                     <i class="material-icons">keyboard_arrow_right</i>
                 </md-button>
             </md-toolbar>
-            <md-divider></md-divider>
             <md-content flex layout-padding>
                 <md-list>
                     <md-list-item class="md-3-line" ng-repeat="item in warnings">
@@ -91,7 +87,6 @@
                     <i class="material-icons">keyboard_arrow_right</i>
                 </md-button>
             </md-toolbar>
-            <md-divider></md-divider>
             <md-content flex layout-padding>
                 <md-list>
                     <md-list-item class="md-3-line" ng-repeat="item in events">
@@ -113,7 +108,6 @@
                     <i class="material-icons">keyboard_arrow_right</i>
                 </md-button>
             </md-toolbar>
-            <md-divider></md-divider>
             <md-content flex layout-padding>
                 <md-list>
                     <md-list-item class="md-3-line" ng-repeat="item in landing">
@@ -136,7 +130,6 @@
                     <i class="material-icons">keyboard_arrow_right</i>
                 </md-button>
             </md-toolbar>
-            <md-divider></md-divider>
             <md-content flex layout-padding>
                 <md-list>
                     <md-list-item class="md-3-line" ng-repeat="item in orbit">

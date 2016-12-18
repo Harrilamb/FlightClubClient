@@ -161,4 +161,16 @@ angular.module('FlightClub').controller('IndexCtrl', function ($scope, $mdSidena
         };
         $mdPanel.open(config);
     };
+    
+    $scope.COLS = {
+        time: 0, x: 1, y: 2, z: 3,
+        alt: 4, vel: 5, range: 6,
+        q: 7, fuel: 8,
+        dV_tot: 9, dV_grav: 10, dv_drag: 11,
+        throttle: 12, accel: 13,
+        aoa: 14, aov: 15, pitch: 16,
+        cd: 17,
+        xAbs: 18, yAbs: 19, zAbs: 20,
+        yaw: 21, c_thrust: 22, incl: 23
+    };
 });

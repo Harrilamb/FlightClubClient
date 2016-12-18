@@ -182,8 +182,9 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $mdDial
     var PLOTS = ['altitude1', 'profile1', 'inclination', 
         'velocity1', 'prop', 'phase1',
          'throttle', 'accel1', 'q',
-        'aoa', 'aov', 'aop', 
-        'total-dv', 'drag', 'thrust-coeff'];
+        'aoa', 'aov', 'total-dv', 
+        'aop', 'heading', 'drag'
+        ];
     $scope.plotTiles = (function () {
         var tiles = [];
         for (var i = 0; i < PLOTS.length; i++) {
@@ -196,7 +197,6 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $mdDial
     $scope.fullData = [];
     $scope.eventsData = [];
     $scope.stageMap = [];
-    $scope.numCols = 23;
     $scope.overrideAttempted = false;
 
     //////////////////////////////////////
@@ -245,7 +245,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $mdDial
                 $scope.stageMap.push({id: stage, name: lines[0].split("#")[1]});
 
                 $scope.fullData[stage] = [];
-                for (var j = 0; j <= $scope.numCols; j++) {
+                for (var j = 0; j <= Object.keys($scope.COLS).length; j++) {
                     $scope.fullData[stage][j] = [];
                     for (var i = 2; i < lines.length; i++) {
                         var data = lines[i].split(";");
@@ -275,7 +275,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $mdDial
             var lines = data.split("\n");
 
             $scope.eventsData[stage] = [];
-            for (var j = 0; j <= $scope.numCols; j++) {
+            for (var j = 0; j <= Object.keys($scope.COLS).length; j++) {
                 $scope.eventsData[stage][j] = [];
                 for (var i = 1; i < lines.length; i++) {
                     var data = lines[i].split(";");
@@ -303,50 +303,57 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $mdDial
         });
 
         $scope.plotMap.push({id: 'altitude1', stages: allStages, title: "Altitude", events: true,
-            x: {axis: 0, label: "Time (s)", type: "linear"},
-            y: {axis: 4, label: "Altitude (km)", type: "linear"}});
+            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear"},
+            y: {axis: $scope.COLS.alt, label: "Altitude (km)", type: "linear"}});
         $scope.plotMap.push({id: 'profile1', stages: allStages, title: "Profile", events: true,
-            x: {axis: 6, label: "Downrange (km)", type: "linear"},
-            y: {axis: 4, label: "Altitude (km)", type: "linear"}});
-        $scope.plotMap.push({id: 'velocity1', stages: allStages, title: "Velocity", events: true,
-            x: {axis: 0, label: "Time (s)", type: "linear"},
-            y: {axis: 5, label: "Velocity (m/s)", type: "linear"}});
-        $scope.plotMap.push({id: 'prop', stages: allStages, title: "Propellant Mass", events: false,
-            x: {axis: 0, label: "Time (s)", type: "log"},
-            y: {axis: 8, label: "Mass (t)", type: "log"}});
-        $scope.plotMap.push({id: 'phase1', stages: lowerStages, title: "Booster Phasespace", events: true,
-            x: {axis: 4, label: "Altitude (km)", type: "linear"},
-            y: {axis: 5, label: "Velocity (m/s)", type: "linear"}});
-        $scope.plotMap.push({id: 'total-dv', stages: allStages, title: "Total dV Expended", events: false,
-            x: {axis: 0, label: "Time (s)", type: "log"},
-            y: {axis: 9, label: "dV (m/s)", type: "log"}});
-        $scope.plotMap.push({id: 'q', stages: lowerStages, title: "Aerodynamic Pressure", events: true,
-            x: {axis: 0, label: "Time (s)", type: "linear"},
-            y: {axis: 7, label: "Pressure (kN/m^2)", type: "linear"}});
-        $scope.plotMap.push({id: 'throttle', stages: allStages, title: "Throttle", events: false,
-            x: {axis: 0, label: "Time (s)", type: "linear", range: [0, 1000]},
-            y: {axis: 12, label: "Throttle", type: "linear"}});
-        $scope.plotMap.push({id: 'accel1', stages: allStages, title: "Acceleration", events: true,
-            x: {axis: 0, label: "Time (s)", type: "linear", range: [0, 1000]},
-            y: {axis: 13, label: "Acceleration (g)", type: "linear"}});
-        $scope.plotMap.push({id: 'aoa', stages: allStages, title: "Angle of Attack", events: true,
-            x: {axis: 0, label: "Time (s)", type: "linear", range: [0, 1000]},
-            y: {axis: 14, label: "Angle (degrees)", type: "linear", range: [-180, 180]}});
-        $scope.plotMap.push({id: 'aov', stages: allStages, title: "Velocity Angle", events: true,
-            x: {axis: 0, label: "Time (s)", type: "linear", range: [0, 1000]},
-            y: {axis: 15, label: "Angle (degrees)", type: "linear", range: [-180, 180]}});
-        $scope.plotMap.push({id: 'aop', stages: allStages, title: "Pitch Angle", events: true,
-            x: {axis: 0, label: "Time (s)", type: "linear", range: [0, 1000]},
-            y: {axis: 16, label: "Angle (degrees)", type: "linear", range: [-180, 180]}});
-        $scope.plotMap.push({id: 'drag', stages: lowerStages, title: "Drag Coefficient", events: true,
-            x: {axis: 0, label: "Time (s)", type: "linear", range: [0, 1000]},
-            y: {axis: 17, label: "Cd", type: "linear"}});
-        $scope.plotMap.push({id: 'thrust-coeff', stages: lowerStages, title: "Thrust Coefficient", events: true,
-            x: {axis: 0, label: "Time (s)", type: "linear", range: [0, 1000]},
-            y: {axis: 22, label: "Ct", type: "linear"}});
+            x: {axis: $scope.COLS.range, label: "Downrange (km)", type: "linear"},
+            y: {axis: $scope.COLS.alt, label: "Altitude (km)", type: "linear"}});
         $scope.plotMap.push({id: 'inclination', stages: allStages, title: "Inclination", events: false,
-            x: {axis: 0, label: "Time (s)", type: "linear"},
-            y: {axis: 23, label: "Incl (degrees)", type: "linear", range: [-180, 180]}});
+            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear"},
+            y: {axis: $scope.COLS.incl, label: "Incl (°)", type: "linear", range: [-180, 180]}});
+        
+        $scope.plotMap.push({id: 'velocity1', stages: allStages, title: "Velocity", events: true,
+            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear"},
+            y: {axis: $scope.COLS.vel, label: "Velocity (m/s)", type: "linear"}});
+        $scope.plotMap.push({id: 'prop', stages: allStages, title: "Propellant Mass", events: false,
+            x: {axis: $scope.COLS.time, label: "Time (s)", type: "log"},
+            y: {axis: $scope.COLS.fuel, label: "Mass (t)", type: "log"}});
+        $scope.plotMap.push({id: 'phase1', stages: lowerStages, title: "Booster Phasespace", events: true,
+            x: {axis: $scope.COLS.alt, label: "Altitude (km)", type: "linear"},
+            y: {axis: $scope.COLS.vel, label: "Velocity (m/s)", type: "linear"}});
+        
+        $scope.plotMap.push({id: 'throttle', stages: allStages, title: "Throttle", events: false,
+            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear", range: [0, 1000]},
+            y: {axis: $scope.COLS.throttle, label: "Throttle", type: "linear"}});
+        $scope.plotMap.push({id: 'accel1', stages: allStages, title: "Acceleration", events: true,
+            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear", range: [0, 1000]},
+            y: {axis: $scope.COLS.accel, label: "Acceleration (g)", type: "linear"}});
+        $scope.plotMap.push({id: 'q', stages: lowerStages, title: "Aerodynamic Pressure", events: true,
+            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear"},
+            y: {axis: $scope.COLS.q, label: "Pressure (kN/m^2)", type: "linear"}});
+        
+        $scope.plotMap.push({id: 'aoa', stages: allStages, title: "Angle of Attack", events: true,
+            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear", range: [0, 1000]},
+            y: {axis: $scope.COLS.aoa, label: "Angle (°)", type: "linear", range: [-180, 180]}});
+        $scope.plotMap.push({id: 'aov', stages: allStages, title: "Velocity Angle", events: true,
+            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear", range: [0, 1000]},
+            y: {axis: $scope.COLS.aov, label: "Angle (° rel. to surface)", type: "linear", range: [-180, 180]}});
+        $scope.plotMap.push({id: 'total-dv', stages: allStages, title: "Total dV Expended", events: false,
+            x: {axis: $scope.COLS.time, label: "Time (s)", type: "log"},
+            y: {axis: $scope.COLS.dV_tot, label: "dV (m/s)", type: "log"}});
+        
+        $scope.plotMap.push({id: 'aop', stages: allStages, title: "Pitch", events: true,
+            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear", range: [0, 1000]},
+            y: {axis: $scope.COLS.pitch, label: "Angle (°)", type: "linear", range: [-90, 90]}});
+        $scope.plotMap.push({id: 'heading', stages: allStages, title: "Heading", events: true,
+            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear", range: [0, 1000]},
+            y: {axis: $scope.COLS.yaw, label: "Angle (° cc from East)", type: "linear", range: [-180, 180]}});
+        $scope.plotMap.push({id: 'drag', stages: lowerStages, title: "Drag Coefficient", events: true,
+            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear", range: [0, 1000]},
+            y: {axis: $scope.COLS.cd, label: "Cd", type: "linear"}});
+        /*$scope.plotMap.push({id: 'thrust-coeff', stages: lowerStages, title: "Thrust Coefficient", events: true,
+            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear", range: [0, 1000]},
+            y: {axis: 22, label: "Ct", type: "linear"}});*/
 
         $scope.isLoading = false;        
         $scope.$apply(); // removing this fucks up the plot sizes in initialiePlot2()
