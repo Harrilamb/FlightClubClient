@@ -60,7 +60,7 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
         if ($scope.runTutorial) {
             $scope.tutorialStep = $scope.queryParams.step !== undefined ? parseInt($scope.queryParams.step) : 0;
             $scope.processTutorial($scope.tutorialStep);
-        } else if (!$location.hash() && !$cookies.get($scope.$parent.cookies.BLANKCANVASINFO)) {
+        } else if ($scope.form.Mission.code==='NONE' && !$cookies.get($scope.$parent.cookies.BLANKCANVASINFO)) {
             $scope.openThemedDialog(
                     'Welcome!',
                     'You have a blank canvas in front of you. To load up a pre-built mission, use the menu in the top-right corner.',
@@ -175,12 +175,12 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
         {id: 3, num: 2, delay: 350, cont: false, title: 'Selecting a Launch Site', done: 'Ok'},
         {id: 1, num: 3, delay: 1000, cont: true, title: 'Building a Rocket', done: 'Tell me more', el: '.vehicleRadio1', x: $mdPanel.xPosition.ALIGN_START, y: $mdPanel.yPosition.BELOW},
         {id: 2, num: 3, delay: 0, cont: false, title: 'Building a Rocket', done: 'Ok', el: '.vehicleRadio2', x: $mdPanel.xPosition.ALIGN_START, y: $mdPanel.yPosition.BELOW},
-        {id: 3, num: 3, delay: 1000, cont: true, title: 'Building a Rocket', done: 'Tell me more', el: '.vehicle1', x: $mdPanel.xPosition.ALIGN_START, y: $mdPanel.yPosition.BELOW},
+        {id: 3, num: 3, delay: 2000, cont: true, title: 'Building a Rocket', done: 'Tell me more', el: '.vehicle1', x: $mdPanel.xPosition.ALIGN_START, y: $mdPanel.yPosition.BELOW},
         {id: 4, num: 3, delay: 1000, cont: true, title: 'Building a Rocket', done: 'Tell me more', el: '.vehicle2', x: $mdPanel.xPosition.ALIGN_START, y: $mdPanel.yPosition.BELOW},
         {id: 5, num: 3, delay: 1000, cont: true, title: 'Building a Rocket', done: 'Tell me more', el: '.vehicle3', x: $mdPanel.xPosition.ALIGN_START, y: $mdPanel.yPosition.BELOW},
         {id: 6, num: 3, delay: 0, cont: false, title: 'Building a Rocket', done: 'Ok'},
         {id: 1, num: 4, delay: 1000, cont: false, title: 'Building a Flight Profile', done: 'Ok', el: '#eventList md-list-item', x: $mdPanel.xPosition.ALIGN_START, y: $mdPanel.yPosition.BELOW},
-        {id: 2, num: 4, delay: 1000, cont: true, title: 'Building a Flight Profile', done: 'Tell me more', el: $mdMedia('gt-sm')?'.event1':'.event11', x: $mdMedia('gt-sm')?$mdPanel.xPosition.OFFSET_START:$mdPanel.xPosition.ALIGN_START, y: $mdMedia('gt-sm')?$mdPanel.yPosition.ALIGN_TOPS:$mdPanel.yPosition.BELOW},
+        {id: 2, num: 4, delay: 2000, cont: true, title: 'Building a Flight Profile', done: 'Tell me more', el: $mdMedia('gt-sm')?'.event1':'.event11', x: $mdMedia('gt-sm')?$mdPanel.xPosition.OFFSET_START:$mdPanel.xPosition.ALIGN_START, y: $mdMedia('gt-sm')?$mdPanel.yPosition.ALIGN_TOPS:$mdPanel.yPosition.BELOW},
         {id: 3, num: 4, delay: 0, cont: true, title: 'Building a Flight Profile', done: 'Tell me more', el: $mdMedia('gt-sm')?'.event1':'.event11', x: $mdMedia('gt-sm')?$mdPanel.xPosition.OFFSET_START:$mdPanel.xPosition.ALIGN_START, y: $mdMedia('gt-sm')?$mdPanel.yPosition.ALIGN_TOPS:$mdPanel.yPosition.BELOW},
         {id: 4, num: 4, delay: 1000, cont: true, title: 'Building a Flight Profile', done: 'Tell me more', el: $mdMedia('gt-sm')?'.event2':'.event21', x: $mdMedia('gt-sm')?$mdPanel.xPosition.OFFSET_START:$mdPanel.xPosition.ALIGN_START, y: $mdMedia('gt-sm')?$mdPanel.yPosition.ALIGN_TOPS:$mdPanel.yPosition.BELOW},
         {id: 5, num: 4, delay: 1000, cont: true, title: 'Building a Flight Profile', done: 'What about Yaw?', el: $mdMedia('gt-sm')?'.event3':'.event31', x: $mdMedia('gt-sm')?$mdPanel.xPosition.OFFSET_START:$mdPanel.xPosition.ALIGN_START, y: $mdMedia('gt-sm')?$mdPanel.yPosition.ALIGN_TOPS:$mdPanel.yPosition.BELOW},
