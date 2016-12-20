@@ -365,13 +365,11 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $mdDial
         if(!$scope.failureMode)
             setTimeout(askForSupport, 1000);
         else {
-            $mdDialog.show(
-                    $mdDialog.alert()
-                    .clickOutsideToClose(true)
-                    .title('Mission Failure!')
-                    .textContent($scope.failureMode)
-                    .ariaLabel('mission failure reason')
-                    .ok('Ok')
+            $scope.openThemedDialog(
+                    'Mission Failure!',
+                    $scope.failureMode,
+                    null, null,
+                    'Ok', null
                 );
         }
         

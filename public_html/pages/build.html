@@ -125,9 +125,15 @@
                                         <md-tooltip md-direction="bottom">Core Settings</md-tooltip>
                                         <md-icon class="material-icons">visibility</md-icon>
                                     </md-button>
-                                    <md-button class="md-raised md-accent" show-sm hide-gt-sm ng-show="authorised && hasPermission('save')" type="submit" ng-click="save($event)">
+                                    <md-button ng-style="{'background-color': saveStyle ? saveStatusColor : ''}" class="md-raised md-accent" show-sm hide-gt-sm ng-show="authorised && hasPermission('save')" type="submit" ng-click="save($event)">
                                         <md-tooltip md-direction="bottom">Save Changes</md-tooltip>
-                                        <md-icon class="material-icons">save</md-icon>
+                                        <md-icon ng-show="!saving" class="material-icons">{{save_icon}}</md-icon>
+                                        <md-progress-circular class="loadCircle" ng-show="saving" md-mode="indeterminate"></md-progress-circular>
+                                    </md-button>
+                                    <md-button ng-style="{'background-color': saveSimStyle ? saveSimStatusColor : ''}" class="md-raised md-accent" show-sm hide-gt-sm ng-show="authorised && hasPermission('saveSim')" type="submit" ng-click="saveSim($event)">
+                                        <md-tooltip md-direction="bottom">Save Simulation</md-tooltip>
+                                        <md-icon ng-show="!savingSim" class="material-icons">{{saveSim_icon}}</md-icon>
+                                        <md-progress-circular class="loadCircle" ng-show="savingSim" md-mode="indeterminate"></md-progress-circular>
                                     </md-button>
                                 </md-content>
                                 <md-content>
@@ -187,6 +193,11 @@
                                         <md-tooltip md-direction="bottom">Save Changes</md-tooltip>
                                         <md-icon ng-show="!saving" class="material-icons">{{save_icon}}</md-icon>
                                         <md-progress-circular class="loadCircle" ng-show="saving" md-mode="indeterminate"></md-progress-circular>
+                                    </md-button>
+                                    <md-button ng-style="{'background-color': saveSimStyle ? saveSimStatusColor : ''}" class="md-raised md-accent" ng-show="authorised && hasPermission('saveSim')" type="submit" ng-click="saveSim($event)">
+                                        <md-tooltip md-direction="bottom">Save Simulation</md-tooltip>
+                                        <md-icon ng-show="!savingSim" class="material-icons">{{saveSim_icon}}</md-icon>
+                                        <md-progress-circular class="loadCircle" ng-show="savingSim" md-mode="indeterminate"></md-progress-circular>
                                     </md-button>
                                 </md-content>
                                 <md-content>

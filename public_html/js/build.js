@@ -11,9 +11,13 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
     $scope.exportStyle = false;
     $scope.import_icon = 'content_paste';
     $scope.importStyle = false;
+    
     $scope.save_icon = 'save';
     $scope.saveStyle = false;
     $scope.saving = false;
+    $scope.saveSim_icon = 'backup';
+    $scope.saveSimStyle = false;
+    $scope.savingSim = false;
     $scope.loadingMission = false;
     
     $scope.serverErrorMessage = 'The flightclub.io server has undergone a rapid unscheduled disassembly :/\n'
@@ -649,6 +653,59 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
             $scope.save_icon = 'save';
             $scope.saveStyle = false;
         }, 4000);
+    };
+    
+    $scope.saveSim = function(event) 
+    {
+        var confirm = $mdDialog.prompt()
+                .title('Save Simulation')
+                .textContent('Add a personal note to the simulation to help you remember!')
+                .placeholder('User Note')
+                .ariaLabel('User Note')
+                .targetEvent(event)
+                .ok('Ok')
+                .cancel('Skip');
+
+        $mdDialog.show(confirm).then(function (result) {
+            saveSimProcess(result);
+        }, function() {
+            saveSimProcess(null);
+        });
+    };
+
+    var saveSimProcess = function (note)
+    {        
+        var data = {
+            simHash: $location.hash(),
+            usernote: note,
+            auth: {
+                token: $scope.$parent.token
+            }
+        };
+        $scope.savingSim = true;
+        $scope.httpRequest('/user/saveSim', 'POST', JSON.stringify(data),
+                function () {
+                    $scope.savingSim = false;
+                    $scope.saveSimStatusColor = '#82CA9D';
+                    $scope.saveSim_icon = 'check';
+                    $scope.saveSimStyle = true;
+                    $scope.$apply();
+                    $timeout(function () {
+                        $scope.saveSim_icon = 'backup';
+                        $scope.saveSimStyle = false;
+                    }, 4000);
+                }, function () {
+                    $scope.savingSim = false;
+                    $scope.saveSimStatusColor = '#F7977A';
+                    $scope.saveSim_icon = 'close';
+                    $scope.saveSimStyle = true;
+                    $scope.$apply();
+                    $timeout(function () {
+                        $scope.saveSim_icon = 'backup';
+                        $scope.saveSimStyle = false;
+                    }, 4000);
+                }
+            );
     };
     
     var getTutorialPane = function(element, x, y) {

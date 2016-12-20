@@ -2,6 +2,7 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
 
     $scope.$emit('viewBroadcast', 'login');
     $scope.$parent.toolbarTitle = 'Flight Club | Account';
+    $scope.savedSims = [];
 
     $scope.forms = [];
     // hack to fix password label not detecting input on Chrome 
@@ -102,5 +103,56 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
             $scope.alerts[2] = 'Error sending request\n'+data.error;
             $scope.$apply();
         });
+    };
+    
+    $scope.reloadSavedSims = function () {
+        $scope.$parent.httpRequest('/user/savedSims', 'POST', JSON.stringify({auth: {token: $scope.$parent.token}}),
+                function (res) {
+                    if (res.Success) {
+                        $scope.savedSims = [];
+                        for (var i = 0; i < res.data.length; i++) {
+                            var el = res.data[i];
+                            var tempForm = JSON.parse(window.atob(el.simHash));
+                            var obj = {
+                                id: el.id,
+                                simHash: el.simHash,
+                                timestamp: new Date(el.timestamp).toUTCString(),
+                                note: el.note,
+                                mission: tempForm.Mission.description
+                            };
+                            $scope.savedSims.push(obj);
+                        }
+                    } else {
+                        $scope.alerts[3] = res.error;
+                    }
+                    $scope.$apply();
+                }, function (res) {
+                    $scope.alerts[3] = 'Error sending request\n'+res.error;
+                    $scope.$apply();
+                }
+            );
+    };
+    
+    $scope.removeSim = function (obj) {
+        var data = {
+            id: obj.id,
+            auth: {token: $scope.$parent.token}
+        };
+        $scope.$parent.httpRequest('/user/removeSim', 'POST', JSON.stringify(data),
+                function (res) {
+                    if (res.Success) {
+                        var index = $scope.savedSims.indexOf(obj);
+                        if (index > -1) {
+                            $scope.savedSims.splice(index, 1);
+                        }
+                    } else {
+                        $scope.alerts[3] = res.error;
+                    }
+                    $scope.$apply();
+                }, function (res) {
+                    $scope.alerts[3] = 'Error sending request\n'+res.error;
+                    $scope.$apply();
+                }
+            );
     };
 });
