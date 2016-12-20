@@ -1,0 +1,6 @@
+Most of the time it won't matter what the dimensions of the svg are but I don't understand them well enough for when it does matter.
+So to be safe with angular material's svg viewBox attribute (0 0 24 24), it's best to keep new svgs to 24px width and height.
+
+Then the country border should have stroke width:0.1;color:black and the target has stroke width:0.2;color:red
+
+I've overridden the svgs to have height:160px;width:160px inline in the html
