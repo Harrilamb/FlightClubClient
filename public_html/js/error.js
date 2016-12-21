@@ -11,7 +11,7 @@ angular.module('FlightClub').controller('ErrorCtrl', function ($http, $scope) {
     $scope.reportError = function () {
 
         $scope.formDisabled = true;
-        $http({url: '/report.php', data: $.param($scope.data), method: 'POST',
+        $http({url: '/report.php', data: $scope.serialize($scope.data), method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
         }).then(function () {
             $scope.mailSuccess = true;

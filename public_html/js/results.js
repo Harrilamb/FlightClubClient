@@ -1,11 +1,10 @@
 /* global Plotly */
 
-angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $mdDialog, $cookies, $interval) {
+angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookies, $interval, $http, $timeout) {
 
     $scope.$emit('viewBroadcast', 'results');
 
     $scope.$parent.toolbarTitle = 'Flight Club | Results';
-    $scope.loadPos = 30;
     $scope.loadMessage = "Building plots...";    
 
     $scope.messageArray = [
@@ -39,18 +38,22 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $mdDial
     
     $scope.animate_rocket = function () {
 
-        var windowWidth = $(document).width();
-        var margin = 0.01 * $scope.loadPos * windowWidth + 'px';
-        if ($scope.loadPos < 99.5) {
-            $scope.loadPos += 0.5 * (100 - $scope.loadPos);
-            $("#rocket").animate(
-                    {marginLeft: margin},
-                    1500,
-                    "linear",
-                    $scope.animate_rocket
-                    );
-        } else {
-            $scope.loadPos = 30;
+        var windowWidth = window.innerWidth 
+                || document.documentElement.clientWidth 
+                || document.getElementsByTagName('body')[0].clientWidth;
+        var loadPos = 0;
+
+        var elem = document.getElementById("rocket");
+        var id = setInterval(frame, 5);
+        function frame() {
+            if (!$scope.isLoading || loadPos > 99.9) {
+                clearInterval(id);
+            } else {
+                loadPos += 0.002 * (100 - loadPos);
+                var margin = 0.01 * loadPos * windowWidth + 'px';
+                elem.style.marginLeft = margin;
+                var x = 5;
+            }
         }
 
     };
@@ -62,82 +65,87 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $mdDial
         }
         $scope.queryString = queryString;
         $scope.queryParams = $scope.$parent.parseQueryString(queryString);
-        $scope.$parent.httpRequest('/simulator/results?' + queryString, 'GET', null,
+        $scope.httpRequest('/simulator/results?' + queryString, 'GET', null,
                 function (data) {
                     
+                    var json = data.data;
+                    
                     var fileMap = new Object();
-                    var files = data.Mission.Output.Files;
-                    $.each(files, function (key, val)
-                    {
+                    var files = json.Mission.Output.Files;
+                    files.forEach(function (key, val) {
                         fileMap[val.desc] = $scope.$parent.client + val.url;
                     });
 
                     var warningsFile = fileMap['warnings'];
-                    $.get(warningsFile, function (txt) {
-                        var warnings = txt.split(";");
+                    if (warningsFile !== undefined) {
+                        $http.get(warningsFile).then(function (txt) {
+                            var warnings = txt.split(";");
 
-                        $scope.warnings = [];
-                        for (var i = 0; i < warnings.length; i++) {
-                            if (warnings[i].length > 0)
-                                $scope.warnings.push(warnings[i]);
-                        }
+                            $scope.warnings = [];
+                            for (var i = 0; i < warnings.length; i++) {
+                                if (warnings[i].length > 0)
+                                    $scope.warnings.push(warnings[i]);
+                            }
 
-                    });
+                        });
+                    }
 
                     var telemetryFile = fileMap['telemetry'];
-                    $.get(telemetryFile, function (txt) {
+                    if (telemetryFile !== undefined) {
+                        $http.get(telemetryFile).then(function (txt) {
 
-                        var lines = txt.split("\n");
-                        $scope.landing = [];
-                        for (var i = 0; i < lines.length; i++)
-                        {
-                            // time-event map
-                            if (i === 0) {
-                                $scope.events = [];
-                                var event = lines[i].split(';');
-                                for (var j = 0; j < event.length; j++) {
-                                    var pair = event[j].split(':');
-                                    if (pair[0] !== undefined && pair[1] !== undefined) {
-                                        $scope.events.push({when: pair[0], what: pair[1]});
+                            var lines = txt.split("\n");
+                            $scope.landing = [];
+                            for (var i = 0; i < lines.length; i++)
+                            {
+                                // time-event map
+                                if (i === 0) {
+                                    $scope.events = [];
+                                    var event = lines[i].split(';');
+                                    for (var j = 0; j < event.length; j++) {
+                                        var pair = event[j].split(':');
+                                        if (pair[0] !== undefined && pair[1] !== undefined) {
+                                            $scope.events.push({when: pair[0], what: pair[1]});
+                                        }
+                                    }
+                                } else {
+                                    var map = lines[i].split(':');
+                                    var infoMap = map[1].split(';');
+
+                                    switch (map[0]) {
+                                        case 'Landing':
+                                            for (var j = 0; j < infoMap.length; j++) {
+                                                var pair = infoMap[j].split('=');
+                                                if (pair[0] !== undefined && pair[1] !== undefined) {
+                                                    $scope.landing.push({when: pair[0], what: pair[1]});
+                                                }
+                                            }
+                                            break;
+                                        case 'Orbit':
+                                            $scope.orbit = [];
+                                            for (var j = 0; j < infoMap.length; j++) {
+                                                var pair = infoMap[j].split('=');
+                                                if (pair[0] !== undefined && pair[1] !== undefined) {
+                                                    $scope.orbit.push({when: pair[0], what: pair[1]});
+                                                }
+                                            }
+                                            break;
                                     }
                                 }
-                            } else {
-                                var map = lines[i].split(':');
-                                var infoMap = map[1].split(';');
-
-                                switch (map[0]) {
-                                    case 'Landing':
-                                        for (var j = 0; j < infoMap.length; j++) {
-                                            var pair = infoMap[j].split('=');
-                                            if (pair[0] !== undefined && pair[1] !== undefined) {
-                                                $scope.landing.push({when: pair[0], what: pair[1]});
-                                            }
-                                        }
-                                        break;
-                                    case 'Orbit':
-                                        $scope.orbit = [];
-                                        for (var j = 0; j < infoMap.length; j++) {
-                                            var pair = infoMap[j].split('=');
-                                            if (pair[0] !== undefined && pair[1] !== undefined) {
-                                                $scope.orbit.push({when: pair[0], what: pair[1]});
-                                            }
-                                        }
-                                        break;
-                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
         );
-        $scope.$parent.httpRequest('/missions/' + $scope.queryParams['code'], 'GET', null,
-                function (res) {
-                    var data = JSON.parse(res);
-                    if (data.Mission !== undefined) {
+        $scope.httpRequest('/missions/' + $scope.queryParams['code'], 'GET', null,
+                function (data) {
+                    var json = data.data;
+                    if (json.Mission !== undefined) {
                         if ($scope.queryParams['id'] === undefined) {
-                            $scope.queryParams['id'] = data.Mission.livelaunch;
+                            $scope.queryParams['id'] = json.Mission.livelaunch;
                         }
                     }
-                    $scope.missionName = data.Mission.description;
+                    $scope.missionName = json.Mission.description;
                     $scope.getDataFile(0);
 
                 }
@@ -152,28 +160,28 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $mdDial
         $scope.loadMessage = "Calculating trajectory...";    
         var formData = window.atob(formHash);
 
-        $scope.$parent.httpRequest('/simulator/new', 'POST', formData,
+        $scope.httpRequest('/simulator/new', 'POST', formData,
                 function (data) {
-                    if (data.Mission.success === true) {
-                        var queryString = data.Mission.output.split('?')[1];
-                        $scope.failureMode = data.Mission.failureMode;
+                    var json = data.data;
+                    if (json.Mission.success === true) {
+                        var queryString = json.Mission.output.split('?')[1];
+                        $scope.failureMode = json.Mission.failureMode;
                         $scope.loadMessage = "Building plots...";
-                        window.history.pushState({}, "", '/results/?' + queryString);
+                        $scope.redirect('/results/?' + queryString);
                         $scope.load(queryString);
-                        $scope.$apply();
                     } else {
-                        var errorsHash = window.btoa(JSON.stringify(data));
-                        window.location = $scope.$parent.client + '/error/#' + errorsHash;
+                        var errorsHash = window.btoa(JSON.stringify(json));
+                        $scope.redirect('/error/#' + errorsHash);
                     }
                 },
                 function (data) {
+                    var json = data.data;
                     var errors, errorsHash = '';
-                    if (data.responseJSON !== undefined) {
-                        errors = data.responseJSON.Mission.errors;
+                    if (json.responseJSON !== undefined) {
+                        errors = json.responseJSON.Mission.errors;
                         errorsHash = window.btoa(errors);
                     }
-
-                    window.location = $scope.$parent.client + '/error/#' + errorsHash;
+                    $scope.redirect('/error/#' + errorsHash);
                 });    
     } else if (queryString) {
         $scope.load(queryString);
@@ -215,43 +223,38 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $mdDial
 
         var queryString = window.location.search.substring(1);
         queryString += '&auth=' + $cookies.get($scope.$parent.cookies.AUTHTOKEN);
-        $scope.$parent.httpRequest('/live/init?' + queryString, 'GET', null,
+        $scope.httpRequest('/live/init?' + queryString, 'GET', null,
                 function (data) {
-                    $scope.overrideStatus = data.Success ? "check" : "close";
+                    var json = data.data;
+                    $scope.overrideStatus = json.Success ? "check" : "close";
                     $scope.overrideAttempted = true;
-                    $scope.$apply();
                 },
-                function (data) {
+                function () {
                     $scope.overrideStatus = "close";
                     $scope.overrideAttempted = true;
-                    $scope.$apply();
                 });
     };
 
     $scope.getDataFile = function (stage) {
         var url = $scope.$parent.client + '/output/' + $scope.queryParams['id'] + '_' + stage + '.dat';
-        $.ajax({type: 'GET', url: url, contentType: 'text', data: null,
-            xhrFields: {withCredentials: false},
-            success: successfn,
-            error: errorfn
-        });
+        $http({method: 'GET', url: url, withCredentials: false}).then(successfn, errorfn);
 
         function successfn(data) {
             
-            if(data.indexOf("html") !== -1) {
+            if(data.data.indexOf("html") !== -1) {
                 $scope.initialisePlots();
             } else {
-                var lines = data.split("\n");
+                var lines = data.data.split("\n");
                 $scope.stageMap.push({id: stage, name: lines[0].split("#")[1]});
 
                 $scope.fullData[stage] = [];
                 for (var j = 0; j <= Object.keys($scope.COLS).length; j++) {
                     $scope.fullData[stage][j] = [];
                     for (var i = 2; i < lines.length; i++) {
-                        var data = lines[i].split(";");
-                        if(data.length === 1)
-                            data = lines[i].split("\t");
-                        $scope.fullData[stage][j][i] = parseFloat(data[j]);
+                        var line = lines[i].split(";");
+                        if(line.length === 1)
+                            line = lines[i].split("\t");
+                        $scope.fullData[stage][j][i] = parseFloat(line[j]);
                     }
                 }
                 $scope.getEventsFile(stage);
@@ -265,23 +268,19 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $mdDial
 
     $scope.getEventsFile = function (stage) {
         var url = $scope.$parent.client + '/output/' + $scope.queryParams['id'] + '_' + stage + '_events.dat';
-        $.ajax({type: 'GET', url: url, contentType: 'text', data: null,
-            xhrFields: {withCredentials: false},
-            success: successfn,
-            error: errorfn
-        });
+        $http({method: 'GET', url: url, withCredentials: false}).then(successfn, errorfn);
 
         function successfn(data) {
-            var lines = data.split("\n");
+            var lines = data.data.split("\n");
 
             $scope.eventsData[stage] = [];
             for (var j = 0; j <= Object.keys($scope.COLS).length; j++) {
                 $scope.eventsData[stage][j] = [];
                 for (var i = 1; i < lines.length; i++) {
-                    var data = lines[i].split(";");
-                    if(data.length === 1)
-                        data = lines[i].split("\t");
-                    $scope.eventsData[stage][j][i] = parseFloat(data[j]);
+                    var line = lines[i].split(";");
+                    if(line.length === 1)
+                        line = lines[i].split("\t");
+                    $scope.eventsData[stage][j][i] = parseFloat(line[j]);
                 }
             }
             $scope.getDataFile(stage + 1);
@@ -355,23 +354,26 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $mdDial
             x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear", range: [0, 1000]},
             y: {axis: 22, label: "Ct", type: "linear"}});*/
 
-        $scope.isLoading = false;        
-        $scope.$apply(); // removing this fucks up the plot sizes in initialiePlot2()
-        
-        for (var i = 0; i < $scope.plotMap.length; i++) {
-            $scope.initialisePlot2($scope.plotMap[i]);
-        }
-        
-        if(!$scope.failureMode)
-            setTimeout(askForSupport, 1000);
-        else {
-            $scope.openThemedDialog(
-                    'Mission Failure!',
-                    $scope.failureMode,
-                    null, null,
-                    'Ok', null
-                );
-        }
+        $timeout(function () {
+            
+            $scope.isLoading = false;
+            $scope.$apply();
+            
+            for (var i = 0; i < $scope.plotMap.length; i++) {
+                $scope.initialisePlot2($scope.plotMap[i]);
+            }
+
+            if (!$scope.failureMode)
+                setTimeout(askForSupport, 1000);
+            else {
+                $scope.openThemedDialog(
+                        'Mission Failure!',
+                        $scope.failureMode,
+                        null, null,
+                        'Ok', null
+                        );
+            }
+        });
         
     };
 
@@ -450,22 +452,11 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $mdDial
             var donateRequest = window['localStorage']['fc_donateRequest'];
             if (donateRequest === undefined && $cookies.get($scope.$parent.cookies.SIMCOUNT) >= 3) {
                 
-                var confirm = $mdDialog.confirm()
-                        .title('Support me on Patreon!')
-                        .textContent('Hi, I\'m really sorry and I hate myself for annoying you with popups, but if you like Flight Club, I\'d really appreciate it if you considered supporting me on Patreon! I promise you\'ll never see this message again either way :)')
-                        .ariaLabel('support request')
-                        .ok('I love this site!')
-                        .cancel('This site sucks');
-
-                $mdDialog.show(confirm).then(
-                        function () {
-                            window['localStorage']['fc_donateRequest'] = 1;
-                            window.open('https://www.patreon.com/flightclub', '_blank');
-                        },
-                        function () {
-                            window['localStorage']['fc_donateRequest'] = 1;
-                        }
-                );
+                $scope.openThemedDialog('Support me on Patreon!', 
+                        'Hi, I\'m really sorry and I hate myself for annoying you with popups, but if you like Flight Club, I\'d really appreciate it if you considered supporting me on Patreon! I promise you\'ll never see this message again either way :)',
+                        'This site sucks', function () {window['localStorage']['fc_donateRequest'] = 1;},
+                        'I love this site!', function () {window['localStorage']['fc_donateRequest'] = 1;window.open('https://www.patreon.com/flightclub', '_blank');}
+                    );
             }
         }
     };

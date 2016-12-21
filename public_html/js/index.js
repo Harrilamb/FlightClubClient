@@ -1,4 +1,4 @@
-angular.module('FlightClub').controller('IndexCtrl', function ($scope, $mdSidenav, $cookies, $location, $window, $interval, $mdMedia, $mdPanel) {
+angular.module('FlightClub').controller('IndexCtrl', function ($http, $scope, $mdSidenav, $cookies, $location, $window, $interval, $mdMedia, $mdPanel) {
     
     var base, port;
     if($location.host() === 'localhost') {
@@ -30,18 +30,27 @@ angular.module('FlightClub').controller('IndexCtrl', function ($scope, $mdSidena
     });
 
     $scope.httpRequest = function (dest, method, data, successfn, errorfn) {
-        $.ajax({type: method, url: api_url + dest, contentType: 'application/json', data: data,
-            dataType: "json", xhrFields: {withCredentials: false}, headers: {},
-            success: successfn, error: errorfn
-        });
+        $http({
+            method: method,
+            url: api_url + dest,
+            data: data,
+            withCredentials: false,
+            headers: {}
+        }).then(successfn, errorfn);
+        /*
+        $.ajax({contentType: 'application/json',
+            dataType: "json",
+        });*/
     };
 
     if ($scope.token !== undefined) {
         var data = JSON.stringify({auth: {token: $scope.token}});
         $scope.httpRequest('/auth/', 'POST', data, function (data) {
-            $scope.authorised = data.auth;
             
-            data.permissions.split(",").forEach(function(el) {
+            var json = data.data;
+            $scope.authorised = json.auth;
+            
+            json.permissions.split(",").forEach(function(el) {
                 $scope.permissions.push(el.toLowerCase());
             });
             $scope.canCreateUser = $scope.hasPermission('createUser');
@@ -171,5 +180,34 @@ angular.module('FlightClub').controller('IndexCtrl', function ($scope, $mdSidena
         cd: 17,
         xAbs: 18, yAbs: 19, zAbs: 20,
         yaw: 21, c_thrust: 22, incl: 23
+    };
+    
+    // implementation of jQuery $.getScript
+    $scope.getScript = function(source, callback) {
+        var script = document.createElement('script');
+        var prior = document.getElementsByTagName('script')[0];
+        script.async = 1;
+        prior.parentNode.insertBefore(script, prior);
+
+        script.onload = script.onreadystatechange = function (_, isAbort) {
+            if (isAbort || !script.readyState || /loaded|complete/.test(script.readyState)) {
+                script.onload = script.onreadystatechange = null;
+                script = undefined;
+
+                if (!isAbort) {
+                    if (callback)
+                        callback();
+                }
+            }
+        };
+
+        script.src = source;
+    };
+    
+    $scope.serialize = function (obj) {
+        return Object.keys(obj).reduce(function (a, k) {
+            a.push(encodeURIComponent(k) + '=' + encodeURIComponent(obj[k]));
+            return a;
+        }, []).join('&');
     };
 });

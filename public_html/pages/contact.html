@@ -43,11 +43,13 @@
                     <md-content flex-gt-sm="50" layout-fill style="overflow-x:hidden">
                         <textarea placeholder="Enter your message here..." ng-change="validate()" style='min-height:100px' layout-fill ng-model="form.message"></textarea>
                     </md-content>
-                    <md-button ng-style="{'background-color': sendStyle ? sendStatusColor : ''}" class="md-raised" type="submit" ng-click="sendMail()">
-                        <md-tooltip md-direction="bottom">Send Message</md-tooltip>
-                        <md-icon class="material-icons">{{send_icon}}</md-icon>
-                        <md-progress-circular class="loadCircle" ng-show="sending" md-mode="indeterminate"></md-progress-circular>
-                    </md-button>
+                    <md-content>
+                        <md-button ng-style="{'background-color': sendStyle ? sendStatusColor : ''}" class="md-raised" type="submit" ng-click="sendMail()">
+                            <md-tooltip md-direction="bottom">Send Message</md-tooltip>
+                            <md-icon ng-show="!sending" class="material-icons">{{send_icon}}</md-icon>
+                            <md-progress-circular class="loadCircle" ng-show="sending" md-mode="indeterminate"></md-progress-circular>
+                        </md-button>
+                    </md-content>
                 </form>
             </md-content>
         </md-content>
