@@ -1,0 +1,22 @@
+
+<!--
+    inner div was 8px larger and created scrollbar. add 8px bottom padding to fix.
+-->
+
+<md-content layout-fill flex layout="column">
+    <md-content style="padding-bottom:8px" layout-fill flex layout="column" layout-align="space-around center">
+        <md-select ng-model="chosenClass">
+            <md-option ng-repeat="tier in rewards" value="{{tier.name}}" ng-click="func(tier)">{{tier.name}}</md-option>
+        </md-select>
+        <md-list ng-repeat="tier in rewards" ng-show="chosenClass === tier.name">
+            <md-subheader class="md-no-sticky">{{tier.name}} Patreons</md-subheader>
+            <md-content ng-show="loading">
+                <md-progress-circular class="loadCircle" md-mode="indeterminate"></md-progress-circular>                
+            </md-content>
+            <md-list-item ng-show="!loading" ng-repeat="person in tier.list" class="noright">
+                <img alt="{{ person}}" ng-src="{{ person.img}}" class="md-avatar" />
+                <p>{{ person}}</p>
+            </md-list-item>
+        </md-list>
+    </md-content>
+</md-content>

@@ -41,6 +41,7 @@ angular.module('FlightClub').config(function ($routeProvider, $locationProvider,
             .when("/results/", {templateUrl: "/pages/results.html", controller: "ResultsCtrl", reloadOnSearch: false})
             .when("/media/", {templateUrl: "/pages/media.html", controller: "MediaCtrl"})
             .when("/world/", {templateUrl: "/pages/world.html", controller: "WorldCtrl", reloadOnSearch: false})
+            .when("/patreon/", {templateUrl: "/pages/patreon.html", controller: "PatreonCtrl"})
             .otherwise({redirectTo: '/'});
 });
 

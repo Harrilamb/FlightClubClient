@@ -262,7 +262,6 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                         $scope.form.Mission.Events.splice(i, 1);
                 }
             }
-            $scope.$apply();
         }, null);
     };
 
@@ -640,7 +639,6 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
         $scope.saveStatusColor = '#82CA9D';
         $scope.save_icon = 'check';
         $scope.saveStyle = true;
-        $scope.$apply();
         $timeout(function () {
             $scope.save_icon = 'save';
             $scope.saveStyle = false;
@@ -652,7 +650,6 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
         $scope.saveStatusColor = '#F7977A';
         $scope.save_icon = 'close';
         $scope.saveStyle = true;
-        $scope.$apply();
         $timeout(function () {
             $scope.save_icon = 'save';
             $scope.saveStyle = false;
@@ -691,7 +688,6 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                     $scope.saveSimStatusColor = '#82CA9D';
                     $scope.saveSim_icon = 'check';
                     $scope.saveSimStyle = true;
-                    $scope.$apply();
                     $timeout(function () {
                         $scope.saveSim_icon = 'backup';
                         $scope.saveSimStyle = false;
@@ -701,7 +697,6 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                     $scope.saveSimStatusColor = '#F7977A';
                     $scope.saveSim_icon = 'close';
                     $scope.saveSimStyle = true;
-                    $scope.$apply();
                     $timeout(function () {
                         $scope.saveSim_icon = 'backup';
                         $scope.saveSimStyle = false;
@@ -1029,7 +1024,7 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
         $mdDialog.show({
             controller: function ($scope, lParent, lForm, $mdDialog) {
 
-                $scope.parentScope = JSON.parse(JSON.stringify(lParent));
+                $scope.form = JSON.parse(JSON.stringify(lForm));
                 $scope.companies = lParent.companies;
                 
                 // offset stuff necessary if client is not UTC. Date() returns time in local TZ >:|
