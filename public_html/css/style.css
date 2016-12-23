@@ -151,6 +151,12 @@ md-select, md-switch {
     margin: 0 !important;
 }
 
+#patreon img {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
 @media 
 only screen and (min-width: 768px)  {
 
