@@ -1030,8 +1030,8 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                 // offset stuff necessary if client is not UTC. Date() returns time in local TZ >:|
                 var today = new Date();
                 var offset = -(today.getTimezoneOffset()/60);
-                var tempDate = new Date($scope.parentScope.form.Mission.date);
-                $scope.parentScope.form.Mission.date = new Date(tempDate.getTime() - offset*60*60*1000);
+                var tempDate = new Date($scope.form.Mission.date);
+                $scope.form.Mission.date = new Date(tempDate.getTime() - offset*60*60*1000);
                 
                 Date.prototype.yyyymmdd = function () {
                     var mm = this.getMonth() + 1; // getMonth() is zero-based
@@ -1050,13 +1050,13 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                     $mdDialog.hide();
                 };
                 $scope.save = function () {
-                    lForm.Mission.code = $scope.parentScope.form.Mission.code;
-                    lForm.Mission.description = $scope.parentScope.form.Mission.description;
-                    lForm.Mission.date = $scope.parentScope.form.Mission.date.yyyymmdd();
-                    lForm.Mission.time = $scope.parentScope.form.Mission.time;
-                    lForm.Mission.company = $scope.parentScope.form.Mission.company;
-                    lForm.Mission.orbits = $scope.parentScope.form.Mission.orbits;
-                    lForm.Mission.display = $scope.parentScope.form.Mission.display;
+                    lForm.Mission.code = $scope.form.Mission.code;
+                    lForm.Mission.description = $scope.form.Mission.description;
+                    lForm.Mission.date = $scope.form.Mission.date.yyyymmdd();
+                    lForm.Mission.time = $scope.form.Mission.time;
+                    lForm.Mission.company = $scope.form.Mission.company;
+                    lForm.Mission.orbits = $scope.form.Mission.orbits;
+                    lForm.Mission.display = $scope.form.Mission.display;
                     $mdDialog.hide();
                 };
             },
