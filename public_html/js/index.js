@@ -210,4 +210,10 @@ angular.module('FlightClub').controller('IndexCtrl', function ($http, $scope, $m
             return a;
         }, []).join('&');
     };
+    
+    $scope.getGEOPatronList = function() {
+        return '<li>TMRO</li>'
+                + '<li>Burt Paulie</li>'
+        ;
+    };
 });

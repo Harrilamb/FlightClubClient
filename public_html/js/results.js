@@ -23,7 +23,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         { p: 0.3, message: 'Landing burn has begun'},
         { p: 0.6, message: 'LZ-1, The Falcon has landed'},
         { p: 0.5, message: 'We have SECO!'},
-        { p: 0.9, message: '<a href="https://www.patreon.com/flightclub">Click here to support me on Patreon!</a>'},
+        { p: 0.95, message: 'A huge thank you to my GEO Patrons for supporting Flight Club!<ul>'+$scope.$parent.getGEOPatronList()+'</ul><a href="https://www.patreon.com/flightclub">Click here to support me on Patreon!</a>'},
         { p: 0.0, message: 'Follow me on Twitter: <a href="https://www.twitter.com/decmurphy_">@decmurphy_</a>'}        
     ];
     

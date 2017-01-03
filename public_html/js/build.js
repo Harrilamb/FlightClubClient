@@ -30,7 +30,7 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
         { p: 0.2, message: 'Turtling FoxhoundBat...' },
         { p: 0.2, message: 'YVAN EHT NIOJ' },
         { p: 0.2, message: 'Impersonating Benjamin Klein...' },
-        { p: 0.9, message: '<a href="https://www.patreon.com/flightclub">Click here to support me on Patreon!</a>'},
+        { p: 0.95, message: 'A huge thank you to my GEO Patrons for supporting Flight Club!<ul>'+$scope.$parent.getGEOPatronList()+'</ul><a href="https://www.patreon.com/flightclub">Click here to support me on Patreon!</a>'},
         { p: 0.6, message: 'Wake up, John...' },
         { p: 0.1, message: 'SUBLIMINAL MESSAGES' },
         { p: 0.8, message: 'In the beginning the Universe was created. This has made a lot of people very angry and been widely regarded as a bad move.' },
