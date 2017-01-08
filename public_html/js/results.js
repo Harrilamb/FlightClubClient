@@ -72,14 +72,14 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                     
                     var fileMap = new Object();
                     var files = json.Mission.Output.Files;
-                    files.forEach(function (key, val) {
-                        fileMap[val.desc] = $scope.$parent.client + val.url;
+                    files.forEach(function (key) {
+                        fileMap[key.desc] = $scope.$parent.client + key.url;
                     });
 
                     var warningsFile = fileMap['warnings'];
                     if (warningsFile !== undefined) {
                         $http.get(warningsFile).then(function (txt) {
-                            var warnings = txt.split(";");
+                            var warnings = txt.data.split(";");
 
                             $scope.warnings = [];
                             for (var i = 0; i < warnings.length; i++) {
@@ -94,7 +94,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                     if (telemetryFile !== undefined) {
                         $http.get(telemetryFile).then(function (txt) {
 
-                            var lines = txt.split("\n");
+                            var lines = txt.data.split("\n");
                             $scope.landing = [];
                             for (var i = 0; i < lines.length; i++)
                             {
