@@ -43,16 +43,16 @@
                     <i class="material-icons" ng-show="overrideAttempted">{{overrideStatus}}</i><span class="md-secondary">Override Live Plot</span>
                 </md-list-item>
                 <md-subheader class="md-no-sticky">More Simulation Data</md-subheader>
-                <md-list-item ng-click="toggleNav('warnings')" ng-show="warnings.length > 0">
+                <md-list-item ng-show="warnings.length > 0" ng-click="toggleNav('warnings')">
                     <span class="md-secondary">Warnings</span>
                 </md-list-item>
-                <md-list-item ng-click="toggleNav('events')">
+                <md-list-item ng-show="events.length > 0" ng-click="toggleNav('events')">
                     <span class="md-secondary">Event Log</span>
                 </md-list-item>
-                <md-list-item ng-click="toggleNav('landing')">
+                <md-list-item ng-show="landing.length > 0" ng-click="toggleNav('landing')">
                     <span class="md-secondary">Landing Params</span>
                 </md-list-item>
-                <md-list-item ng-click="toggleNav('orbit')">
+                <md-list-item ng-show="orbit.length > 0" ng-click="toggleNav('orbit')">
                     <span class="md-secondary">Orbital Params</span>
                 </md-list-item>
             </md-list>
