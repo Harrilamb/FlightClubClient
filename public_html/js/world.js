@@ -235,7 +235,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
             if (timeUntilLaunch > 1 * 60 * 60 * 1000) {
                 $scope.countdown = true;
                 $scope.worldLoading = false;
-            } else if (timeUntilLaunch < -14 * 60 * 1000) {
+            } else if (timeUntilLaunch < -90 * 60 * 1000) {
                 $scope.finished = true;
                 $scope.worldLoading = false;
             } else {
@@ -417,9 +417,9 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
         var url = $scope.$parent.server + '/resource/' + $scope.queryParams['code'] + '.hazard.txt';
         $http.get(url).then(successfn, errorfn);
 
-        function successfn(data) {
+        function successfn(res) {
 
-            var lines = data.split("\n");
+            var lines = res.data.split("\n");
             var array = [];
             for (var i = 0; i < lines.length; i++) {
 
@@ -446,7 +446,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
             $scope.getEventsFile(0);
         }
 
-        function errorfn(data) {
+        function errorfn(res) {
             $scope.getEventsFile(0);
         }
     };
@@ -456,9 +456,9 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
         var url = $scope.$parent.client + '/output/' + w.getProp('id') + '_' + stage + '.dat';
         $http.get(url).then(successfn, errorfn);
 
-        function successfn(data) {
+        function successfn(res) {
 
-            var lines = data.data.split("\n");
+            var lines = res.data.split("\n");
 
             var p_stage = new Cesium.SampledPositionProperty();
             var o_stage = new Cesium.SampledProperty(Cesium.Quaternion);
@@ -590,8 +590,8 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
             $scope.getEventsFile(stage + 1);
         }
 
-        function errorfn(data) {
-            console.log(data);
+        function errorfn(res) {
+            console.log(res);
         }
     };
 
@@ -599,13 +599,13 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
         var url = $scope.$parent.client + '/output/' + w.getProp('id') + '_' + stage + '_events.dat';
         $http.get(url).then(successfn, errorfn);
 
-        function successfn(data) {
+        function successfn(res) {
 
-            if (data.data.indexOf("html") !== -1) {
+            if (res.data.indexOf("html") !== -1) {
                 $scope.start();
             } else {
                 
-                var lines = data.data.split("\n");
+                var lines = res.data.split("\n");
                 eventsData[stage] = [];
 
                 focusPoints = [];
@@ -638,8 +638,8 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
             }
         }
 
-        function errorfn(data) {
-            console.log(data);
+        function errorfn(res) {
+            console.log(res);
         }
     };
 
@@ -801,10 +801,14 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
 
         for (var stage = 0; stage < 2; stage++) {
             var width = fullWidth <= 456 ? fullWidth - 56 : fullWidth >= 960 ? 400 : 320;
-            $("#altitudePlot").width(width);
-            $("#velocityPlot").width(width);
-            $("#altitudePlot").height(width / 1.6);
-            $("#velocityPlot").height(width / 1.6);
+            
+            var altitudePlot = document.getElementById("altitudePlot");
+            altitudePlot.style.width = width + 'px';
+            altitudePlot.style.height = (width / 1.6) + 'px';
+
+            var velocityPlot = document.getElementById("velocityPlot");
+            velocityPlot.style.width = width + 'px';
+            velocityPlot.style.height = (width / 1.6) + 'px';
         }
         var w2;
         var fullWidth = $(document.body)[0].clientWidth;
