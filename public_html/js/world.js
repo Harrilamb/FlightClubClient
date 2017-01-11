@@ -270,7 +270,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
     };
 
     $scope.loadFlot = function (otherFunction) {
-        $scope.getScript("js/flot.min.js", function () {
+        $scope.getScript("flot/flot.min.js", function () {
             
             var fullWidth = window.innerWidth 
                 || document.documentElement.clientWidth 
@@ -799,26 +799,28 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
 
     $scope.plotResize = function (considerSidebar) {
 
-        for (var stage = 0; stage < 2; stage++) {
-            var width = fullWidth <= 456 ? fullWidth - 56 : fullWidth >= 960 ? 400 : 320;
-            
-            var altitudePlot = document.getElementById("altitudePlot");
-            altitudePlot.style.width = width + 'px';
-            altitudePlot.style.height = (width / 1.6) + 'px';
+        var fullWidth = document.getElementsByTagName('body')[0].clientWidth;
+        var w2 = fullWidth;
+        if ($scope.queryParams['w'] !== undefined) {
+            for (var stage = 0; stage < 2; stage++) {
+                var width = fullWidth <= 456 ? fullWidth - 56 : fullWidth >= 960 ? 400 : 320;
 
-            var velocityPlot = document.getElementById("velocityPlot");
-            velocityPlot.style.width = width + 'px';
-            velocityPlot.style.height = (width / 1.6) + 'px';
-        }
-        var w2;
-        var fullWidth = $(document.body)[0].clientWidth;
-        if (considerSidebar) {
-            $scope.initialisePlot("altitude", w.getTrackedStage());
-            $scope.initialisePlot("velocity", w.getTrackedStage());
-            var width = fullWidth < 456 ? fullWidth - 56 : fullWidth > 960 ? 400 : 320;
-            w2 = fullWidth - width;
-        } else {
-            w2 = fullWidth;
+                var altitudePlot = document.getElementById("altitudePlot");
+                altitudePlot.style.width = width + 'px';
+                altitudePlot.style.height = (width / 1.6) + 'px';
+
+                var velocityPlot = document.getElementById("velocityPlot");
+                velocityPlot.style.width = width + 'px';
+                velocityPlot.style.height = (width / 1.6) + 'px';
+            }
+            if (considerSidebar) {
+                $scope.initialisePlot("altitude", w.getTrackedStage());
+                $scope.initialisePlot("velocity", w.getTrackedStage());
+                var width = fullWidth < 456 ? fullWidth - 56 : fullWidth > 960 ? 400 : 320;
+                w2 = fullWidth - width;
+            } else {
+                w2 = fullWidth;
+            }
         }
         document.getElementById("cesiumContainer").setAttribute("style", "width:"+w2+"px");
         
