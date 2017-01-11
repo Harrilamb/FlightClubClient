@@ -1,8 +1,6 @@
 public_html/docs/
 public_html/fonts/Brandon\ Grotesque\ Medium.otf
-deploy*
 nbproject/
-scripts/
 public_html/angular-1.5.8/
 public_html/angular-material-1.1.1/
 public_html/cesium/
