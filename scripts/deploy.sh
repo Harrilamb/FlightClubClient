@@ -1,7 +1,8 @@
 #!/bin/bash
 
-LOCAL=/var/www/html
-REMOTE=/var/www/html/flightclub
+LOCAL_DIR=/var/www/html
+REMOTE_DIR=/var/www/html/flightclub
+SERVER=root@178.62.67.169
 
 usage() { echo "Usage: $0 [--all] [--lite] [--index] [--js] [--css] [--pages] [--images] " 1>&2; exit 1; }
 
@@ -10,32 +11,66 @@ OPTS=`getopt -o h -l index,js,images,pages,css,all,lite -- "$@"`
 eval set -- "$OPTS"
 
 # build list
-LIST=''
+SCP_LIST=''
+GULP_TARGETS=''
+htmlpage=false;
 while true ; do
     case "$1" in
-	--all)		LIST="$LOCAL/index.html $LOCAL/js/ $LOCAL/css/ $LOCAL/pages/ $LOCAL/images/"; break;;
-	--lite)		LIST="$LOCAL/index.html $LOCAL/js/ $LOCAL/css/ $LOCAL/pages/"; break;;
-	--index) 	LIST="$LIST $LOCAL/index.html"; shift;;
-        --js)		LIST="$LIST $LOCAL/js/"; shift;;
-        --images)	LIST="$LIST $LOCAL/images/"; shift;;
-        --pages)	LIST="$LIST $LOCAL/pages/"; shift;;
-        --css)		LIST="$LIST $LOCAL/css/"; shift;;
-	--) 		shift; break;;
+	--all)		
+		SCP_LIST="$LOCAL_DIR/index.html $LOCAL_DIR/js/ $LOCAL_DIR/css/ $LOCAL_DIR/pages/ $LOCAL_DIR/images/"
+		break;;
+	--lite)		
+		SCP_LIST="$LOCAL_DIR/index.html $LOCAL_DIR/js/ $LOCAL_DIR/css/ $LOCAL_DIR/pages/"
+		GULP_TARGETS="htmlpage scripts styles"
+		break;;
+	--index) 	
+		SCP_LIST="$SCP_LIST $LOCAL_DIR/index.html"
+		if ! $htmlpage; then 
+			GULP_TARGETS="$GULP_TARGETS htmlpage"
+			htmlpage=true
+		fi
+		shift;;
+        --js)		
+		SCP_LIST="$SCP_LIST $LOCAL_DIR/js/"
+		GULP_TARGETS="$GULP_TARGETS scripts"
+		shift;;
+        --images)	
+		SCP_LIST="$SCP_LIST $LOCAL_DIR/images/"
+		GULP_TARGETS="$GULP_TARGETS imagemin"
+		shift;;
+        --pages)	
+		SCP_LIST="$SCP_LIST $LOCAL_DIR/pages/"
+		if ! $htmlpage; then 
+			GULP_TARGETS="$GULP_TARGETS htmlpage"
+			htmlpage=true
+		fi
+		shift;;
+        --css)		
+		SCP_LIST="$SCP_LIST $LOCAL_DIR/css/"
+		GULP_TARGETS="$GULP_TARGETS styles"
+		shift;;
+	--) 		
+		shift
+		break;;
     esac
 done
 
 # do deploy
-if [[ ! -z $LIST ]]; then
+if [[ ! -z $SCP_LIST ]]; then
 
-	#echo 'LIST = '
-	#echo $LIST
+	#echo 'SCP_LIST = '
+	#echo $SCP_LIST
 
-	echo "Have you gulp'd???"
+	#echo 'GULP_TARGETS = '
+	#echo $GULP_TARGETS
 
+	echo '############# gulping...'
+	gulp $GULP_TARGETS &
+	sleep 2s
 	echo '############# copying...'
-	scp -r $LIST root@178.62.67.169:$REMOTE
+	scp -r $SCP_LIST $SERVER:$REMOTE_DIR
 	echo '############# restarting...'
-	ssh root@178.62.67.169 "service apache2 restart"
+	ssh $SERVER "service apache2 restart"
 	echo '############# done.'
 else
 	usage
