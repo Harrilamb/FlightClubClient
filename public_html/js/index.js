@@ -155,7 +155,7 @@ angular.module('FlightClub').controller('IndexCtrl', function ($http, $scope, $m
             templateUrl: '/pages/themedDlg.tmpl.html',
             panelClass: 'dialog-panel',
             position: position,
-            clickOutsideToClose: true,
+            clickOutsideToClose: false,
             hasBackdrop: true,
             locals: {
                 lTheme: $scope.theme,

@@ -739,7 +739,7 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
             templateUrl: '/pages/tutorial.tmpl.html',
             panelClass: 'dialog-panel',
             position: position,
-            clickOutsideToClose: true,
+            clickOutsideToClose: false,
             locals: {
                 lTheme: $scope.$parent.theme,
                 lSteps: $scope.tutorialSteps,
