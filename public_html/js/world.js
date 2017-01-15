@@ -321,7 +321,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
 
     $scope.loadCesium = function (otherFunction) {
 
-        window.CESIUM_BASE_URL = '//cesiumjs.org/releases/1.28/Build/Cesium/';
+        window.CESIUM_BASE_URL = '//cesiumjs.org/releases/1.29/Build/Cesium/';
         $scope.getScript(CESIUM_BASE_URL+"Cesium.js", function ()
         {
             $scope.worldLoading = false;
@@ -427,7 +427,8 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                     if (array.length > 0) {
                         w.viewer.entities.add({
                             polygon: {
-                                hierarchy: Cesium.Cartesian3.fromDegreesArray(array),
+                                hierarchy: Cesium.Cartesian3.fromDegreesArrayHeights(array),
+                                extrudedHeight: 0,
                                 material: Cesium.Color.RED.withAlpha(0.3),
                                 outline: true,
                                 outlineColor: Cesium.Color.RED
@@ -439,7 +440,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
 
                 if (lines[i].indexOf(";") > -1) {
                     var data = lines[i].split(";");
-                    array.push(data[0], data[1]);
+                    array.push(data[0], data[1], 1);
                 }
             }
 
