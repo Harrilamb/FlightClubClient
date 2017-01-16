@@ -97,8 +97,7 @@ md-divider.md-fc_default-theme {
 /*
   tabs content was starting way above the tab content. only important for launchpads
 */
-#build md-grid-list,
-#patreon md-grid-list {
+#build md-grid-list {
   padding-bottom: 0 !important;
 }
 

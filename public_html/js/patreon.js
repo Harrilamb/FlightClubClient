@@ -7,13 +7,14 @@ angular.module('FlightClub').controller('PatreonCtrl', function ($scope, $cookie
 
     var queryString = window.location.search.substring(1);
     $scope.queryParams = $scope.parseQueryString(queryString);
-    $scope.chosenTier;
+    $scope.chosenTiers = [], $scope.chosenPatrons = [];
 
     queryString = 'auth=' + $cookies.get($scope.$parent.cookies.AUTHTOKEN);
     $scope.httpRequest('/patreon/patrons?' + queryString, 'GET', null, function (data) {
         var json = data.data;
         if (json.Success) {
             $scope.rewards = json.data;
+            $scope.rewards.sort(function(a,b) {return (a.amount > b.amount) ? -1 : ((b.amount > a.amount) ? 1 : 0);} );
 
             /*
              * add fake data for long list
@@ -26,11 +27,17 @@ angular.module('FlightClub').controller('PatreonCtrl', function ($scope, $cookie
             }*/
 
             $scope.rewards.forEach(function (tier) {
-                if (tier.name.indexOf($scope.queryParams.id) !== -1) {
-                    $scope.chosenTier = tier;
-                }
+                $scope.queryParams.id.forEach(function (queryTier) {
+                    if (tier.name.indexOf(queryTier) !== -1) {
+                        $scope.chosenTiers.push(tier); // not using this anymore, apart from to set the titleTier
+                        tier.patrons.forEach(function (patron) {
+                            $scope.chosenPatrons.push(patron);
+                        });
+                    }
+                });
             });
-
+            $scope.titleTier = $scope.chosenTiers[0];
+            
             setTimeout(scroll, 1000);
 
         } else {
