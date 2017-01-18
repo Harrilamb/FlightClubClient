@@ -32,6 +32,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
     startRoller();
 
     $scope.$parent.toolbarTitle = "Flight Club | Live";
+    $scope.padViews = {};
     var w;
 
     var stageColours = [];
@@ -200,6 +201,12 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                     if (json.Mission !== undefined && $scope.queryParams['id'] === undefined) {
                         $scope.queryParams['id'] = json.Mission.livelaunch;
                     }
+                    $scope.httpRequest('/launchsites/' + json.Mission.launchsite, 'GET', null,
+                        function (data) {
+                            var json = data.data;
+                            $scope.launchSite = json.data[0];
+                        }
+                    );
                     if (reload) {
                         $scope.worldLoading = true;
                         startRoller();
@@ -833,6 +840,10 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                 || document.getElementsByTagName('body')[0].clientWidth;
         $scope.plotResize(windowWidth >= 960);
     };
+    
+    var getElevationFor = function(latitude, longitude) {
+        return 1000.0; // eed to interface with the google maps API
+    };
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -841,6 +852,29 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
         this.setCameraLookingAt = function (site) {
             w.viewer.camera.flyTo(launchPadViews[site]);
         };
+
+        this.setCameraLookingAtCoordinates = function (longitude, latitude) {
+            
+            var lat1 = $scope.launchSite.latitude*Math.PI/180.0;
+            var lon1 = $scope.launchSite.longitude*Math.PI/180.0;
+            var lat2 = latitude*Math.PI/180.0;
+            var lon2 = longitude*Math.PI/180.0;
+            
+            var y = Math.sin(lon1 - lon2) * Math.cos(lat1);
+            var x = Math.cos(lat2) * Math.sin(lat1) -
+                    Math.sin(lat2) * Math.cos(lat1) * Math.cos(lon1 - lon2);
+            var brng = Math.atan2(y, x)*180/Math.PI;
+
+            w.viewer.camera.flyTo({
+                destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, getElevationFor(latitude, longitude)),
+                orientation: {
+                    heading: Cesium.Math.toRadians(brng),
+                    pitch: Cesium.Math.toRadians(0),
+                    roll: Cesium.Math.toRadians(0)
+                }
+            });
+        };
+        
 
         var trackedStage = 0;
         this.trackEntity = function (stage) {
@@ -914,6 +948,40 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
         };
 
     }
+
+    $scope.openPadViewPointEditDialog = function ($trigger) {
+
+        $mdDialog.show({
+            controller: function ($scope, lW, lPadViews, lSite, $mdDialog) {
+
+                $scope.padViews = JSON.parse(JSON.stringify(lPadViews));
+                $scope.site = lSite;
+                
+                $scope.cancel = function () {
+                    $mdDialog.cancel();
+                };
+                $scope.finish = function () {
+                    $mdDialog.hide();
+                };
+                $scope.save = function () {
+                    lPadViews.longitude = $scope.padViews.longitude;
+                    lPadViews.latitude = $scope.padViews.latitude;
+                    lW.setCameraLookingAtCoordinates($scope.padViews.longitude, $scope.padViews.latitude);
+                    $mdDialog.hide();
+                };
+            },
+            templateUrl: '/pages/editPadViewPointDlg.tmpl.html',
+            parent: angular.element(document.body),
+            targetEvent: $trigger,
+            clickOutsideToClose: true,
+            locals: {
+                lParent: $scope,
+                lPadViews: $scope.padViews,
+                lSite: $scope.launchSite,
+                lW: w
+            }
+        });
+    };
     
     $scope.openCesiumCreditsDialog = function ($event) {
         $mdDialog.show({
