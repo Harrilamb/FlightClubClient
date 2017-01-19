@@ -4,7 +4,12 @@ angular.module('FlightClub').controller('IndexCtrl', function ($http, $scope, $m
     if($location.host() === 'localhost') {
         base= 'http://localhost';
         port = ':8080';
-    } else {
+    }
+    // redirect flightclub.io to www.flightclub.io programmatically (using .htaccess for this breaks angular router)
+    else if($location.host().indexOf("www") === -1) {
+        $window.location.href = $location.absUrl().split('flightclub.io').join('www.flightclub.io');
+    } 
+    else {
         base = '//www.flightclub.io';
         port = ':8443';
     }

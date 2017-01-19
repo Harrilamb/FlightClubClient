@@ -52,7 +52,6 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                 loadPos += 0.002 * (100 - loadPos);
                 var margin = 0.01 * loadPos * windowWidth + 'px';
                 elem.style.marginLeft = margin;
-                var x = 5;
             }
         }
 
@@ -137,12 +136,12 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                     }
                 }
         );
-        $scope.httpRequest('/missions/' + $scope.queryParams['code'], 'GET', null,
+        $scope.httpRequest('/missions/' + $scope.queryParams.code, 'GET', null,
                 function (data) {
                     var json = data.data;
                     if (json.Mission !== undefined) {
-                        if ($scope.queryParams['id'] === undefined) {
-                            $scope.queryParams['id'] = json.Mission.livelaunch;
+                        if ($scope.queryParams.id === undefined) {
+                            $scope.queryParams.id = json.Mission.livelaunch;
                         }
                     }
                     $scope.missionName = json.Mission.description;
@@ -214,7 +213,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
     };
 
     $scope.goToLive = function () {
-        $scope.$parent.redirect("/world?w=1&code=" + $scope.queryParams['code']);
+        $scope.$parent.redirect("/world?w=1&code=" + $scope.queryParams.code);
     };
 
     $scope.overrideLive = function () {
@@ -236,7 +235,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
     };
 
     $scope.getDataFile = function (stage) {
-        var url = $scope.$parent.client + '/output/' + $scope.queryParams['id'] + '_' + stage + '.dat';
+        var url = $scope.$parent.client + '/output/' + $scope.queryParams.id + '_' + stage + '.dat';
         $http({method: 'GET', url: url, withCredentials: false}).then(successfn, errorfn);
 
         function successfn(data) {
@@ -267,7 +266,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
     };
 
     $scope.getEventsFile = function (stage) {
-        var url = $scope.$parent.client + '/output/' + $scope.queryParams['id'] + '_' + stage + '_events.dat';
+        var url = $scope.$parent.client + '/output/' + $scope.queryParams.id + '_' + stage + '_events.dat';
         $http({method: 'GET', url: url, withCredentials: false}).then(successfn, errorfn);
 
         function successfn(data) {

@@ -1,16 +1,14 @@
-angular.module('FlightClub').controller('PatreonCtrl', function ($scope, $cookies, $document) {
+angular.module('FlightClub').controller('PatreonCtrl', function ($scope, $cookies, $document, $location) {
 
     $scope.$emit('viewBroadcast', 'patreon');
 
     $scope.loading = true;
     $scope.$parent.toolbarTitle = 'Flight Club | Patreon';
 
-    var queryString = window.location.search.substring(1);
-    $scope.queryParams = $scope.parseQueryString(queryString);
+    $scope.queryParams = $location.search();
     $scope.chosenTiers = [], $scope.chosenPatrons = [];
 
-    queryString = 'auth=' + $cookies.get($scope.$parent.cookies.AUTHTOKEN);
-    $scope.httpRequest('/patreon/patrons?' + queryString, 'GET', null, function (data) {
+    $scope.httpRequest('/patreon/patrons?auth=' + $cookies.get($scope.$parent.cookies.AUTHTOKEN), 'GET', null, function (data) {
         var json = data.data;
         if (json.Success) {
             $scope.rewards = json.data;

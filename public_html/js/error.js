@@ -6,7 +6,7 @@ angular.module('FlightClub').controller('ErrorCtrl', function ($http, $scope) {
     $scope.mailSuccess = $scope.mailError = $scope.formDisabled = false;
 
     var hash = window.location.hash.substring(1);
-    $scope.data = JSON.parse(window.atob(hash));
+    $scope.data = JSON.parse(window.atob(decodeURIComponent(hash)));
 
     $scope.reportError = function () {
 

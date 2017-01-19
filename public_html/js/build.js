@@ -48,7 +48,7 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
         }
     }, 350);
     
-    $scope.queryParams = $scope.$parent.parseQueryString(window.location.search.substring(1));
+    $scope.queryParams = $location.search();
     $scope.runTutorial = $scope.queryParams.runTutorial!==undefined;
     
     $scope.httpRequest('/missions', 'GET', null, function (data) {
