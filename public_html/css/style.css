@@ -51,6 +51,9 @@ html, input, textarea, select {
 md-progress-circular.md-fc_dark-theme:not(.loadCircle) path {
   stroke: #ccac55;
 }
+md-progress-circular.md-fc_default-theme:not(.loadCircle) path {
+  stroke: #8c6c15;
+}
 
 md-tabs.md-fc_dark-theme .md-tab.md-active {
   color: #eee;
@@ -58,6 +61,7 @@ md-tabs.md-fc_dark-theme .md-tab.md-active {
 
 a {
     text-decoration: none;
+    color: #8c6c15;
 }
 
 .md-fc_dark-theme a {
@@ -116,19 +120,6 @@ md-select, md-switch {
 
 #results figure {
   display: none !important;
-}
-
-#results #wrapper {
-  overflow:hidden;
-  padding-bottom: 8px;
-}
-@-moz-document url-prefix() {
-    #results #wrapper {
-      overflow:auto;
-    }
-    #results md-grid-list {
-      top: 192px;
-    }
 }
 
 #world md-backdrop {

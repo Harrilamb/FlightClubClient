@@ -2,6 +2,7 @@ angular.module('FlightClub').controller('StatusCtrl', function ($scope) {
 
     $scope.$emit('viewBroadcast', 'status');
     $scope.$parent.toolbarTitle = 'Flight Club | Status';
+    $scope.$parent.toolbarClass = "";
     
     $scope.loading = true;
     angular.element(document).ready(function () {

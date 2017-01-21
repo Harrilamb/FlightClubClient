@@ -1,7 +1,7 @@
 angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog, $mdSidenav, $cookies, $interval, $timeout, $location, $mdPanel, $mdMedia) {
 
     $scope.$parent.toolbarClass = "";
-    $scope.$parent.toolbarTitle = "";
+    $scope.$parent.toolbarTitle = "Flight Club";
     $scope.$emit('viewBroadcast', 'build');
 
     $scope.missionLoading = true;
@@ -20,8 +20,7 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
     $scope.savingSim = false;
     $scope.loadingMission = false;
     
-    $scope.serverErrorMessage = 'The flightclub.io server has undergone a rapid unscheduled disassembly :/\n'
-            + 'You\'ll need to wait until I wake up and see this...\n\n';
+    $scope.serverResponses = [];
     $scope.messageArray = [
         // p is probability of update being skipped until next interval
         { p: 0.7, message: 'Getting data from /r/SpaceX...' },
@@ -80,38 +79,34 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                 );
         }
         
-    }, function (data, statusText) {
+    }, function (data) {
         $scope.missionLoading = false;
-        $scope.$parent.toolbarTitle = 'It usually works, I swear';
-        $scope.serverErrorMessage += 'Missions: ' + statusText + '\n';
+        $scope.showSidenav = false;
+        $scope.serverResponses.push(data);
     });
     $scope.httpRequest('/launchsites', 'GET', null, function (data) {
         var json = data.data;
         $scope.launchSites = fill(json);
-    }, function(data, statusText) {
-        $scope.$parent.toolbarTitle = 'It usually works, I swear';
-        $scope.serverErrorMessage += 'LaunchSites: ' + statusText + '\n';
+    }, function(data) {
+        $scope.serverResponses.push(data);
     });
     $scope.httpRequest('/stages?engineDetail=true', 'GET', null, function (data) {
         var json = data.data;
         $scope.stageTypes = fillStages(json);
-    }, function(data, statusText) {
-        $scope.$parent.toolbarTitle = 'It usually works, I swear';
-        $scope.serverErrorMessage += 'Stages: ' + statusText + '\n';
+    }, function(data) {
+        $scope.serverResponses.push(data);
     });
     $scope.httpRequest('/engines', 'GET', null, function (data) {
         var json = data.data;
         $scope.engineTypes = fillStages(json);
-    }, function(data, statusText) {
-        $scope.$parent.toolbarTitle = 'It usually works, I swear';
-        $scope.serverErrorMessage += 'Engines: ' + statusText + '\n';
+    }, function(data) {
+        $scope.serverResponses.push(data);
     });
     $scope.httpRequest('/companies', 'GET', null, function (data) {
         var json = data.data;
         $scope.companies = fill(json);
-    }, function(data, statusText) {
-        $scope.$parent.toolbarTitle = 'It usually works, I swear';
-        $scope.serverErrorMessage += 'Companies: ' + statusText + '\n';
+    }, function(data) {
+        $scope.serverResponses.push(data);
     });
 
     $scope.gravTurnSelect = [
@@ -227,7 +222,8 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
         $scope.selectedMission = mission;
         $scope.loadingMission = true;
         $scope.httpRequest('/missions/' + mission.code, 'GET', null, function (data) {
-            $mdSidenav("sidenav").close();
+            if($mdSidenav("sidenav").isOpen())
+                $scope.toggleNav("sidenav");
             $scope.loadingMission = false;
             $scope.form = data.data;
             setNewMission(mission.code);
@@ -248,7 +244,7 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
 
     $scope.selectMissionVehicle = function (code) {
         $scope.httpRequest('/missions/' + code, 'GET', null, function (data) {
-            var tempForm = JSON.parse(data.data);
+            var tempForm = data.data;
             
             var currentStages = $scope.form.Mission.Vehicle.Stages.length;
             var newStages = tempForm.Mission.Vehicle.Stages.length;

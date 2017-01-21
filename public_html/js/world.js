@@ -997,5 +997,5 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
             targetEvent: $event,
             clickOutsideToClose: true
         });
-    };
+    };                
 });

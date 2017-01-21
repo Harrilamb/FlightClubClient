@@ -30,6 +30,7 @@ angular.module('FlightClub').controller('IndexCtrl', function ($http, $scope, $m
     $scope.canCreateUser = false;
     
     $scope.showSidenav = true;
+    $scope.sidenav_button = "more_vert";
     $scope.$on('viewBroadcast', function(event, args) {
         $scope.showSidenav = (args === 'build' || args === 'results' || args === 'world');
     });
@@ -42,10 +43,6 @@ angular.module('FlightClub').controller('IndexCtrl', function ($http, $scope, $m
             withCredentials: false,
             headers: {}
         }).then(successfn, errorfn);
-        /*
-        $.ajax({contentType: 'application/json',
-            dataType: "json",
-        });*/
     };
 
     if ($scope.token !== undefined) {
@@ -106,14 +103,8 @@ angular.module('FlightClub').controller('IndexCtrl', function ($http, $scope, $m
 
     $scope.toggleNav = function (id) {
         $mdSidenav(id).toggle();
-    };
-
-    $scope.open = function (id) {
-        $mdSidenav(id).open();
-    };
-
-    $scope.close = function (id) {
-        $mdSidenav(id).close();
+        // this doesn't trigger when sidenav closed by clicking outside!
+        $scope.sidenav_button = $mdSidenav("sidenav").isOpen() ? "chevron_right" : "more_vert";
     };
     
     $scope.hasPermission = function(toCheck) {

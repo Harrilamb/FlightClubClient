@@ -4,6 +4,7 @@ angular.module('FlightClub').controller('PatreonCtrl', function ($scope, $cookie
 
     $scope.loading = true;
     $scope.$parent.toolbarTitle = 'Flight Club | Patreon';
+    $scope.$parent.toolbarClass = "";
 
     $scope.queryParams = $location.search();
     $scope.chosenTiers = [], $scope.chosenPatrons = [];

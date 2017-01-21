@@ -3,6 +3,7 @@ angular.module('FlightClub').controller('ContactCtrl', function ($scope, $http, 
     $scope.$emit('viewBroadcast', 'contact');
 
     $scope.$parent.toolbarTitle = 'Flight Club | Contact';
+    $scope.$parent.toolbarClass = "";
     $scope.send_icon = 'send';
     $scope.form = {
         name: '',

@@ -2,6 +2,7 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
 
     $scope.$emit('viewBroadcast', 'login');
     $scope.$parent.toolbarTitle = 'Flight Club | Account';
+    $scope.$parent.toolbarClass = "";
     $scope.savedSims = [];
 
     $scope.forms = [];
@@ -20,9 +21,6 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
         for (var i = json.length; i > 0; i--) {
             $scope.permissions[json[i - 1].code] = {code: json[i - 1].code, name: json[i - 1].name};
         }
-    }, function(data, statusText) {
-        $scope.$parent.toolbarTitle = 'It usually works, I swear';
-        $scope.alerts[2] += 'Permissions: ' + statusText + '\n';
     });
     
     $scope.capitalise = function(string) {
@@ -57,7 +55,10 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
                 $scope.forms[0] = {};
             }, function (data) {
                 var json = data.data;
-                $scope.alerts[0] = json.error;
+                if(json)
+                    $scope.alerts[0] = json.error;
+                else
+                    $scope.alerts[0] = data.status + " " + data.statusText;
             });
     
         } else {
@@ -83,7 +84,10 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
             $scope.forms[1] = {};
         }, function (data) {
             var json = data.data;
-            $scope.alerts[1] = 'Error sending request\n'+json.error;
+            if(json)
+                $scope.alerts[1] = 'Error sending request\n'+json.error;
+            else
+                $scope.alerts[1] = data.status + " " + data.statusText;
         });
     };
     
@@ -101,7 +105,10 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
             $scope.forms[2] = {};
         }, function (data) {
             var json = data.data;
-            $scope.alerts[2] = 'Error sending request\n'+json.error;
+            if(json)
+                $scope.alerts[2] = 'Error sending request\n'+json.error;
+            else
+                $scope.alerts[2] = data.status + " " + data.statusText;
         });
     };
     
@@ -128,7 +135,10 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
                     }
                 }, function (data) {
                     var json = data.data;
-                    $scope.alerts[3] = 'Error sending request\n'+json.error;
+                    if(json)
+                        $scope.alerts[3] = 'Error sending request\n'+json.error;
+                    else
+                        $scope.alerts[3] = data.status + " " + data.statusText;
                 }
             );
     };
@@ -151,7 +161,10 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
                     }
                 }, function (data) {
                     var json = data.data;
-                    $scope.alerts[3] = 'Error sending request\n'+json.error;
+                    if(json)
+                        $scope.alerts[3] = 'Error sending request\n'+json.error;
+                    else
+                        $scope.alerts[3] = data.status + " " + data.statusText;
                 }
             );
     };

@@ -14,7 +14,7 @@
                     {{down ? "DEAD" : "ALIVE"}}
                 </h1>
                 <md-content flex layout-fill layout-padding layout="column" layout-align="space-around center" ng-show="down">
-                    <!--<div flex>Click <a href="#" ng-click="requestReload()"> here </a> to request a server reload! </div>-->
+                    <!--<p>The server should restart in ~30s. Hang on!</p>-->
                     <div flex>Click <a href="#" ng-click="ping()"> here </a> to check the status again! </div>
                 </md-content>
                 <md-content flex layout-fill layout-padding layout="column" layout-align="space-around center" ng-show="!down">

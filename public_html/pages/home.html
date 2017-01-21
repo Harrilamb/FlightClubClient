@@ -30,11 +30,16 @@
                 </p>
             </md-card-content>
             <md-card-actions flex layout="row" layout-align="space-around center">
-                <md-button ng-click="redirect('/build?runTutorial')" class="md-raised md-secondary">Run Tutorial</md-button>
-                <md-button ng-click="redirect('/build')" class="md-raised md-primary">Build!</md-button>
+                <md-button flex="40" ng-click="redirect('/build?runTutorial')" class="md-raised md-primary">Run Tutorial</md-button>
+                <md-button flex="40" ng-click="redirect('/build')" class="md-raised md-primary">Build!</md-button>
             </md-card-actions>
-            <md-card-header layout="row" layout-align="space-around center">
-                <md-button class="md-raised md-accent" ng-click="redirectExternal('https://www.patreon.com/flightclub')">
+            <hr style="width:100%">
+            <md-card-actions flex layout="row" layout-align="space-around center">
+                <md-button flex="40" ng-click="redirect('/contact')" class="md-raised md-secondary">Contact Me</md-button>
+                <md-button flex="40" ng-click="redirect('/media')" class="md-raised md-secondary">View Media</md-button>
+            </md-card-actions>
+            <md-card-actions layout="row" layout-align="space-around center">
+                <md-button flex="90" class="md-raised md-accent" ng-click="redirectExternal('https://www.patreon.com/flightclub')">
                     <md-card-avatar>
                         <md-icon class="md-avatar-icon" style="background-color:transparent">
                             <svg xmlns="http://www.w3.org/2000/svg"
@@ -47,7 +52,7 @@
                     </md-card-avatar>
                     <span style="padding:8px">Support me on Patreon!</span>
                 </md-button>
-            </md-card-header>
+            </md-card-actions>
         </md-content>
         <div layout-padding hide-xs flex-sm="30" flex-gt-sm="20" layout='column' layout-align='center center'>
             <img ng-src="/images/shuttle-vertical.home_card.svg" class="md-card-image" alt="Shuttle">

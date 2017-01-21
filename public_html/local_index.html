@@ -115,11 +115,11 @@
                     </h2>
                     <span flex></span>
                     <md-button ng-show="showSidenav" class="sidenav-open md-icon-button" aria-label="sidenav" ng-click="toggleNav('sidenav')">
-                        <md-icon class="material-icons">more_vert</md-icon>
+                        <md-icon class="material-icons">{{sidenav_button}}</md-icon>
                     </md-button>
                 </div>
             </md-toolbar>
-            <md-content ng-view layout="column" flex md-swipe-left="open('sidenav')"></md-content>
+            <md-content ng-view layout="column" flex></md-content>
         </section>
 
         <script async src="plotly/plotly-1.19.2.min.js"></script>

@@ -2,7 +2,15 @@
     <md-content ng-show="!loadSuccess" flex layout-fill layout-padding layout="column" layout-align="center center">
         <md-progress-circular ng-show="missionLoading" md-mode="indeterminate"></md-progress-circular>
         <p ng-show="missionLoading" ng-bind-html="missionLoadingMessage"></p>
-        <p ng-show="!missionLoading" style="white-space:pre-wrap;">{{serverErrorMessage}}</p>
+        <div ng-show="!missionLoading">
+            <p>
+                The flightclub.io server has undergone a rapid unscheduled disassembly :/<br>
+                You'll need to wait until I wake up and see this...
+            </p>
+            <pre ng-repeat="data in serverResponses">[{{data.config.method}} {{data.config.url}} -> {{data.status}} {{data.statusText}}]</pre>
+            <hr>
+            <p>Check here to check the server status: <a href='/status'>Is Flight Club down?</a><p>
+        </div>
     </md-content>
     <form ng-show="loadSuccess" layout-fill layout="row" flex name="profileForm" ng-cloak>
         <md-tabs flex md-selected="2" md-border-bottom md-autoselect>
@@ -329,15 +337,7 @@
         </md-tabs>
     </form>
 
-    <md-sidenav flex layout="column" class="md-sidenav-right md-whiteframe-z2" md-component-id="sidenav" md-is-locked-open="false" md-swipe-right="close('sidenav')">
-        <md-toolbar class="md-theme-indigo" layout="row" layout-align="space-between center" >
-            <div class="md-toolbar-tools" layout="row" layout-align="space-around center" flex>
-                <h1><span>Stock Profiles</span></h1>
-            </div>
-            <md-button class="md-icon-button" aria-label="Menu" ng-click="toggleNav('sidenav')">
-                <i class="material-icons">keyboard_arrow_right</i>
-            </md-button>
-        </md-toolbar>
+    <md-sidenav flex layout="column" class="md-sidenav-right md-whiteframe-z2" md-component-id="sidenav" md-is-locked-open="false">
         <md-list>
             <md-subheader class="md-no-sticky">Upcoming Missions</md-subheader>
             <md-list-item layout-align="space-between center" ng-repeat="mission in upcoming" ng-show="mission.display || authorised" ng-click="selectMission(mission)">
