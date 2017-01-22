@@ -8,7 +8,7 @@
         </md-content>
     </div>
 
-    <md-tabs ng-show="!isLoading" flex md-border-bottom md-selected="0" md-autoselect>
+    <md-tabs ng-show="!isLoading" flex md-border-bottom md-selected="selectedIndex" md-autoselect>
         <md-tab label='Data'>
             <md-tab-content>
                 <md-grid-list flex
@@ -23,7 +23,7 @@
                 </md-grid-list>
             </md-tab-content>
         </md-tab>
-        <md-tab label='3D Earth View'>
+        <md-tab label='3D View'>
             <md-tab-content>
                 <md-content flex>
                     <div id="cesiumContainer"></div>

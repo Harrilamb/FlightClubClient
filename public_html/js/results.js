@@ -6,7 +6,8 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
 
     $scope.$parent.toolbarTitle = 'Flight Club | Results';
     $scope.$parent.toolbarClass = "";
-    $scope.loadMessage = "Building plots...";    
+    $scope.loadMessage = "Building plots...";   
+    $scope.selectedIndex = 0;
 
     $scope.messageArray = [
         // p is probability of update being skipped until next interval
@@ -71,6 +72,12 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
             default:
                 offset = 0;
                 break;
+        }
+        
+        if($scope.queryParams.tab!==undefined) {
+            $timeout(function() {
+               $scope.selectedIndex = parseInt($scope.queryParams.tab);
+            });
         }
         
         $scope.httpRequest('/simulator/results?' + queryString, 'GET', null,
