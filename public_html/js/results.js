@@ -32,7 +32,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
     var i = 0, offset, fileData = [];
     $scope.missionLoadingMessage = $scope.messageArray[i++].message;
     var roller = $interval(function() {
-        if (i === $scope.messageArray.length || !$scope.isLoading)
+        if (i === $scope.messageArray.length || $scope.loadSuccess)
             $interval.cancel(roller);
         else if (Math.random() > $scope.messageArray[i-1].p)
             $scope.loadMessageSecondary = $scope.messageArray[i++].message;
@@ -48,7 +48,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         var elem = document.getElementById("rocket");
         var id = setInterval(frame, 5);
         function frame() {
-            if (!$scope.isLoading || loadPos > 99.9) {
+            if ($scope.loadSuccess || loadPos > 99.9) {
                 clearInterval(id);
             } else {
                 loadPos += 0.002 * (100 - loadPos);
@@ -149,6 +149,8 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                             });
                         });
                     }
+                }, function (data) {
+                    $scope.isLoading = false;
                 }
         );
         $scope.httpRequest('/missions/' + $scope.queryParams.code, 'GET', null,
@@ -171,6 +173,8 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                     $scope.missionName = json.Mission.description;
                     $scope.getEventsFile(0);
 
+                }, function (data) {
+                    $scope.isLoading = false;
                 }
         );
     };
@@ -224,6 +228,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         return tiles;
     })();
 
+    $scope.loadSuccess = false;
     $scope.isLoading = true;
     $scope.fullData = [];
     $scope.eventsData = [];
@@ -436,6 +441,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         $timeout(function () {
             
             $scope.isLoading = false;
+            $scope.loadSuccess = true;
             $scope.$apply();
             
             $scope.plotMap.forEach(function(plot) {

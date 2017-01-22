@@ -1,14 +1,25 @@
 <md-content id="results" layout-fill flex layout="column">
 
-    <div ng-show="isLoading" flex layout="column" layout-align="center center" layout-padding>
-        <h2>{{loadMessage}}</h2>
-        <p ng-bind-html="loadMessageSecondary"></p>
-        <md-content style="width:100%;overflow-x:hidden">
-            <div id="rocket"><img/></div>
-        </md-content>
-    </div>
+    <md-content ng-show="!loadSuccess" flex layout-fill layout-padding layout="column" layout-align="center center">
+        <div ng-show="isLoading" flex layout="column" layout-align="center center" layout-padding>
+            <h2>{{loadMessage}}</h2>
+            <p ng-bind-html="loadMessageSecondary"></p>
+            <md-content style="width:100%;overflow-x:hidden">
+                <div id="rocket"><img/></div>
+            </md-content>
+        </div>
+        <div ng-show="!isLoading">
+            <p>
+                The flightclub.io server has undergone a rapid unscheduled disassembly :/<br>
+                You'll need to wait until I wake up and see this...
+            </p>
+            <pre ng-repeat="data in serverResponses">[{{data.config.method}} {{data.config.url}} -> {{data.status}} {{data.statusText}}]</pre>
+            <hr>
+            <p>Check here to check the server status: <a href='/status'>Is Flight Club down?</a><p>
+        </div>
+    </md-content>
 
-    <md-tabs ng-show="!isLoading" flex md-border-bottom md-selected="selectedIndex" md-autoselect>
+    <md-tabs ng-show="loadSuccess" flex md-border-bottom md-selected="selectedIndex" md-autoselect>
         <md-tab label='Data'>
             <md-tab-content>
                 <md-grid-list flex
