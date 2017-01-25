@@ -22,15 +22,18 @@ gulp.task('imagemin', function () {
             .pipe(gulp.dest('/var/www/html/images'));
     
 }).task('htmlpage', function () {
-    
-    gulp.src('./public_html/local_index.html') // change this to index.html to use CDN's for angular etc.
-            .pipe(changed('/var/www/html'))
+
+    gulp.src('./public_html/index.html')
+            .pipe(htmlmin({removeComments: true,collapseBooleanAttributes: true,removeAttributeQuotes: true,removeRedundantAttributes: true,removeEmptyAttributes: true}))
+            .pipe(gulp.dest('/var/www/html/'));
+    /*
+    // Use this instead of the above in offline dev mode
+    gulp.src('./public_html/local_index.html')
             .pipe(rename('index.html'))
             .pipe(htmlmin({removeComments: true, collapseBooleanAttributes: true, removeAttributeQuotes: true, removeRedundantAttributes: true, removeEmptyAttributes: true}))
             .pipe(gulp.dest('/var/www/html/'));
-
+    */
     gulp.src('./public_html/pages/*.html')
-            .pipe(changed('/var/www/html/pages/'))
             .pipe(htmlmin({removeComments: true, collapseWhitespace: true, collapseBooleanAttributes: true, removeAttributeQuotes: true, removeRedundantAttributes: true, removeEmptyAttributes: true}))
             .pipe(gulp.dest('/var/www/html/pages/'));
   
@@ -58,18 +61,17 @@ gulp.task('imagemin', function () {
             .pipe(concat('angular-1.5.8.js'))
             .pipe(stripDebug())
             .pipe(minify({ext:{src:'.js', min:'.min.js'},mangle: false}))
-            .pipe(gulp.dest('/var/www/html/js/'));
+            .pipe(gulp.dest('/var/www/html/angular-1.5.8/'));
 
-    gulp.src('./public_html/angular-material-1.1.1/*.js').pipe(gulp.dest('/var/www/html/js/'));
-    gulp.src('./public_html/jquery-3.1.1/*.js').pipe(gulp.dest('/var/www/html/js/'));
-    gulp.src('./public_html/flot/*.js').pipe(gulp.dest('/var/www/html/js/'));
+    gulp.src('./public_html/angular-material-1.1.1/*.js').pipe(gulp.dest('/var/www/html/angular-material/'));
+    gulp.src('./public_html/flot/*.js').pipe(gulp.dest('/var/www/html/flot/'));
 
 }).task('static_styles', function () {
     /*
      * copy local angular/cesium css source files to server for offline dev. Should be a once off...
      */
-    gulp.src('./public_html/cesium/*.css').pipe(gulp.dest('/var/www/html/css/'));
-    gulp.src('./public_html/angular-material-1.1.1/*.css').pipe(gulp.dest('/var/www/html/css/'));
+    gulp.src('./public_html/cesium/*.css').pipe(gulp.dest('/var/www/html/cesium/'));
+    gulp.src('./public_html/angular-material-1.1.1/*.css').pipe(gulp.dest('/var/www/html/angular-material/'));
 
 }).task("default", ["imagemin", "htmlpage", "scripts", "styles", "static_scripts", "static_styles"], function () {
 

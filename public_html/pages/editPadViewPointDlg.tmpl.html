@@ -1,0 +1,44 @@
+<md-dialog aria-label="Edit Pad View Point Dialog">
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h2>Change Camera View Coordinates</h2>
+            <span flex></span>
+            <md-button class="md-icon-button" ng-click="save()">
+                <md-tooltip md-direction="bottom">Save Changes</md-tooltip>
+                <md-icon class="material-icons">save</md-icon>
+            </md-button>
+            <md-button class="md-icon-button" ng-click="cancel()">
+                <md-tooltip md-direction="bottom">Cancel</md-tooltip>
+                <md-icon class="material-icons">close</md-icon>
+            </md-button>
+        </div>
+    </md-toolbar>
+
+    <md-dialog-content>
+        <div class="md-dialog-content">
+            <md-content flex layout-fill layout-padding>
+                <p>
+                    This will change the coordinates of the camera to show how the 
+                    launch might look from certain ground locations. Elevation is
+                    automatically calculated from latitude+longitude values provided here!
+                </p>
+                <p>
+                    This launch is taking place from {{site.description}}.
+                    Coordinates of launch site are {{site.latitude}}°N, {{site.longitude}}°E
+                </p>
+            </md-content>
+            <md-content flex layout-fill>
+                <md-content layout="row" layout-align="space-around center">
+                    <md-input-container flex class="md-block">
+                        <label>Latitude</label>
+                        <input ng-model="padViews.latitude">
+                    </md-input-container>
+                    <md-input-container flex class="md-block">
+                        <label>Longitude</label>
+                        <input ng-model="padViews.longitude">
+                    </md-input-container>
+                </md-content>
+            </md-content>
+        </div>
+    </md-dialog-content>
+</md-dialog>

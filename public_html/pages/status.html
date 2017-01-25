@@ -1,0 +1,28 @@
+<md-content layout-fill flex layout="column">
+    <md-content ng-show="loading" flex layout-padding layout="column" layout-align="center center">
+        <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+    </md-content>
+    <md-content ng-show="!loading" layout="row" layout-align="space-between start">
+        <md-content flex="10"></md-content>
+        <md-content flex layout-padding layout="column" layout-align="space-around center">
+            <md-content flex layout-fill layout-padding layout="column" layout-align="space-around center">
+                <md-content flex>
+                    <p>Oh dear - you're probably here because something went wrong. That's never good.</p>
+                    <p>The current status of the Flight Club server is: </p>
+                </md-content>
+                <h1 style="font-size:3em" flex ng-style="{'color': down ? 'red' : 'green'}">
+                    {{down ? "DEAD" : "ALIVE"}}
+                </h1>
+                <md-content flex layout-fill layout-padding layout="column" layout-align="space-around center" ng-show="down">
+                    <!--<p>The server should restart in ~30s. Hang on!</p>-->
+                    <div flex>Click <a href="#" ng-click="ping()"> here </a> to check the status again! </div>
+                </md-content>
+                <md-content flex layout-fill layout-padding layout="column" layout-align="space-around center" ng-show="!down">
+                    <a href="/build">Woo! Now get back to building!</a>
+                </md-content>
+                <pre>[{{data.config.method}} {{data.config.url}} -> {{data.status}} {{data.statusText}}]</pre>
+            </md-content>
+        </md-content>
+        <md-content flex="10"></md-content>
+    </md-content>
+</md-content>

@@ -1,0 +1,26 @@
+<div role="dialog" aria-label="Welcome prompt" layout="column" layout-align="center stretch" md-theme="{{getOtherTheme()}}">
+
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h2>{{title}}</h2>
+        </div>
+    </md-toolbar>
+
+    <md-dialog-content>
+        <div class="md-dialog-content">
+            <md-content flex layout-fill layout-padding>
+                <p ng-bind-html="text"></p>
+            </md-content>
+            <md-divider flex></md-divider>
+            <md-content layout-xs="column" layout="row" layout-align="end center">
+                <span hide-xs flex></span>
+                <md-button ng-show="quitText!==undefined" class="md-secondary" ng-click="quit()">
+                    <span>{{quitText}}</span>
+                </md-button>
+                <md-button ng-show="okText!==undefined" class="md-accent" ng-click="ok()">
+                    <span>{{okText}}</span>
+                </md-button>
+            </md-content>
+        </div>
+    </md-dialog-content>
+</div>

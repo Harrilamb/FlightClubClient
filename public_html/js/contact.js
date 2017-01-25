@@ -1,9 +1,10 @@
-angular.module('FlightClub').controller('ContactCtrl', function ($scope, $http, $mdDialog) {
-    
+angular.module('FlightClub').controller('ContactCtrl', function ($scope, $http, $timeout) {
+
     $scope.$emit('viewBroadcast', 'contact');
-    
+
     $scope.$parent.toolbarTitle = 'Flight Club | Contact';
-    $scope.mailSuccess = false;
+    $scope.$parent.toolbarClass = "";
+    $scope.send_icon = 'send';
     $scope.form = {
         name: '',
         email: '',
@@ -12,7 +13,6 @@ angular.module('FlightClub').controller('ContactCtrl', function ($scope, $http, 
 
     $scope.formDisabled = true;
     $scope.validate = function () {
-        $scope.mailSuccess = false;
         if ($scope.form.email === ''
                 || $scope.form.name === ''
                 || $scope.form.message === '')
@@ -22,21 +22,33 @@ angular.module('FlightClub').controller('ContactCtrl', function ($scope, $http, 
     };
 
     $scope.sendMail = function () {
+        $scope.sending = true;
         $scope.formDisabled = true;
-        $http({url: '/process.php', data: $.param($scope.form), method: 'POST',
+        $http({url: '/process.php', data: $scope.serialize($scope.form), method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
         }).then(function () {
-            $scope.mailSuccess = true;
+            $scope.sending = false;
+            $scope.sendStatusColor = '#82CA9D';
+            $scope.send_icon = 'check';
+            $scope.sendStyle = true;
+            $timeout(function () {
+                $scope.send_icon = 'send';
+                $scope.sendStyle = false;
+            }, 4000);
         }, function () {
-            $mdDialog.show(
-                    $mdDialog.alert()
-                    .parent(angular.element(document.querySelector('#mailForm')))
-                    .clickOutsideToClose(true)
-                    .title('Something\'s broken')
-                    .textContent('You can mail me directly at murphd37@tcd.ie. Sorry about that.')
-                    .ariaLabel('Mail failed')
-                    .ok('Got it!')
-                    );
+            $scope.sending = false;
+            $scope.sendStatusColor = '#F7977A';
+            $scope.send_icon = 'close';
+            $scope.sendStyle = true;
+            $timeout(function () {
+                $scope.send_icon = 'send';
+                $scope.sendStyle = false;
+            }, 4000);
+            $scope.openThemedDialog('Something\'s broken',
+                    'You can mail me directly at declan.murphy@flightclub.io. Sorry about that.',
+                    null, null,
+                    'Got it!', null
+            );
         });
     };
 });

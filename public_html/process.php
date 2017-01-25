@@ -9,7 +9,7 @@ if (($name == "") || ($email == "") || ($message == "")) {
 } else {
   $from = "From: $name<$email>\r\nReturn-path: $email";
   $subject = "FlightClub Mail";
-  mail("murphd37@tcd.ie", $subject, $message, $from);
+  mail("declan.murphy@flightclub.io", $subject, $message, $from);
   $code = 200;
 }
  

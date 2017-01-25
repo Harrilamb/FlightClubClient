@@ -9,12 +9,11 @@
         <meta name="description" content="Flight Club is a simulator and trajectory visualiser for orbital rocket launches and landings."/>
         <base href="/"/>
 
-        <script src="//code.jquery.com/jquery-3.1.1.min.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/angular_material/1.1.1/angular-material.min.js"></script>
-        <script src="js/flightclub.min.js"></script>
+        <script src="js/flightclub.js"></script>
 
-        <link rel="stylesheet" href="//cesiumjs.org/releases/1.28/Build/Cesium/Widgets/widgets.css" media="bogus">
+        <link rel="stylesheet" href="//cesiumjs.org/releases/1.29/Build/Cesium/Widgets/widgets.css" media="bogus">
         <link rel="stylesheet" href="css/flightclub.min.css" media="bogus">
         <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/angular_material/1.1.1/angular-material.min.css" media="bogus">
 
@@ -58,6 +57,12 @@
                                 <md-button ng-click="redirect('/')">
                                     <md-icon class="material-icons">home</md-icon>
                                     <span>Home</span>
+                                </md-button>
+                            </md-menu-item>
+                            <md-menu-item>
+                                <md-button ng-click="redirect('/build')">
+                                    <md-icon class="material-icons">build</md-icon>
+                                    <span>Build</span>
                                 </md-button>
                             </md-menu-item>
                             <md-menu-item ng-click="redirect('/account')">
@@ -106,15 +111,15 @@
                         </md-menu-content>
                     </md-menu>
                     <h2>
-                        <span hide show-gt-xs ng-hide="!isHome">Mission Builder | </span><span>{{toolbarTitle}}</span>
+                        <span>{{toolbarTitle}}</span>
                     </h2>
                     <span flex></span>
-                    <md-button ng-show="showSidenav" class="md-icon-button" aria-label="sidenav" ng-click="toggleNav('sidenav')">
-                        <md-icon class="material-icons">more_vert</md-icon>
+                    <md-button ng-show="showSidenav" class="sidenav-open md-icon-button" aria-label="sidenav" ng-click="toggleNav('sidenav')">
+                        <md-icon class="material-icons">{{sidenav_button}}</md-icon>
                     </md-button>
                 </div>
             </md-toolbar>
-            <md-content ng-view layout="column" flex md-swipe-left="open('sidenav')"></md-content>
+            <md-content ng-view layout="column" flex></md-content>
         </section>
 
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-route.min.js"></script>
@@ -123,9 +128,10 @@
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-messages.min.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-cookies.min.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-sanitize.min.js"></script>
-        <script src="//use.fontawesome.com/f64ed2b858.js"></script>
+        <script async src="//use.fontawesome.com/f64ed2b858.js"></script>
+        <script async src="//cdn.plot.ly/plotly-latest.min.js"></script>
         
-        <link rel="stylesheet" href="//cesiumjs.org/releases/1.28/Build/Cesium/Widgets/widgets.css">
+        <link rel="stylesheet" href="//cesiumjs.org/releases/1.29/Build/Cesium/Widgets/widgets.css">
         <link rel="stylesheet" href="css/flightclub.min.css">
         <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/angular_material/1.1.1/angular-material.min.css">
     </body>

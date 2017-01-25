@@ -17,7 +17,7 @@
     <md-dialog-content>
         <div class="md-dialog-content">
             <md-content flex layout-align='space-around center'>
-                <md-content layout-padding flex layout="row">
+                <md-content class="vehicle1" layout-padding flex layout="row">
                     <div layout-padding flex="15" style="margin:auto">1)</div>
                     <md-content flex>
                         <label>Choose stage template:</label>
@@ -30,6 +30,7 @@
                         </md-content>
                     </md-content>
                 </md-content>
+            </md-content>
             <form role="form">
                 <md-content flex layout-align='space-around center'>
                     <md-content layout-padding flex layout="row">
@@ -40,7 +41,7 @@
                             </md-content>
                         </md-content>
                     </md-content>                            
-                    <md-content layout-fill layout-align="space-between center" layout="row">
+                    <md-content class="vehicle2" layout-fill layout-align="space-between center" layout="row">
                         <md-list layout-fill layout='column'>
                             <md-list-item class="md-3-line" ng-repeat="engineConfig in selectedStage.Engines">
                                 <div class="md-list-item-text">
@@ -60,7 +61,7 @@
                         </md-list>
                     </md-content>
                     <md-divider></md-divider>
-                    <md-content layout-padding flex layout="row">
+                    <md-content class="vehicle3" layout-padding flex layout="row">
                         <div flex="15" style="margin:auto">3)</div>
                         <md-content layout-padding flex>
                             <label>Customize:</label>

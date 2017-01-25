@@ -1,6 +1,6 @@
 /* global Cesium */
 
-angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog, $location, $interval) {
+angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog, $location, $interval, $http) {
     
     $scope.$emit('viewBroadcast', 'world');
 
@@ -15,7 +15,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
         { p: 0.8, message: 'Downloading trajectory data files...'},
         { p: 0.2, message: 'Damn your internet is slow, man'},
         { p: 0.2, message: 'I hope your browser can handle this'},
-        { p: 0.9, message: '<a href="https://www.patreon.com/flightclub">Click here to support me on Patreon!</a>'},
+        { p: 0.95, message: 'A huge thank you to my GEO Patrons for supporting Flight Club!<ul>'+$scope.$parent.getGEOPatronList()+'</ul><a href="https://www.patreon.com/flightclub">Click here to support me on Patreon!</a>'},
         { p: 0.0, message: 'Follow me on Twitter: <a href="https://www.twitter.com/decmurphy_">@decmurphy_</a>'}
     ];
         
@@ -32,6 +32,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
     startRoller();
 
     $scope.$parent.toolbarTitle = "Flight Club | Live";
+    $scope.padViews = {};
     var w;
 
     var stageColours = [];
@@ -52,7 +53,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
     $scope.cesiumShow = $scope.sidebarShow = false;
 
     $scope.clickStage = function (stage) {
-        w.trackEntity(stage);
+        trackEntity(stage);
         plot["altitude"].getOptions().yaxes[0].max = max[stage]["altitude"];
         plot["altitude"].setupGrid();
         plot["velocity"].getOptions().yaxes[0].max = max[stage]["velocity"];
@@ -61,17 +62,15 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
 
     $scope.changeView = function () {
 
-        switch (w.getProp('view')) {
+        switch ($scope.queryParams.view) {
             case 'space':
-                w.setProp('view', 'earth');
                 $location.search('view', 'earth');
                 offset = 0;
                 break;
             case 'earth':
             default:
-                w.setProp('view', 'space');
                 $location.search('view', 'space');
-                offset = 17;
+                offset = $scope.COLS.xAbs -$scope.COLS.x;
                 break;
         }
         w.viewer.entities.removeAll();
@@ -108,7 +107,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                 if (seconds < 10)
                     seconds = '0' + seconds;
 
-                if (world.getProp('w') !== '2') {
+                if ($scope.queryParams.w !== '2') {
                     if (Math.abs((_minute - rand5) - distance) < 1000)  // polls for aborts between T-5 -> T-0
                         $scope.pollLaunchTime();
                     if (Math.abs(rand5 + distance) < 1000) // poll for aborts between T-0 -> T+5
@@ -143,18 +142,18 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
     };
 
     $scope.pollLaunchTime = function () {
-        $scope.$parent.httpRequest('/missions/' + w.getProp('code'), 'GET', null,
+        $scope.httpRequest('/missions/' + $scope.queryParams.code, 'GET', null,
                 function (data) {
 
-                    data = JSON.parse(data);
+                    var json = data.data;
 
-                    var tempDate = data.Mission.date.replace(/-/g, "/") + ' ' + data.Mission.time + ' UTC';
+                    var tempDate = json.Mission.date.replace(/-/g, "/") + ' ' + json.Mission.time + ' UTC';
                     var newTime = Date.parse(tempDate);
 
                     if (newTime !== $scope.launchTime) {
                         // if scrubbed until tomorrow, full reset. else just reset clock
                         if (newTime - $scope.launchTime > 24 * 60 * 60 * 1000)
-                            $scope.fillData(data);
+                            $scope.fillData(json);
                         else {
                             $scope.launchTime = newTime;
                             $scope.getHazardMap();
@@ -165,20 +164,13 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
     };
 
     angular.element(document).ready(function () {
-
-        var queryString = window.location.search.substring(1);
-        if (queryString.indexOf('&amp;') !== -1) {
-            window.location = window.location.href.split('&amp;').join('&');
-        }
-        $scope.queryParams = $scope.$parent.parseQueryString(queryString);
+        
+        $scope.queryParams = $location.search();
         loadVars();
 
-        // world object doesn't need to be created unless using Cesium. can put launchtime as its own variable
-        // then can move these getScript+new world() calls later in the code to only execute if showing Cesium.
-
-        switch ($scope.queryParams['view']) {
+        switch ($scope.queryParams.view) {
             case 'space':
-                offset = 17;
+                offset = $scope.COLS.xAbs -$scope.COLS.x;
                 break;
             case 'earth':
             default:
@@ -188,24 +180,54 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
 
         $interval(function () {
             $scope.setClock(w);
-        }, 500);
+        }, 200);
         
     });
     
     var loadVars = function(reload) {
 
-        $scope.$parent.httpRequest('/missions/' + $scope.queryParams['code'], 'GET', null,
-                function (res) {
-                    var data = JSON.parse(res);
-                    if (data.Mission !== undefined && $scope.queryParams['id'] === undefined) {
-                        $scope.queryParams['id'] = data.Mission.livelaunch;
+        $scope.httpRequest('/missions/' + $scope.queryParams.code, 'GET', null,
+                function (data) {
+                    var json = data.data;
+                    if (json.Mission !== undefined && $scope.queryParams.id === undefined) {
+                        $scope.queryParams.id = json.Mission.livelaunch;
                     }
+                    
+                    if($scope.queryParams.id === undefined) {
+                        var errorsHash;
+                        if(json.Mission !== undefined) {
+                            errorsHash = window.btoa(JSON.stringify({
+                                Mission: {
+                                    errors: "There has been no default profile assigned to the mission '" + json.Mission.description + "'.</br>" +
+                                            "Try running your own simulation and then choosing '3D World View' in the top-right menu of the results page!"
+                                },
+                                reportable: false
+                            }));
+                        } else {
+                            errorsHash = window.btoa(JSON.stringify({
+                                Mission: {
+                                    errors: "<p>The Flight Club server doesn't know of any missions assigned the code '" + $scope.queryParams.code + "'.</br>" +
+                                            "Did you type the URL wrong? If not, there may be an issue with the server!</p>" +
+                                            "<p>Check here to find out: <a href='/status'>Is Flight Club down?</a><p>"
+                                },
+                                reportable: false
+                            }));
+                        }
+                        $scope.redirect('/error/#' + errorsHash);
+                    }
+                    
+                    $scope.httpRequest('/launchsites/' + json.Mission.launchsite, 'GET', null,
+                        function (data) {
+                            var json = data.data;
+                            $scope.launchSite = json.data[0];
+                        }
+                    );
                     if (reload) {
                         $scope.worldLoading = true;
                         startRoller();
                     }
                     
-                    $scope.fillData(data);
+                    $scope.fillData(json);
                 }
         );
         
@@ -214,7 +236,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
     $scope.fillData = function (data) {
 
         $scope.missionName = data.Mission.description;
-        $scope.missionCode = $scope.queryParams['code'];
+        $scope.missionCode = $scope.queryParams.code;
         $scope.numStages = data.Mission.Vehicle.Stages.length;
 
         var tempDate = data.Mission.date.replace(/-/g, "/") + ' ' + data.Mission.time + ' UTC';
@@ -224,58 +246,30 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
         var timeUntilLaunch = $scope.launchTime - now;
 
         $scope.cesiumShow = $scope.countdown = $scope.finished = $scope.sidebarShow = false;
-        if ($scope.queryParams['w'] === '2') {
-
-            $scope.loadCesium(function () {
-                $scope.loadDataAndPlot();
-            });
-
-        } else if ($scope.queryParams['w'] === '1') {
-            
+        if ($scope.queryParams.w === '1') {
             if (timeUntilLaunch > 1 * 60 * 60 * 1000) {
                 $scope.countdown = true;
                 $scope.worldLoading = false;
-            } else if (timeUntilLaunch < -14 * 60 * 1000) {
+            } else if (timeUntilLaunch < -90 * 60 * 1000) {
                 $scope.finished = true;
                 $scope.worldLoading = false;
             } else {
-                $scope.loadCesium(function () {
-                    
-                    var animation = document.getElementsByClassName("cesium-viewer-animationContainer")[0];
-                    animation.className += " hide";
-                    var timeline = document.getElementsByClassName("cesium-viewer-timelineContainer")[0];
-                    timeline.className += " hide";
-
-                    w.setCameraLookingAt(data.Mission.launchsite);
-                    $scope.loadDataAndPlot();
-                });
+                $scope.loadCesium();
             }
-        } else if ($scope.queryParams['id'] !== undefined) {
-
-            $scope.loadCesium(function () {
-
-                var animation = document.getElementsByClassName("cesium-viewer-animationContainer")[0];
-                animation.className += " hide";
-                var timeline = document.getElementsByClassName("cesium-viewer-timelineContainer")[0];
-                timeline.className += " hide";
-                
-                $scope.loadDataAndPlot();
-                if ($scope.queryParams['view'] !== 'space')
-                    w.setCameraLookingAt(data.Mission.launchsite);
-            });
-
         } else {
             $scope.loadCesium();
         }
     };
 
     $scope.loadFlot = function (otherFunction) {
-        $.getScript("js/flot.min.js", function () {
+        $scope.getScript("flot/flot.min.js", function () {
             
-            var fullWidth = $(document.body)[0].clientWidth;
+            var fullWidth = window.innerWidth 
+                || document.documentElement.clientWidth 
+                || document.getElementsByTagName('body')[0].clientWidth;
             var width = fullWidth <= 456 ? fullWidth - 56 : fullWidth >= 960 ? 400 : 320;
 
-            $("#cesiumContainer").width((fullWidth - width) + 'px');
+            document.getElementById("cesiumContainer").setAttribute("style", "width:"+(fullWidth - width)+"px");
 
             for (var stage = 0; stage < 2; stage++) {
                 $scope.initialisePlot("altitude", stage);
@@ -290,15 +284,17 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
 
     $scope.initialisePlot = function (element, stage) {
 
-        var fullWidth = $(document.body)[0].clientWidth;
+        var fullWidth = window.innerWidth 
+                || document.documentElement.clientWidth 
+                || document.getElementsByTagName('body')[0].clientWidth;
         var width = fullWidth <= 456 ? fullWidth - 56 : fullWidth >= 960 ? 400 : 320;
         width -= 32; // to account for layout-padding
 
-        var placeholder = $("#" + element + "Plot");
-        placeholder.width(width);
-        placeholder.height(width / 1.6);
+        var placeholder = document.getElementById(element + "Plot");
+        placeholder.style.width = width+'px';
+        placeholder.style.height = (width / 1.6)+'px';
 
-        if (placeholder.length > 0) {
+        if (placeholder !== undefined) {
             plot[element] = $.plot(placeholder, [[], []], {
                 series: {
                     shadowSize: 0	// Drawing is faster without shadows
@@ -315,29 +311,22 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
         }
     };
 
-    $scope.loadCesium = function (otherFunction) {
+    $scope.loadCesium = function () {
 
-        window.CESIUM_BASE_URL = '//cesiumjs.org/releases/1.28/Build/Cesium/';
-        $.getScript("//cesiumjs.org/releases/1.28/Build/Cesium/Cesium.js", function ()
+        window.CESIUM_BASE_URL = '//cesiumjs.org/releases/1.29/Build/Cesium/';
+        $scope.getScript(CESIUM_BASE_URL+"Cesium.js", function ()
         {
-            $scope.worldLoading = false;
             Cesium.BingMapsApi.defaultKey = 'Atr1lJvbFdMUnJ6fw4qGKDcZuEjzVRh-6WLmrRZDcCggpZIPH9sdEyUWGWXO1kPc';
 
             w = new world();
             w.plottedTime = -5;
-
-            w.setProps($scope.queryParams);
 
             $scope.cesiumShow = true;
             $scope.$parent.toolbarClass = "hide";
 
             var launchDate = new Date($scope.launchTime);
             var end = new Date($scope.launchTime + 600e3);
-            var now;
-            if (w.getProp('w') === '1')
-                now = new Date();
-            else
-                now = new Date($scope.launchTime - 30e3);
+            var now = $scope.queryParams.w === '1' ? new Date() : new Date($scope.launchTime - 30e3);
 
             w.entities = [];
             w.viewer = new Cesium.Viewer('cesiumContainer', {
@@ -347,6 +336,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                 homeButton: false,
                 geocoder: false,
                 baseLayerPicker: false,
+                skyAtmosphere: false,
                 creditContainer: document.getElementById("creditContainer"),
                 clock: new Cesium.Clock({
                     startTime: Cesium.JulianDate.fromDate(launchDate),
@@ -356,9 +346,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                     clockStep: Cesium.ClockStep.SYSTEM_CLOCK_MULTIPLIER
                 }),
                 terrainProvider: new Cesium.CesiumTerrainProvider({
-                    url: '//assets.agi.com/stk-terrain/world',
-                    requestWaterMask: false,
-                    requestVertexNormals: false
+                    url: '//assets.agi.com/stk-terrain/world' // makes the landscape 3D
                 })
 
             });
@@ -370,8 +358,19 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
             w.viewer.timeline.updateFromClock();
             w.viewer.timeline.zoomTo(w.viewer.clock.startTime, w.viewer.clock.stopTime);
 
-            if (otherFunction)
-                otherFunction();
+            $scope.worldLoading = false;
+            
+            if ($scope.queryParams.w === undefined || $scope.queryParams.w === '1') {
+                var animation = document.getElementsByClassName("cesium-viewer-animationContainer")[0];
+                animation.className += " hide";
+                var timeline = document.getElementsByClassName("cesium-viewer-timelineContainer")[0];
+                timeline.className += " hide";
+
+                if ($scope.queryParams.view !== 'space')
+                    w.setCameraLookingAt($scope.launchSite.code);
+            }
+            $scope.loadDataAndPlot();
+            
         });
     };
 
@@ -410,16 +409,12 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
         w.entities = [];
         w.viewer.entities.removeAll();
 
-        var url = $scope.$parent.server + '/resource/' + $scope.queryParams['code'] + '.hazard.txt';
-        $.ajax({type: 'GET', url: url, contentType: 'text', data: null,
-            xhrFields: {withCredentials: false},
-            success: successfn,
-            error: errorfn
-        });
+        var url = $scope.$parent.server + '/resource/' + $scope.queryParams.code + '.hazard.txt';
+        $http.get(url).then(successfn, errorfn);
 
-        function successfn(data) {
+        function successfn(res) {
 
-            var lines = data.split("\n");
+            var lines = res.data.split("\n");
             var array = [];
             for (var i = 0; i < lines.length; i++) {
 
@@ -427,7 +422,8 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                     if (array.length > 0) {
                         w.viewer.entities.add({
                             polygon: {
-                                hierarchy: Cesium.Cartesian3.fromDegreesArray(array),
+                                hierarchy: Cesium.Cartesian3.fromDegreesArrayHeights(array),
+                                extrudedHeight: 0,
                                 material: Cesium.Color.RED.withAlpha(0.3),
                                 outline: true,
                                 outlineColor: Cesium.Color.RED
@@ -439,32 +435,29 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
 
                 if (lines[i].indexOf(";") > -1) {
                     var data = lines[i].split(";");
-                    array.push(data[0], data[1]);
+                    array.push(data[0], data[1], 1);
                 }
             }
 
             $scope.getEventsFile(0);
         }
 
-        function errorfn(data) {
+        function errorfn(res) {
             $scope.getEventsFile(0);
         }
     };
 
     $scope.getDataFile = function (stage) {
 
-        var url = $scope.$parent.client + '/output/' + w.getProp('id') + '_' + stage + '.dat';
-        $.ajax({type: 'GET', url: url, contentType: 'text', data: null,
-            xhrFields: {withCredentials: false},
-            success: successfn,
-            error: errorfn
-        });
+        var url = $scope.$parent.client + '/output/' + $scope.queryParams.id + '_' + stage + '.dat';
+        $http.get(url).then(successfn, errorfn);
 
-        function successfn(data) {
+        function successfn(res) {
 
-            var lines = data.split("\n");
+            var lines = res.data.split("\n");
 
             var p_stage = new Cesium.SampledPositionProperty();
+            var o_stage = new Cesium.SampledProperty(Cesium.Quaternion);
             var trajectory = new Cesium.SampledPositionProperty();
 
             var launchDate = new Date($scope.launchTime);
@@ -480,34 +473,36 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                 if (lines[i] === "")
                     continue;
 
-                var data = lines[i].split(";");
-                if(data.length === 1)
-                    data = lines[i].split("\t");
-                fullData[stage][parseInt(data[0])] = parseFloat(data[6]) + ":" + parseFloat(data[4]) + ":" + parseFloat(data[5]) + ":" + parseFloat(data[21]) * Math.PI / 180 + ":" + (parseFloat(data[16]) - 90) * Math.PI / 180;
+                var line = lines[i].split(";");
+                if(line.length === 1)
+                    line = lines[i].split("\t");
+                fullData[stage][parseInt(line[$scope.COLS.time])] 
+                        = parseFloat(line[$scope.COLS.range]) + ":" + parseFloat(line[$scope.COLS.alt]) + ":" + parseFloat(line[$scope.COLS.vel]) 
+                        + ":" + parseFloat(-1*line[$scope.COLS.yaw])*Math.PI/180.0 + ":" + parseFloat(line[$scope.COLS.pitch])*Math.PI/180.0;
 
                 var focus = false;
                 var ign = false;
                 for (var j = 1; j < focusPoints.length; j++) {
-                    if (Math.abs(data[0] - focusPoints[j][0]) <= 0.5) {
+                    if (Math.abs(line[$scope.COLS.time] - focusPoints[j][0]) <= 0.5) {
                         focus = true;
                         ign = focusPoints[j - 1][1] > 0.1;
                         break;
                     }
                 }
 
-                if (!focus && data[0] > 1000 && i % 100 !== 0)
+                if (!focus && line[$scope.COLS.time] > 1000 && i % 100 !== 0)
                     continue;
 
-                if (t < 600 && parseFloat(data[4]) > max[stage]["altitude"] || max[stage]["altitude"] === undefined)
-                    max[stage]["altitude"] = Math.ceil(parseFloat(data[4]) / 100) * 100;
-                if (t < 600 && parseFloat(data[5]) > max[stage]["velocity"] || max[stage]["velocity"] === undefined)
-                    max[stage]["velocity"] = Math.ceil(parseFloat(data[5]) / 500) * 500;
+                if (t < 600 && parseFloat(line[$scope.COLS.alt]) > max[stage]["altitude"] || max[stage]["altitude"] === undefined)
+                    max[stage]["altitude"] = Math.ceil(parseFloat(line[$scope.COLS.alt]) / 100) * 100;
+                if (t < 600 && parseFloat(line[$scope.COLS.vel]) > max[stage]["velocity"] || max[stage]["velocity"] === undefined)
+                    max[stage]["velocity"] = Math.ceil(parseFloat(line[$scope.COLS.vel]) / 500) * 500;
 
-                t = parseInt(data[0]);
-                var x = parseFloat(data[1 + offset]);
-                var y = parseFloat(data[2 + offset]);
-                var z = parseFloat(data[3 + offset]);
-                var h = parseFloat(data[4]) * 1e3;
+                t = parseInt(line[$scope.COLS.time]);
+                var x = parseFloat(line[$scope.COLS.x + offset]);
+                var y = parseFloat(line[$scope.COLS.y + offset]);
+                var z = parseFloat(line[$scope.COLS.z + offset]);
+                var h = parseFloat(line[$scope.COLS.alt]) * 1e3;
 
                 var lat = 180 * Math.atan(z / Math.sqrt(x * x + y * y)) / Math.PI;
                 var lon = 180 * Math.atan2(y, x) / Math.PI;
@@ -516,12 +511,13 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                 var position = Cesium.Cartesian3.fromDegrees(lon, lat, h);
                 trajectory.addSample(time, position);
                 p_stage.addSample(time, position);
+                o_stage.addSample(time, Cesium.Transforms.headingPitchRollQuaternion(position, new Cesium.HeadingPitchRoll(-1*line[$scope.COLS.yaw]*Math.PI/180.0, line[$scope.COLS.pitch]*Math.PI/180.0, 0)));
 
                 if (focus) {
                     var e = w.viewer.entities.add({
                         availability: new Cesium.TimeIntervalCollection([new Cesium.TimeInterval({start: start, stop: stop})]),
                         position: trajectory,
-                        path: {resolution: 1, material: new Cesium.PolylineGlowMaterialProperty({glowPower: 0.1, color: ign ? Cesium.Color.RED : Cesium.Color.YELLOW}), width: 8}
+                        path: {resolution: 1, material: new Cesium.PolylineGlowMaterialProperty({glowPower: 0.1, color: ign ? Cesium.Color.RED : Cesium.Color.DARKCYAN}), width: 8}
                     });
                     e.position.setInterpolationOptions({
                         interpolationDegree: 5,
@@ -531,7 +527,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                     trajectory = new Cesium.SampledPositionProperty();
                     trajectory.addSample(time, position);
                 }
-                throttle = parseFloat(data[12]);
+                throttle = parseFloat(line[$scope.COLS.throttle]);
 
             }
 
@@ -539,92 +535,120 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
             var e = w.viewer.entities.add({
                 availability: new Cesium.TimeIntervalCollection([new Cesium.TimeInterval({start: start, stop: stop})]),
                 position: trajectory,
-                path: {resolution: 1, material: new Cesium.PolylineGlowMaterialProperty({glowPower: 0.1, color: ign ? Cesium.Color.RED : Cesium.Color.YELLOW}), width: 8}
+                path: {resolution: 1, material: new Cesium.PolylineGlowMaterialProperty({glowPower: 0.1, color: ign ? Cesium.Color.RED : Cesium.Color.DARKCYAN}), width: 8}
             });
             e.position.setInterpolationOptions({
                 interpolationDegree: 5,
                 interpolationAlgorithm: Cesium.LagrangePolynomialApproximation
             });
 
-            if (w.getProp('w') !== undefined) {
-                var pinBuilder = new Cesium.PinBuilder();
-                w.entities[stage] = w.viewer.entities.add({
-                    position: p_stage,
-                    path: {resolution: 1, material: new Cesium.PolylineGlowMaterialProperty({glowPower: 0.1, color: Cesium.Color.TRANSPARENT}), width: 1},
-                    billboard: {
-                        image: pinBuilder.fromText(stage + 1, Cesium.Color.ROYALBLUE, 32).toDataURL(),
-                        verticalOrigin: Cesium.VerticalOrigin.BOTTOM
-                    }
-                });
-                w.entities[stage].position.setInterpolationOptions({
-                    interpolationDegree: 5,
-                    interpolationAlgorithm: Cesium.LagrangePolynomialApproximation
-                });
+            if ($scope.queryParams.w !== undefined) {
+                
+                if(false) {
+                    w.entities[stage] = w.viewer.entities.add({
+                        /*
+                         * Export .blend as .obj
+                         * use http://www.greentoken.de/onlineconv to convert .obj+.mtl to .dae
+                         * convert .dae to .gltf using COLLADA2GLTF
+                         * can use gltf2glb if desired for .glb
+                         */
+                        name: 'Falcon9',
+                        model: {
+                            uri: '../Cesium_Ground.gltf',
+                            minimumPixelSize: 32,
+                            maximumScale: 512
+                        },
+                        position: p_stage,
+                        orientation: o_stage,
+                        path: {resolution: 1, material: new Cesium.PolylineGlowMaterialProperty({glowPower: 0.1, color: Cesium.Color.TRANSPARENT}), width: 1}
+                    });
+                    w.entities[stage].position.setInterpolationOptions({
+                        interpolationDegree: 5,
+                        interpolationAlgorithm: Cesium.LagrangePolynomialApproximation
+                    });
+                } else {
+                    
+                    // create the svg image string
+                    var svgDataDeclare = "data:image/svg+xml,";
+                    var svgCircle = '<circle cx="10" cy="10" r="5" stroke="black" stroke-width="2" fill="red" /> ';
+                    var svgPrefix = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="40px" height="20px" xml:space="preserve">';
+                    var svgSuffix = "</svg>";
+                    var svgString = svgPrefix + svgCircle + svgSuffix;
+
+                    // create the cesium entity
+                    var svgEntityImage = svgDataDeclare + svgString;
+             
+                    w.entities[stage] = w.viewer.entities.add({
+                        position: p_stage,
+                        billboard: {
+                            image: svgEntityImage,
+                            verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                            eyeOffset: new Cesium.Cartesian3(0, 0, -2000)
+                        }
+                    });
+                    w.entities[stage].position.setInterpolationOptions({
+                        interpolationDegree: 5,
+                        interpolationAlgorithm: Cesium.LagrangePolynomialApproximation
+                    });
+                }
             }
 
             $scope.getEventsFile(stage + 1);
         }
 
-        function errorfn(data) {
-            console.log(data);
+        function errorfn(res) {
+            console.log(res);
         }
     };
 
     $scope.getEventsFile = function (stage) {
-        var url = $scope.$parent.client + '/output/' + w.getProp('id') + '_' + stage + '_events.dat';
-        $.ajax({type: 'GET', url: url, contentType: 'text', data: null,
-            xhrFields: {withCredentials: false},
-            success: successfn,
-            error: errorfn
-        });
+        var url = $scope.$parent.client + '/output/' + $scope.queryParams.id + '_' + stage + '_events.dat';
+        $http.get(url).then(successfn, errorfn);
 
-        function successfn(data) {
+        function successfn(res) {
 
-            if (data.indexOf("html") !== -1) {
+            if (res.data.indexOf("html") !== -1) {
+                if (stage === 0) {
+                    var errorsHash = window.btoa(JSON.stringify({
+                        Mission: {
+                            errors: "There has been a error fetching the default profile for this mission: '" + $scope.queryParams.id + "'.</br>" +
+                                    "Try running your own simulation and then choosing '3D World View' in the top-right menu of the results page!"
+                        },
+                        reportable: false
+                    }));
+                    $scope.redirect('/error/#' + errorsHash);
+                }
                 $scope.start();
             } else {
                 
-                var lines = data.split("\n");
+                var lines = res.data.split("\n");
                 eventsData[stage] = [];
 
                 focusPoints = [];
                 for (var i = 1; i < lines.length; i++) {
-                    var data = lines[i].split(";");
-                    if(data.length === 1)
-                        data = lines[i].split("\t");
+                    var line = lines[i].split(";");
+                    if(line.length === 1)
+                        line = lines[i].split("\t");
 
-                    if (data.length === 1)
+                    if (line.length === 1)
                         continue;
 
-                    eventsData[stage][parseInt(data[0])] = parseFloat(data[12]); // eventsData[time] = throttle
-                    focusPoints.push([parseFloat(data[0]), parseFloat(data[12])]);
-
-                    var x = parseFloat(data[1 + offset]); //offset=17
-                    var y = parseFloat(data[2 + offset]);
-                    var z = parseFloat(data[3 + offset]);
-                    var h = parseFloat(data[4]) * 1e3;
-
-                    var lat = 180 * Math.atan(z / Math.sqrt(x * x + y * y)) / Math.PI;
-                    var lon = 180 * Math.atan2(y, x) / Math.PI;
-
-                    w.viewer.entities.add({
-                        position: Cesium.Cartesian3.fromDegrees(lon, lat, h),
-                        point: {pixelSize: 5, color: Cesium.Color.TRANSPARENT, outlineColor: Cesium.Color.RED, outlineWidth: 1}
-                    });
+                    eventsData[stage][parseInt(line[$scope.COLS.time])] = parseFloat(line[$scope.COLS.throttle]);
+                    focusPoints.push([parseFloat(line[$scope.COLS.time]), parseFloat(line[$scope.COLS.throttle])]);
                 }
 
                 $scope.getDataFile(stage);
             }
         }
 
-        function errorfn(data) {
-            console.log(data);
+        function errorfn(res) {
+            console.log(res);
         }
     };
 
     $scope.start = function () {
 
-        if ($scope.queryParams['w'] !== undefined) {
+        if ($scope.queryParams.w !== undefined) {
             $scope.fillFutureArray();
 
             // just load up the futures
@@ -643,10 +667,10 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
             });
 
             // track entity here so plot resize doesn't throw any errors before T-10s
-            w.trackEntity(0);
+            trackEntity(0);
             $interval(function() {
                 $scope.update();
-            }, 1000);
+            }, 200);
         }
         /*
          setInterval(function () {
@@ -674,26 +698,26 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
 
         if (time >= -10) { // only execute this code after T-00:00:10
 
-            if (w.getTrackedStage() === undefined) {
+            if (getTrackedStage() === undefined) {
                 $scope.clickStage(0);
             }
 
-            var stage = w.getTrackedStage();
+            var stage = getTrackedStage();
 
             if (fullData[stage] !== undefined && fullData[stage][time] !== undefined)
             {
                 var tel = fullData[stage][time].split(":");
-                $("#altitudeTel").html('ALTITUDE: ' + (tel[1] < 1 ? 1000 * tel[1] + ' M' : Math.floor(10 * tel[1]) / 10 + ' KM'));
-                $("#velocityTel").html('VELOCITY: ' + Math.floor(tel[2]) + ' M/S');
+                document.getElementById("altitudeTel").innerHTML = ('ALTITUDE: ' + (tel[1] < 1 ? 1000 * tel[1] + ' M' : Math.floor(10 * tel[1]) / 10 + ' KM'));
+                document.getElementById("velocityTel").innerHTML = ('VELOCITY: ' + Math.floor(tel[2]) + ' M/S');
             } else if (fullData[stage - 1] !== undefined && fullData[stage - 1][time] !== undefined)
             {
                 var tel = fullData[stage - 1][time].split(":");
-                $("#altitudeTel").html('ALTITUDE: ' + (tel[1] < 1 ? 1000 * tel[1] + ' M' : Math.floor(10 * tel[1]) / 10 + ' KM'));
-                $("#velocityTel").html('VELOCITY: ' + Math.floor(tel[2]) + ' M/S');
+                document.getElementById("altitudeTel").innerHTML = ('ALTITUDE: ' + (tel[1] < 1 ? 1000 * tel[1] + ' M' : Math.floor(10 * tel[1]) / 10 + ' KM'));
+                document.getElementById("velocityTel").innerHTML = ('VELOCITY: ' + Math.floor(tel[2]) + ' M/S');
             } else
             {
-                $("#altitudeTel").html('ALTITUDE: 0 KM');
-                $("#velocityTel").html('VELOCITY: 0 M/S');
+                document.getElementById("altitudeTel").innerHTML = ('ALTITUDE: 0 KM');
+                document.getElementById("velocityTel").innerHTML = ('VELOCITY: 0 M/S');
             }
 
             if (time <= 600) {
@@ -707,7 +731,6 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                             if (fullData[s - 1] !== undefined && fullData[s - 1][i] !== undefined)
                             {
                                 var tel = fullData[s - 1][i].split(":");
-                                w.entities[s].orientation = Cesium.Transforms.headingPitchRollQuaternion(w.entities[s].position.getValue(time), tel[3], tel[4], 0);
                                 vel[s][0].push([i, tel[2]]);
                                 alt[s][0].push([i, tel[1]]);
 
@@ -720,7 +743,6 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                         } else
                         {
                             var tel = fullData[s][i].split(":");
-                            w.entities[s].orientation = Cesium.Transforms.headingPitchRollQuaternion(w.entities[s].position.getValue(time), tel[3], tel[4], 0);
                             vel[s][0].push([i, tel[2]]);
                             alt[s][0].push([i, tel[1]]);
 
@@ -772,38 +794,59 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
         }
         for (var stage = 0; stage < $scope.numStages; stage++) {
 
-            $("#altitudeTel").html('ALTITUDE: 0 KM');
-            $("#velocityTel").html('VELOCITY: 0 M/S');
+            document.getElementById("altitudeTel").innerHTML = ('ALTITUDE: 0 KM');
+            document.getElementById("velocityTel").innerHTML = ('VELOCITY: 0 M/S');
 
         }
     };
 
     $scope.plotResize = function (considerSidebar) {
 
-        for (var stage = 0; stage < 2; stage++) {
-            var width = fullWidth <= 456 ? fullWidth - 56 : fullWidth >= 960 ? 400 : 320;
-            $("#altitudePlot").width(width);
-            $("#velocityPlot").width(width);
-            $("#altitudePlot").height(width / 1.6);
-            $("#velocityPlot").height(width / 1.6);
+        var fullWidth = document.getElementsByTagName('body')[0].clientWidth;
+        var w2 = fullWidth;
+        if ($scope.queryParams !== undefined && $scope.queryParams.w !== undefined) {
+            for (var stage = 0; stage < 2; stage++) {
+                var width = fullWidth <= 456 ? fullWidth - 56 : fullWidth >= 960 ? 400 : 320;
+
+                var altitudePlot = document.getElementById("altitudePlot");
+                altitudePlot.style.width = width + 'px';
+                altitudePlot.style.height = (width / 1.6) + 'px';
+
+                var velocityPlot = document.getElementById("velocityPlot");
+                velocityPlot.style.width = width + 'px';
+                velocityPlot.style.height = (width / 1.6) + 'px';
+            }
+            if (considerSidebar) {
+                $scope.initialisePlot("altitude", getTrackedStage());
+                $scope.initialisePlot("velocity", getTrackedStage());
+                var width = fullWidth < 456 ? fullWidth - 56 : fullWidth > 960 ? 400 : 320;
+                w2 = fullWidth - width;
+            } else {
+                w2 = fullWidth;
+            }
         }
-        var w2;
-        var fullWidth = $(document.body)[0].clientWidth;
-        if (considerSidebar) {
-            $scope.initialisePlot("altitude", w.getTrackedStage());
-            $scope.initialisePlot("velocity", w.getTrackedStage());
-            var width = fullWidth < 456 ? fullWidth - 56 : fullWidth > 960 ? 400 : 320;
-            w2 = fullWidth - width;
-        } else {
-            w2 = fullWidth;
-        }
-        $("#cesiumContainer").width(w2);
+        document.getElementById("cesiumContainer").setAttribute("style", "width:"+w2+"px");
         
     };
 
-    $(window).resize(function () {
-        $scope.plotResize($(document.body)[0].clientWidth >= 960);
-    });
+    window.onresize = function () {
+        var windowWidth = window.innerWidth 
+                || document.documentElement.clientWidth 
+                || document.getElementsByTagName('body')[0].clientWidth;
+        $scope.plotResize(windowWidth >= 960);
+    };
+
+    var trackedStage = 0;
+    var trackEntity = function (stage) {
+        if (w.viewer.trackedEntity !== w.entities[stage]) {
+            trackedStage = stage;
+            w.viewer.trackedEntity = w.entities[stage];
+            w.viewer.camera.zoomOut();
+        }
+    };
+    var getTrackedStage = function () {
+        return trackedStage;
+    };
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -813,42 +856,56 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
             w.viewer.camera.flyTo(launchPadViews[site]);
         };
 
-        var trackedStage = 0;
-        this.trackEntity = function (stage) {
-            if (w.viewer.trackedEntity !== w.entities[stage]) {
-                w.trackedStage = stage;
-                w.viewer.trackedEntity = w.entities[stage];
-                w.viewer.camera.zoomOut();
-            }
+        this.setCameraLookingAtCoordinates = function (longitude, latitude) {
+            
+            // can probably use this logic to remove launchPadViews altogether and have dynamic calcs based on pad coords
+            var lat1 = $scope.launchSite.latitude*Math.PI/180.0;
+            var lon1 = $scope.launchSite.longitude*Math.PI/180.0;
+            var lat2 = latitude*Math.PI/180.0;
+            var lon2 = longitude*Math.PI/180.0;
+            
+            var y = Math.sin(lon1-lon2)*Math.cos(lat1);
+            var x = Math.cos(lat2)*Math.sin(lat1) - Math.sin(lat2)*Math.cos(lat1)*Math.cos(lon1-lon2);
+            var brng = Math.atan2(y, x)*180/Math.PI;
+            
+            //$scope.httpRequest('/apikeys/google', 'GET', null, // need to design+build the endpoint
+            //        function (data) {
+
+                        //var json = data.data;
+                        var googleApiKey = "AIzaSyCPznSBxS5RLlWx9eFZv9Cn_L8JkA7kKDA";//json.key;
+
+                        var URL = 'https://maps.googleapis.com/maps/api/elevation/json';
+                        URL += '?locations=' + encodeURIComponent(latitude) + ',' + encodeURIComponent(longitude); // is encode() a real fn?
+                        URL += '&key=' + encodeURIComponent(googleApiKey);
+
+                        $http.get(URL).then(function (txt) { // what if this request fails? need contingency
+                            var json = JSON.parse(txt); // don't think this will work
+                            w.viewer.camera.flyTo({
+                                destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, 5.0 + parseFloat(json.results[0].elevation)),
+                                orientation: {
+                                    heading: Cesium.Math.toRadians(brng),
+                                    pitch: Cesium.Math.toRadians(0),
+                                    roll: Cesium.Math.toRadians(0)
+                                }
+                            });
+                        });
+/*
+                    },
+                    function (data) {
+                        w.viewer.camera.flyTo({
+                            destination: Cesium.Cartesian3.fromDegrees(longitude, latitude), // fall back to 1.0? what's the default?
+                            orientation: {
+                                heading: Cesium.Math.toRadians(brng),
+                                pitch: Cesium.Math.toRadians(0),
+                                roll: Cesium.Math.toRadians(0)
+                            }
+                        });
+                    });
+*/        
+            
         };
 
-        this.getTrackedStage = function () {
-            return w.trackedStage;
-        };
-
-        var w = this;
-        var entities; // map of Cesium stage entities
-
-        var props = {};
-        this.setProps = function (p) {
-            w.props = p;
-        };
-        this.setProp = function (name, value) {
-            w.props[name] = value;
-        };
-        this.getProp = function (key) {
-            if (w.props.hasOwnProperty(key)) {
-                return w.props[key];
-            }
-            return undefined;
-        };
-        this.getProps = function () {
-            return w.props;
-        };
-
-        var viewer;
-
-        var launchPadViews = {};
+        var w = this, entities, viewer, launchPadViews = {};
 
         launchPadViews['LC4E'] = {
             destination: Cesium.Cartesian3.fromDegrees(-128.654, 27.955, 772000.0),
@@ -885,6 +942,40 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
         };
 
     }
+
+    $scope.openPadViewPointEditDialog = function ($trigger) {
+
+        $mdDialog.show({
+            controller: function ($scope, lW, lPadViews, lSite, $mdDialog) {
+
+                $scope.padViews = JSON.parse(JSON.stringify(lPadViews));
+                $scope.site = lSite;
+                
+                $scope.cancel = function () {
+                    $mdDialog.cancel();
+                };
+                $scope.finish = function () {
+                    $mdDialog.hide();
+                };
+                $scope.save = function () {
+                    lPadViews.longitude = $scope.padViews.longitude;
+                    lPadViews.latitude = $scope.padViews.latitude;
+                    lW.setCameraLookingAtCoordinates($scope.padViews.longitude, $scope.padViews.latitude);
+                    $mdDialog.hide();
+                };
+            },
+            templateUrl: '/pages/editPadViewPointDlg.tmpl.html',
+            parent: angular.element(document.body),
+            targetEvent: $trigger,
+            clickOutsideToClose: true,
+            locals: {
+                lParent: $scope,
+                lPadViews: $scope.padViews,
+                lSite: $scope.launchSite,
+                lW: w
+            }
+        });
+    };
     
     $scope.openCesiumCreditsDialog = function ($event) {
         $mdDialog.show({
@@ -906,5 +997,5 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
             targetEvent: $event,
             clickOutsideToClose: true
         });
-    };
+    };                
 });
