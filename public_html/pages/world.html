@@ -71,16 +71,28 @@
                 <p class="centre">{{clock}}</p>
             </md-content>
             <md-divider></md-divider>
-            <md-content flex layout-fill layout-padding layout="column" layout-align="space-around center">
-                <div flex layout-fill layout="column" layout-align="center center">
-                    <span id="altitudeTel"></span>
-                    <div class="plot" id="altitudePlot"></div>
-                </div>
-                <div flex layout-fill layout="column" layout-align="center center">
-                    <span id="velocityTel"></span>
-                    <div class="plot" id="velocityPlot"></div>
-                </div>
-            </md-content>
+            <md-tabs flex md-border-bottom>
+                <md-tab label='Altitude'>
+                    <md-tab-content>
+                        <md-content flex layout-fill layout-padding layout="column" layout-align="space-around center">
+                            <div flex layout-fill layout="column" layout-align="center center">
+                                <span id="altitudeTel"></span>
+                                <div class="plot" id="altitudePlot"></div>
+                            </div>
+                        </md-content>
+                    </md-tab-content>
+                </md-tab>
+                <md-tab label='Velocity'>
+                    <md-tab-content>
+                        <md-content flex layout-fill layout-padding layout="column" layout-align="space-around center">
+                            <div flex layout-fill layout="column" layout-align="center center">
+                                <span id="velocityTel"></span>
+                                <div class="plot" id="velocityPlot"></div>
+                            </div>
+                        </md-content>
+                    </md-tab-content>
+                </md-tab>
+            </md-tabs>
         </md-sidenav>
     </md-content>
 </md-content>

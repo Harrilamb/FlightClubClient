@@ -292,7 +292,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
 
         var placeholder = document.getElementById(element + "Plot");
         placeholder.style.width = width+'px';
-        placeholder.style.height = (width / 1.6)+'px';
+        //placeholder.style.height = (width / 1.6)+'px';
 
         if (placeholder !== undefined) {
             plot[element] = $.plot(placeholder, [[], []], {
@@ -693,8 +693,8 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
     $scope.update = function () {
 
         var currentTime = Cesium.JulianDate.toDate(w.viewer.clock.currentTime);
-        var time = (currentTime - $scope.launchTime) / 1000;
-        time = parseInt(time);
+        var timeMillis = currentTime - $scope.launchTime;
+        var time = parseInt(timeMillis / 1000);
 
         if (time >= -10) { // only execute this code after T-00:00:10
 
@@ -706,13 +706,25 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
 
             if (fullData[stage] !== undefined && fullData[stage][time] !== undefined)
             {
-                var tel = fullData[stage][time].split(":");
-                document.getElementById("altitudeTel").innerHTML = ('ALTITUDE: ' + (tel[1] < 1 ? 1000 * tel[1] + ' M' : Math.floor(10 * tel[1]) / 10 + ' KM'));
+                var telPrev = fullData[stage][time].split(":");
+                var telNext = fullData[stage][time+1].split(":");
+                var tel = [];
+                for(var i=0;i<telPrev.length;i++) {
+                    // interpolate 1-second ranges to get values at every interval
+                    tel[i] = (parseFloat(telPrev[i])+(parseFloat(telNext[i])-parseFloat(telPrev[i]))*(timeMillis%1000)/1000).toFixed(3);
+                }
+                document.getElementById("altitudeTel").innerHTML = ('ALTITUDE: ' + (tel[1] < 1 ? 1000 * tel[1] + ' M' : tel[1] + ' KM'));
                 document.getElementById("velocityTel").innerHTML = ('VELOCITY: ' + Math.floor(tel[2]) + ' M/S');
             } else if (fullData[stage - 1] !== undefined && fullData[stage - 1][time] !== undefined)
             {
-                var tel = fullData[stage - 1][time].split(":");
-                document.getElementById("altitudeTel").innerHTML = ('ALTITUDE: ' + (tel[1] < 1 ? 1000 * tel[1] + ' M' : Math.floor(10 * tel[1]) / 10 + ' KM'));
+                var telPrev = fullData[stage-1][time].split(":");
+                var telNext = fullData[stage-1][time+1].split(":");
+                var tel = [];
+                for(var i=0;i<telPrev.length;i++) {
+                    // interpolate 1-second ranges to get values at every interval
+                    tel[i] = (parseFloat(telPrev[i])+(parseFloat(telNext[i])-parseFloat(telPrev[i]))*(timeMillis%1000)/1000).toFixed(3);
+                }
+                document.getElementById("altitudeTel").innerHTML = ('ALTITUDE: ' + (tel[1] < 1 ? 1000 * tel[1] + ' M' : tel[1] + ' KM'));
                 document.getElementById("velocityTel").innerHTML = ('VELOCITY: ' + Math.floor(tel[2]) + ' M/S');
             } else
             {
@@ -775,7 +787,6 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
 
     };
 
-
     $scope.fillFutureArray = function () {
 
         for (var stage = 0; stage < $scope.numStages; stage++) {
@@ -792,12 +803,8 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                 future[stage]["vel"].push([i, tel[2]]);
             }
         }
-        for (var stage = 0; stage < $scope.numStages; stage++) {
-
-            document.getElementById("altitudeTel").innerHTML = ('ALTITUDE: 0 KM');
-            document.getElementById("velocityTel").innerHTML = ('VELOCITY: 0 M/S');
-
-        }
+        document.getElementById("altitudeTel").innerHTML = ('ALTITUDE: 0 KM');
+        document.getElementById("velocityTel").innerHTML = ('VELOCITY: 0 M/S');
     };
 
     $scope.plotResize = function (considerSidebar) {
@@ -810,11 +817,9 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
 
                 var altitudePlot = document.getElementById("altitudePlot");
                 altitudePlot.style.width = width + 'px';
-                altitudePlot.style.height = (width / 1.6) + 'px';
 
                 var velocityPlot = document.getElementById("velocityPlot");
                 velocityPlot.style.width = width + 'px';
-                velocityPlot.style.height = (width / 1.6) + 'px';
             }
             if (considerSidebar) {
                 $scope.initialisePlot("altitude", getTrackedStage());
