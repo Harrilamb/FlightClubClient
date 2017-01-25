@@ -15,11 +15,11 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
         }
     }, 150);
     
-    $scope.httpRequest('/user/permissions', 'GET', null, function (data) {
-        var json = data.data;
+    $scope.httpRequest('/user/permissions', 'GET', null, function (res) {
+        var json = res.data.data;
         $scope.permissions = {};
         for (var i = json.length; i > 0; i--) {
-            $scope.permissions[json[i - 1].code] = {code: json[i - 1].code, name: json[i - 1].name};
+            $scope.permissions[json.length-i] = {code: json[i - 1].code, name: json[i - 1].name};
         }
     });
     
