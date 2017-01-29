@@ -83,10 +83,10 @@
                                         <h3>{{stage.stageName}}</h3>
                                         <h4 ng-show="stage.Engines[0] === undefined" style="color:red">This stage has no engines!!!</h4>
                                         <h4 ng-repeat="engineConfig in stage.Engines">{{engineConfig.number}} x {{engineConfig.Engine.name}}</h4>
-                                        <p hide show-gt-xs>Dry mass: {{stage.dryMass / 1000.0}}t // Propellant mass: {{stage.propMass / 1000.0}}t/{{stage.fuelCapacity / 1000.0}}t // Total mass: {{(stage.dryMass + stage.propMass) / 1000.0}}t</p>
-                                        <p hide-gt-xs>Dry mass: {{stage.dryMass / 1000.0}}t</p>
-                                        <p hide-gt-xs>Propellant mass: {{stage.propMass / 1000.0}}t/{{stage.fuelCapacity / 1000.0}}t</p>
-                                        <p hide-gt-xs>Total mass: {{(stage.dryMass + stage.propMass) / 1000.0}}t</p>
+                                        <p hide show-gt-xs>Dry mass: {{formatMass(stage.dryMass)}} // Propellant mass: {{formatMass(stage.propMass)}}/{{formatMass(stage.fuelCapacity)}} // Total mass: {{formatMass(stage.dryMass + stage.propMass)}}</p>
+                                        <p hide-gt-xs>Dry mass: {{formatMass(stage.dryMass)}}</p>
+                                        <p hide-gt-xs>Propellant mass: {{formatMass(stage.propMass)}}/{{formatMass(stage.fuelCapacity)}}</p>
+                                        <p hide-gt-xs>Total mass: {{formatMass(stage.dryMass + stage.propMass)}}</p>
                                     </div>
                                     <md-button style="min-width:0" ng-click="incrementEntity(stage)" ng-disabled="builderType !== 'custom'">
                                         <md-tooltip md-direction="bottom">Add Booster</md-tooltip>
@@ -108,7 +108,7 @@
                                         <h3>{{booster.stageName}}</h3>
                                         <h4 ng-show="booster.Engines[0] === undefined" style="color:red">This booster has no engines!!!</h4>
                                         <h4 ng-repeat="engineConfig in booster.Engines">{{engineConfig.number}} x {{engineConfig.Engine.name}}</h4>
-                                        <p>Dry mass: {{booster.dryMass / 1000.0}}t // Propellant mass: {{booster.propMass / 1000.0}}t/{{booster.fuelCapacity / 1000.0}}t // Total mass: {{(booster.dryMass + booster.propMass) / 1000.0}}t</p>
+                                        <p>Dry mass: {{formatMass(booster.dryMass)}} // Propellant mass: {{formatMass(booster.propMass)}}/{{formatMass(booster.fuelCapacity)}} // Total mass: {{formatMass(booster.dryMass + booster.propMass)}}</p>
                                     </div>
                                     <md-button style="min-width:0" ng-click="openBoosterEditDialog($event, stage, $index, booster)" ng-disabled="builderType !== 'custom'">
                                         <md-tooltip md-direction="bottom">Edit This Booster</md-tooltip>

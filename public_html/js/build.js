@@ -1066,5 +1066,18 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
             }
         });
     };
+    
+    $scope.formatMass = function(mass) {
+        if(mass > 1000.0) {
+            var parts = mass.toString().split('.');
+            if(parts.length>1) {
+                return (mass/1000.0).toFixed(3+parts[1].length) + 't';                
+            } else {
+                return (mass/1000.0) + 't';
+            }
+        } else {
+            return mass + 'kg';
+        }
+    };
 
 });
