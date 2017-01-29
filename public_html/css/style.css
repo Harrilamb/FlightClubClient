@@ -1,47 +1,11 @@
 @font-face {
-  font-family: 'Brandon Grotesque';
-  font-style: normal;
-  src: url(/fonts/Brandon\ Grotesque\ Medium.otf) format('opentype');
-}
-
-/* 
-the next two chunks, or add
-    <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons" media="bogus">
-to stylesheets in index.html which will pull woff2 file from CDN
-*/
-
-/* fallback */
-@font-face {
-  font-family: 'Material Icons';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Material Icons'), local('MaterialIcons-Regular'), url(/fonts/2fcrYFNaTjcS6g4U3t-Y5ZjZjT5FdEJ140U2DJYC3mY.woff2) format('woff2');
-}
-
-/* Rules for sizing the icon. */
-.material-icons.md-18 { font-size: 18px; }
-.material-icons.md-24 { font-size: 24px; }
-.material-icons.md-36 { font-size: 36px; }
-.material-icons.md-48 { font-size: 48px; }
-
-.material-icons {
-  font-family: 'Material Icons';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px;
-  line-height: 1;
-  letter-spacing: normal;
-  text-transform: none;
-  display: inline-block;
-  white-space: nowrap;
-  word-wrap: normal;
-  direction: ltr;
-  -webkit-font-feature-settings: 'liga';
-  -webkit-font-smoothing: antialiased;
+    font-family: 'Brandon Grotesque';
+    font-style: normal;
+    src: url(/fonts/Brandon\ Grotesque\ Medium.otf) format('opentype');
 }
 
 html, input, textarea, select {
-  font-family: 'Brandon Grotesque', sans-serif !important;
+    font-family: 'Brandon Grotesque', sans-serif !important;
 }
 
 /*******************************/
@@ -49,14 +13,14 @@ html, input, textarea, select {
 /*******************************/
 
 md-progress-circular.md-fc_dark-theme:not(.loadCircle) path {
-  stroke: #ccac55;
+    stroke: #ccac55;
 }
 md-progress-circular.md-fc_default-theme:not(.loadCircle) path {
-  stroke: #8c6c15;
+    stroke: #8c6c15;
 }
 
 md-tabs.md-fc_dark-theme .md-tab.md-active {
-  color: #eee;
+    color: #eee;
 }
 
 a {
@@ -95,35 +59,35 @@ md-divider.md-fc_default-theme {
 /*******************************/
 
 .centre {
-  text-align: center;
+    text-align: center;
 }
 
 /*
   tabs content was starting way above the tab content. only important for launchpads
 */
 #build md-grid-list {
-  padding-bottom: 0 !important;
+    padding-bottom: 0 !important;
 }
 
 /* input has error div below. This makes select line up */
 md-select, md-switch {
-  margin-bottom: 24px !important;
+    margin-bottom: 24px !important;
 }
 
 ::-webkit-scrollbar {
-  display: none; 
+    display: none; 
 }
 
 #results md-grid-tile {
-  padding: 0 !important;
+    padding: 0 !important;
 }
 
 #results figure {
-  display: none !important;
+    display: none !important;
 }
 
 #world md-backdrop {
-  display: none;
+    display: none;
 }
 
 .plot {
@@ -131,11 +95,11 @@ md-select, md-switch {
 }
 
 #cesiumContainer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
 }
 
 .cesium-widget-credits {
@@ -147,62 +111,62 @@ md-select, md-switch {
 }
 
 #patreon img {
-  display: block;
-  width: auto;
-  height: auto;
+    display: block;
+    width: auto;
+    height: auto;
 }
 
 @media 
 only screen and (min-width: 768px)  {
 
-  #rocket {
-    margin-left: -125px;
-    height: 249px;
-    width: 249px;
-  }
+    #rocket {
+        margin-left: -125px;
+        height: 249px;
+        width: 249px;
+    }
 
-  #rocket > img {
-    content: url("../images/rocket_large.png");
-  }
+    #rocket > img {
+        content: url("../images/rocket_large.png");
+    }
 
-  #rocket > img:after {
-    content: url("../images/rocket_large.png");
-  }
+    #rocket > img:after {
+        content: url("../images/rocket_large.png");
+    }
 
-  .dialog-panel {
-      width: 50%;
-      max-height:50%;
-      overflow-y: scroll;
-      bottom: 8px;
-      right: 8px;
-      overflow : auto;
-  }
+    .dialog-panel {
+        width: 50%;
+        max-height:50%;
+        overflow-y: scroll;
+        bottom: 8px;
+        right: 8px;
+        overflow : auto;
+    }
 }
 
 @media 
 only screen and (max-width: 767px) {
 
-  #rocket {
-    margin-left: -38px;
-    min-height: 75px;
-    min-width: 75px;
-  }
+    #rocket {
+        margin-left: -38px;
+        min-height: 75px;
+        min-width: 75px;
+    }
 
-  #rocket > img {
-    content: url("../images/rocket_small.png");
-  }
+    #rocket > img {
+        content: url("../images/rocket_small.png");
+    }
 
-  #rocket > img:after {
-    content: url("../images/rocket_small.png");
-  }
+    #rocket > img:after {
+        content: url("../images/rocket_small.png");
+    }
 
-  .dialog-panel {
-      width: 80%;
-      max-height:50%;
-      overflow-y: scroll;
-      bottom: 8px;
-      right: 8px;
-      overflow : auto;
-  }
+    .dialog-panel {
+        width: 80%;
+        max-height:50%;
+        overflow-y: scroll;
+        bottom: 8px;
+        right: 8px;
+        overflow : auto;
+    }
 
 }
