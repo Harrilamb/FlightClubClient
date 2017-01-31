@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   viewBox="0 0 144.82414 19.942547"
+   version="1.1"
+   id="svg2"
+   inkscape:version="0.91 r"
+   sodipodi:docname="marker_template_raw.svg"
+   width="144.82414"
+   height="19.942547">
+  <metadata
+     id="metadata27">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1366"
+     inkscape:window-height="747"
+     id="namedview25"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="72.4"
+     fit-margin-bottom="0"
+     inkscape:zoom="8.3066261"
+     inkscape:cx="72.412071"
+     inkscape:cy="9.9712734"
+     inkscape:window-x="0"
+     inkscape:window-y="21"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2" />
+  <defs
+     id="defs4">
+    <circle
+       id="c1"
+       cx="0"
+       cy="0"
+       r="47.5"
+       style="fill:#0000ff;stroke:#ffffff;stroke-width:5" />
+    <polyline
+       id="l1"
+       points="38.667,77.5 60.0,50.0 38.667,22.5"
+       style="fill:#0000ff;stroke:#ffffff;stroke-width:5" />
+    <polygon
+       id="p1"
+       points="60,50 38.667,22.5 38.667,77.5 "
+       style="fill:#0000ff;stroke:none" />
+  </defs>
+  <!-- Semi-circle on both sides -->
+  <use
+     x="50"
+     y="50"
+     r="50"
+     xlink:href="#c1"
+     id="use9"
+     width="100%"
+     height="100%"
+     transform="matrix(0.19942542,0,0,0.19942542,0,1.5986145e-6)" />
+  <use
+     x="300"
+     y="50"
+     r="50"
+     xlink:href="#c1"
+     id="use11"
+     width="100%"
+     height="100%"
+     transform="matrix(0.19942542,0,0,0.19942542,0,1.5986145e-6)" />
+  <!-- Pointer on left side -->
+  <!--
+  <use xlink:href="#p1" x="-50" y="0" transform="scale(-1,1)"/>
+  <use xlink:href="#l1" x="-50" y="0" transform="scale(-1,1)"/>
+  -->
+  <!-- Pointer on right side -->
+  <use
+     xlink:href="#p1"
+     x="300"
+     y="0"
+     id="use13"
+     width="100%"
+     height="100%"
+     transform="matrix(0.19942542,0,0,0.19942542,0,1.5986145e-6)" />
+  <use
+     xlink:href="#l1"
+     x="300"
+     y="0"
+     id="use15"
+     width="100%"
+     height="100%"
+     transform="matrix(0.19942542,0,0,0.19942542,0,1.5986145e-6)" />
+  <!-- Pointer on both sides -->
+  <!--
+  <use xlink:href="#p1" x="-50" y="0" transform="scale(-1,1)"/>
+  <use xlink:href="#l1" x="-50" y="0" transform="scale(-1,1)"/>
+  <use xlink:href="#p1" x="300" y="0"/>
+  <use xlink:href="#l1" x="300" y="0"/>
+  -->
+  <rect
+     x="9.9712715"
+     y="0"
+     width="49.856358"
+     height="19.942543"
+     style="fill:#0000ff"
+     id="rect17" />
+  <line
+     x1="9.9"
+     y1="0.49856734"
+     x2="60"
+     y2="0.49856734"
+     style="stroke:#ffffff;stroke-width:0.99712712"
+     id="line19" />
+  <line
+     x1="9.9"
+     y1="19.443983"
+     x2="60"
+     y2="19.443983"
+     style="stroke:#ffffff;stroke-width:0.99712712"
+     id="line21" />
+  <text
+     x="34.899448"
+     dy="14.458343"
+     style="font-size:12.96265221px;text-anchor:middle;fill:#ffffff;stroke:none"
+     id="text23"
+     y="0">REPLACE</text>
+</svg>

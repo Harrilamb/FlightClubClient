@@ -1,6 +1,6 @@
 /* global Plotly, Cesium */
 
-angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookies, $interval, $http, $location, $timeout) {
+angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookies, $interval, $http, $location, $mdDialog, $timeout) {
 
     $scope.$emit('viewBroadcast', 'results');
 
@@ -778,5 +778,79 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         };
 
     }
+
+    $scope.changeView = function () {
+
+        switch ($scope.queryParams.view) {
+            case 'space':
+                $location.search('view', 'earth');
+                offset = 0;
+                break;
+            case 'earth':
+            default:
+                $location.search('view', 'space');
+                offset = $scope.COLS.xAbs -$scope.COLS.x;
+                break;
+        }
+        w.viewer.entities.removeAll();
+        $scope.getEventsFile(0);
+
+    };
+
+    $scope.openPadViewPointEditDialog = function ($trigger) {
+
+        $mdDialog.show({
+            controller: function ($scope, lW, lPadViews, lSite, $mdDialog) {
+
+                $scope.padViews = JSON.parse(JSON.stringify(lPadViews));
+                $scope.site = lSite;
+                
+                $scope.cancel = function () {
+                    $mdDialog.cancel();
+                };
+                $scope.finish = function () {
+                    $mdDialog.hide();
+                };
+                $scope.save = function () {
+                    lPadViews.longitude = $scope.padViews.longitude;
+                    lPadViews.latitude = $scope.padViews.latitude;
+                    lW.setCameraLookingAtCoordinates($scope.padViews.longitude, $scope.padViews.latitude);
+                    $mdDialog.hide();
+                };
+            },
+            templateUrl: '/pages/editPadViewPointDlg.tmpl.html',
+            parent: angular.element(document.body),
+            targetEvent: $trigger,
+            clickOutsideToClose: true,
+            locals: {
+                lParent: $scope,
+                lPadViews: $scope.padViews,
+                lSite: $scope.launchSite,
+                lW: w
+            }
+        });
+    };
+    
+    $scope.openCesiumCreditsDialog = function ($event) {
+        $mdDialog.show({
+            controller: function () {
+                $scope.hide = function () {
+                    $mdDialog.hide();
+                };
+
+                $scope.cancel = function () {
+                    $mdDialog.cancel();
+                };
+
+                $scope.answer = function (answer) {
+                    $mdDialog.hide(answer);
+                };
+            },
+            contentElement: '#myDialog',
+            parent: angular.element(document.body),
+            targetEvent: $event,
+            clickOutsideToClose: true
+        });
+    };    
 
 });

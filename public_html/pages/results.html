@@ -38,6 +38,39 @@
             <md-tab-content>
                 <md-content flex>
                     <div id="cesiumContainer"></div>
+                    <div style="position:fixed">
+                        <md-menu>
+                            <md-button class="md-icon-button" aria-label="Menu" ng-click='$mdOpenMenu()'>
+                                <md-icon class="material-icons" style="color:white">menu</md-icon>
+                            </md-button>
+                            <md-menu-content width="4">
+                                <md-menu-item>
+                                    <md-button ng-click="changeView()">
+                                        <md-icon class="material-icons">language</md-icon>
+                                        <span>Change View</span>
+                                    </md-button>
+                                </md-menu-item>
+                                <md-menu-item hide-gt-sm ng-show="cesiumShow && sidebarShow">
+                                    <md-button ng-click="toggleNav('sidenav')">
+                                        <md-icon class="material-icons">timeline</md-icon>
+                                        <span>Telemetry</span>
+                                    </md-button>
+                                </md-menu-item>
+                                <md-menu-item>
+                                    <md-button ng-click="openCesiumCreditsDialog($event)">
+                                        <md-icon class="material-icons">info_outline</md-icon>
+                                        <span>Credits</span>
+                                    </md-button>
+                                </md-menu-item>
+                                <md-menu-item>
+                                    <md-button ng-click="openPadViewPointEditDialog($event)">
+                                        <md-icon class="material-icons">camera_enhance</md-icon>
+                                        <span>Change Camera View Coordinates (Experimental)</span>
+                                    </md-button>
+                                </md-menu-item>
+                            </md-menu-content>
+                        </md-menu>
+                    </div>
                 </md-content>
             </md-tab-content>
         </md-tab>
