@@ -238,10 +238,6 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
 
     //////////////////////////////////////
 
-    $scope.goToLive = function () {
-        $scope.$parent.redirect("/world?w=1&code=" + $scope.queryParams.code);
-    };
-
     $scope.overrideLive = function () {
         if ($cookies.get($scope.$parent.cookies.AUTHTOKEN) === undefined)
             return;

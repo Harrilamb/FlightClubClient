@@ -55,25 +55,25 @@
                         </md-button>
                         <md-menu-content width="4">
                             <md-menu-item>
-                                <md-button ng-click="redirect('/')">
+                                <md-button ng-href="/">
                                     <md-icon class="material-icons">home</md-icon>
                                     <span>Home</span>
                                 </md-button>
                             </md-menu-item>
                             <md-menu-item>
-                                <md-button ng-click="redirect('/build')">
+                                <md-button ng-href="/build">
                                     <md-icon class="material-icons">build</md-icon>
                                     <span>Build</span>
                                 </md-button>
                             </md-menu-item>
-                            <md-menu-item ng-click="redirect('/account')">
-                                <md-button>
+                            <md-menu-item>
+                                <md-button ng-href="/account">
                                     <md-icon class="material-icons">person</md-icon>
                                     <span>Account</span>
                                 </md-button>
                             </md-menu-item>
                             <md-menu-item>
-                                <md-button ng-click="redirectExternal('https://www.patreon.com/flightclub')">
+                                <md-button ng-href="https://www.patreon.com/flightclub" target="_blank">
                                     <md-icon class="material-icons">
                                         <svg xmlns="http://www.w3.org/2000/svg"
                                              viewBox="0 0 8 8"
@@ -86,13 +86,13 @@
                                 </md-button>
                             </md-menu-item>
                             <md-menu-item>
-                                <md-button ng-click="redirect('/contact')">
+                                <md-button ng-href="/contact">
                                     <md-icon class="material-icons">contact_mail</md-icon>
                                     <span>Contact</span>
                                 </md-button>
                             </md-menu-item>
                             <md-menu-item>
-                                <md-button ng-click="redirect('/media')">
+                                <md-button ng-href="/media">
                                     <md-icon class="material-icons">sms</md-icon>
                                     <span>Media</span>
                                 </md-button>
@@ -104,7 +104,7 @@
                                 </md-button>
                             </md-menu-item>
                             <md-menu-item>
-                                <md-button ng-click="redirectExternal('/docs')">
+                                <md-button ng-href="/docs" target="_blank">
                                     <md-icon class="material-icons">description</md-icon>
                                     <span>Flight Club API Docs</span>
                                 </md-button>
@@ -124,6 +124,7 @@
         </section>
 
         <script async src="plotly/plotly-1.19.2.min.js"></script>
+        <script async src="//use.fontawesome.com/f64ed2b858.js"></script>
 
         <link rel="stylesheet" href="angular-material/angular-material.min.css">
         <link rel="stylesheet" href="css/flightclub.min.css">

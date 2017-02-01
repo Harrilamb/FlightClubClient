@@ -30,16 +30,16 @@
                 </p>
             </md-card-content>
             <md-card-actions flex layout="row" layout-align="space-around center">
-                <md-button flex="40" ng-click="redirect('/build?runTutorial')" class="md-raised md-primary">Run Tutorial</md-button>
-                <md-button flex="40" ng-click="redirect('/build')" class="md-raised md-primary">Build!</md-button>
+                <md-button flex="40" ng-href="/build?runTutorial" class="md-raised md-primary">Run Tutorial</md-button>
+                <md-button flex="40" ng-href="/build" class="md-raised md-primary">Build!</md-button>
             </md-card-actions>
             <hr style="width:100%">
             <md-card-actions flex layout="row" layout-align="space-around center">
-                <md-button flex="40" ng-click="redirect('/contact')" class="md-raised md-secondary">Contact Me</md-button>
-                <md-button flex="40" ng-click="redirect('/media')" class="md-raised md-secondary">View Media</md-button>
+                <md-button flex="40" ng-href="/contact" class="md-raised md-secondary">Contact Me</md-button>
+                <md-button flex="40" ng-href="/media" class="md-raised md-secondary">View Media</md-button>
             </md-card-actions>
             <md-card-actions layout="row" layout-align="space-around center">
-                <md-button flex="90" class="md-raised md-accent" ng-click="redirectExternal('https://www.patreon.com/flightclub')">
+                <md-button flex="90" class="md-raised md-accent" ng-href="https://www.patreon.com/flightclub" target="_blank">
                     <md-card-avatar>
                         <md-icon class="md-avatar-icon" style="background-color:transparent">
                             <svg xmlns="http://www.w3.org/2000/svg"

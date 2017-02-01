@@ -13,8 +13,8 @@
                           md-rowspan="1"
                           md-colspan="1"
                           md-colspan-gt-sm="2">
-                <md-button class="md-primary bolder md-raised" layout-padding layout-fill ng-click='redirectExternal(tile.url)'>
-                    <img src="{{tile.thumbnail}}" alt="{{tile.name}}"/>
+                <md-button style="display:inherit" class="md-primary bolder md-raised" layout-padding layout-fill ng-href='{{tile.url}}' target='_blank'>
+                    <img style="margin:auto" src="{{tile.thumbnail}}" alt="{{tile.name}}"/>
                     <md-grid-tile-footer><h3>{{tile.name}}</h3></md-grid-tile-footer>
                 </md-button>
             </md-grid-tile>

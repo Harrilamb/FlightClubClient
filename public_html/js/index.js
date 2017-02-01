@@ -96,11 +96,6 @@ angular.module('FlightClub').controller('IndexCtrl', function ($http, $scope, $m
         $location.url(path);
     };
 
-    $scope.redirectExternal = function (path) {
-        $window.location.href = path;
-    };
-
-
     $scope.toggleNav = function (id) {
         $mdSidenav(id).toggle();
         // this doesn't trigger when sidenav closed by clicking outside!
