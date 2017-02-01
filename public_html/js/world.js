@@ -16,7 +16,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
         { p: 0.2, message: 'Damn your internet is slow, man'},
         { p: 0.2, message: 'I hope your browser can handle this'},
         { p: 0.95, message: 'A huge thank you to my GEO Patrons for supporting Flight Club!<ul>'+$scope.$parent.getGEOPatronList()+'</ul><a href="https://www.patreon.com/flightclub">Click here to support me on Patreon!</a>'},
-        { p: 0.0, message: 'Follow me on Twitter: <a href="https://www.twitter.com/decmurphy_">@decmurphy_</a>'}
+        { p: 0.0, message: 'Follow me on Twitter: <a href="https://www.twitter.com/flightclubio">@flightclubio</a>'}
     ];
         
     var startRoller = function () {
