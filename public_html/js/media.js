@@ -11,7 +11,7 @@ angular.module('FlightClub').controller('MediaCtrl', function ($scope) {
             {name: 'SpaceX Iridium-1', url: '//youtu.be/CGL2FEMxDE0', thumbnail: '/images/media/spacex_iridium-1.png' },
             {name: 'TMRO Interview', url: '//www.tmro.tv/2016/10/16/beautiful-data-rocket-launches/', thumbnail: '/images/media/tmro_interview.png' },
             {name: 'The Economist', url: '//www.economist.com/technology-quarterly/2016-25-08/space-2016', thumbnail: '/images/media/the_economist.png' },
-            {name: 'Twitter Mentions', url: '//twitter.com/search?f=tweets&vertical=default&q=flightclub.io%20OR%20%23flightclubio%20OR%20flightclub%20spacex&src=typd', thumbnail: '/images/media/twitter_mentions.png' },
+            {name: 'Twitter Mentions', url: 'https://goo.gl/7x4c3z', thumbnail: '/images/media/twitter_mentions.png' },
             {name: 'SpaceX CRS-9', url: '//youtu.be/NT50R2dLht8', thumbnail: '/images/media/spacex_crs-9.png' },
             {name: 'Cesium Showcase', url: '//cesiumjs.org/demos/FlightClub.html', thumbnail: '/images/media/cesium_showcase.png' },
             {name: 'SpaceX CRS-8', url: '//youtu.be/ibv6vcNrxzA', thumbnail: '/images/media/spacex_crs-8.png' },
