@@ -8,6 +8,9 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
     $scope.$parent.toolbarClass = "";
     $scope.loadMessage = "Building plots...";   
     $scope.selectedIndex = 0;
+    
+    $scope.export_icon = 'content_copy';
+    $scope.exportStyle = false;
 
     $scope.messageArray = [
         // p is probability of update being skipped until next interval
@@ -235,6 +238,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
     $scope.focusPoints = [];
     $scope.stageMap = [];
     $scope.overrideAttempted = false;
+    $scope.overrideInProgress = false;
 
     //////////////////////////////////////
 
@@ -242,17 +246,22 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         if ($cookies.get($scope.$parent.cookies.AUTHTOKEN) === undefined)
             return;
 
+        $scope.overrideInProgress = true;
+        $scope.overrideAttempted = true;
+
         var queryString = window.location.search.substring(1);
         queryString += '&auth=' + $cookies.get($scope.$parent.cookies.AUTHTOKEN);
         $scope.httpRequest('/live/init?' + queryString, 'GET', null,
                 function (data) {
                     var json = data.data;
                     $scope.overrideStatus = json.Success ? "check" : "close";
-                    $scope.overrideAttempted = true;
+                    $scope.overrideStatusColor = json.Success ? '#82CA9D' : '#F7977A';
+                    $scope.overrideInProgress = false;
                 },
                 function () {
                     $scope.overrideStatus = "close";
-                    $scope.overrideAttempted = true;
+                    $scope.overrideStatusColor = '#F7977A';
+                    $scope.overrideInProgress = false;
                 });
     };
 

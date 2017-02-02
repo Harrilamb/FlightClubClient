@@ -83,8 +83,10 @@
                 <md-list-item ng-click='redirect("/world?w=1&code=" + queryParams.code)'>
                     <span class="md-secondary">Watch Live!</span>
                 </md-list-item>
-                <md-list-item ng-click="overrideLive()" ng-show="authorised && hasPermission('overrideLive')">
-                    <i class="material-icons" ng-show="overrideAttempted">{{overrideStatus}}</i><span class="md-secondary">Override Live Plot</span>
+                <md-list-item ng-style="{'background-color': overrideAttempted && !overrideInProgress ? overrideStatusColor : ''}" ng-click="overrideLive()" ng-show="authorised && hasPermission('overrideLive')">
+                    <md-progress-circular style="margin:0" class="loadCircle" ng-show="overrideAttempted && overrideInProgress" md-mode="indeterminate"></md-progress-circular>
+                    <md-icon style="margin:0" class="material-icons" ng-show="overrideAttempted && !overrideInProgress">{{overrideStatus}}</md-icon>
+                    <span class="md-secondary">Override Live Plot</span>
                 </md-list-item>
                 <md-subheader class="md-no-sticky">More Simulation Data</md-subheader>
                 <md-list-item ng-show="warnings.length > 0" ng-click="toggleNav('warnings')">
