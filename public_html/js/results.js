@@ -394,8 +394,8 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
             x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear"},
             y: {axis: $scope.COLS.alt, label: "Altitude (km)", type: "linear"}});
         $scope.plotMap.push({id: 'profile1', stages: allStages, title: "Profile", events: true,
-            x: {axis: $scope.COLS.range, label: "Downrange (km)", type: "linear"},
-            y: {axis: $scope.COLS.alt, label: "Altitude (km)", type: "linear"}});
+            x: {axis: $scope.COLS.range, label: "Downrange (km)", type: "linear", range: [0, 300]},
+            y: {axis: $scope.COLS.alt, label: "Altitude (km)", type: "linear", range: [0, 300]}});
         $scope.plotMap.push({id: 'inclination', stages: allStages, title: "Inclination", events: false,
             x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear"},
             y: {axis: $scope.COLS.incl, label: "Incl (°)", type: "linear", range: [-180, 180]}});
