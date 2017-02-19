@@ -11,6 +11,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
     
     $scope.export_icon = 'content_copy';
     $scope.exportStyle = false;
+    $scope.initialised = false;
 
     $scope.messageArray = [
         // p is probability of update being skipped until next interval
@@ -174,6 +175,9 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                     $scope.launchTime = Date.parse(tempDate);
                     
                     $scope.missionName = json.Mission.description;
+                    
+                    $scope.stageMap = [];
+                    
                     $scope.getEventsFile(0);
 
                 }, function (data) {
@@ -303,6 +307,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
             $scope.stageMap.forEach(function(stage) {
                 $scope.buildEntitiesFromResponse(stage.id);
             });
+            $scope.initialised = true;
         }
 
         function errorfn(res) {
@@ -349,8 +354,12 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         function successfn(data) {
             
             if(data.data.indexOf("html") !== -1) {
-                $scope.initialisePlots();
-                $scope.loadCesium();
+                if(!$scope.initialised) {
+                    $scope.initialisePlots();
+                    $scope.loadCesium();
+                } else {
+                    $scope.getHazardMap();                    
+                }
             } else {
 
                 var lines = data.data.split("\n");
@@ -797,8 +806,9 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                 offset = $scope.COLS.xAbs -$scope.COLS.x;
                 break;
         }
+        $scope.queryParams = $location.search();
         w.viewer.entities.removeAll();
-        $scope.getEventsFile(0);
+        $scope.getEventsFile(0, true);
 
     };
 

@@ -59,25 +59,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
         plot["velocity"].getOptions().yaxes[0].max = max[stage]["velocity"];
         plot["velocity"].setupGrid();
     };
-
-    $scope.changeView = function () {
-
-        switch ($scope.queryParams.view) {
-            case 'space':
-                $location.search('view', 'earth');
-                offset = 0;
-                break;
-            case 'earth':
-            default:
-                $location.search('view', 'space');
-                offset = $scope.COLS.xAbs -$scope.COLS.x;
-                break;
-        }
-        w.viewer.entities.removeAll();
-        $scope.loadDataAndPlot();
-
-    };
-
+    
     $scope.setClock = function (world) {
 
         var _second = 1000;
