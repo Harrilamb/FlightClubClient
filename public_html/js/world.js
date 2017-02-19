@@ -862,7 +862,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
             
             //$scope.httpRequest('/apikeys/google', 'GET', null, // need to design+build the endpoint
             //        function (data) {
-
+/*
                         //var json = data.data;
                         var googleApiKey = "AIzaSyCPznSBxS5RLlWx9eFZv9Cn_L8JkA7kKDA";//json.key;
 
@@ -881,20 +881,18 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                                 }
                             });
                         });
-/*
                     },
                     function (data) {
+            */
                         w.viewer.camera.flyTo({
-                            destination: Cesium.Cartesian3.fromDegrees(longitude, latitude), // fall back to 1.0? what's the default?
+                            destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, 5.0), // fall back to 1.0? what's the default?
                             orientation: {
                                 heading: Cesium.Math.toRadians(brng),
                                 pitch: Cesium.Math.toRadians(0),
                                 roll: Cesium.Math.toRadians(0)
                             }
                         });
-                    });
-*/        
-            
+                    //});            
         };
 
         var w = this, entities, viewer, launchPadViews = {};
