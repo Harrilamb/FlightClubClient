@@ -37,6 +37,7 @@ angular.module('FlightClub').config(function ($routeProvider, $locationProvider,
                 }, template: "<div></div>"})
             .when("/contact/", {templateUrl: "/pages/contact.html", controller: "ContactCtrl"})
             .when("/donate/", {templateUrl: "/pages/donate.html", controller: "DonateCtrl"})
+            .when("/d3/", {templateUrl: "/pages/d3.html", controller: "D3Ctrl"})
             .when("/error/", {templateUrl: "/pages/error.html", controller: "ErrorCtrl"})
             .when("/results/", {templateUrl: "/pages/results.html", controller: "ResultsCtrl", reloadOnSearch: false})
             .when("/media/", {templateUrl: "/pages/media.html", controller: "MediaCtrl"})
