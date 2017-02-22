@@ -26,7 +26,7 @@ angular.module('FlightClub').controller('PatreonCtrl', function ($scope, $cookie
             }*/
 
             $scope.rewards.forEach(function (tier) {
-                $scope.queryParams.id.forEach(function (queryTier) {
+                $scope.queryParams.id.split(" ").forEach(function (queryTier) {
                     if (tier.name.indexOf(queryTier) !== -1) {
                         $scope.chosenTiers.push(tier); // not using this anymore, apart from to set the titleTier
                         tier.patrons.forEach(function (patron) {
