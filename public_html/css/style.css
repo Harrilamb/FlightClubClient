@@ -90,10 +90,6 @@ md-select, md-switch {
     display: none;
 }
 
-.plot {
-    height: 100%;
-}
-
 #cesiumContainer {
     position: fixed;
     top: 0;

@@ -274,7 +274,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
 
         var placeholder = document.getElementById(element + "Plot");
         placeholder.style.width = width+'px';
-        //placeholder.style.height = (width / 1.6)+'px';
+        placeholder.style.height = (width / 1.6)+'px';
 
         if (placeholder !== undefined) {
             plot[element] = $.plot(placeholder, [[], []], {
@@ -804,9 +804,11 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
 
                 var altitudePlot = document.getElementById("altitudePlot");
                 altitudePlot.style.width = width + 'px';
-
+                altitudePlot.style.height = (width / 1.6) + 'px';
+                
                 var velocityPlot = document.getElementById("velocityPlot");
                 velocityPlot.style.width = width + 'px';
+                velocityPlot.style.height = (width / 1.6) + 'px';
             }
             if (considerSidebar) {
                 $scope.initialisePlot("altitude", getTrackedStage());
