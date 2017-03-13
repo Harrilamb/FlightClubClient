@@ -69,19 +69,23 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         $scope.queryString = queryString;
         $scope.queryParams = $scope.$parent.parseQueryString(queryString);
         
-        switch ($scope.queryParams.view) {
-            case 'space':
-                offset = $scope.COLS.xAbs -$scope.COLS.x;
-                break;
-            case 'earth':
-            default:
-                offset = 0;
-                break;
+        if($scope.queryParams.view !== undefined && $scope.queryParams.view.length > 0) {
+            switch ($scope.queryParams.view[0]) {
+                case 'space':
+                    offset = $scope.COLS.xAbs - $scope.COLS.x;
+                    break;
+                case 'earth':
+                default:
+                    offset = 0;
+                    break;
+            }
+        } else {
+            offset = 0;
         }
         
-        if($scope.queryParams.tab!==undefined) {
+        if($scope.queryParams.tab !== undefined && $scope.queryParams.tab.length>0) {
             $timeout(function() {
-               $scope.selectedIndex = parseInt($scope.queryParams.tab);
+               $scope.selectedIndex = parseInt($scope.queryParams.tab[0]);
             });
         }
         
@@ -129,26 +133,28 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                                     });
                                 } else {
                                     var map = line.split(':');
-                                    var infoMap = map[1].split(';');
+                                    if(map.length>1) {
+                                        var infoMap = map[1].split(';');
 
-                                    switch (map[0]) {
-                                        case 'Landing':
-                                            infoMap.forEach(function(keyVal) {
-                                                var pair = keyVal.split('=');
-                                                if (pair[0] !== undefined && pair[1] !== undefined) {
-                                                    $scope.landing.push({when: pair[0], what: pair[1]});
-                                                }
-                                            });
-                                            break;
-                                        case 'Orbit':
-                                            $scope.orbit = [];
-                                            infoMap.forEach(function(keyVal) {
-                                                var pair = keyVal.split('=');
-                                                if (pair[0] !== undefined && pair[1] !== undefined) {
-                                                    $scope.orbit.push({when: pair[0], what: pair[1]});
-                                                }
-                                            });
-                                            break;
+                                        switch (map[0]) {
+                                            case 'Landing':
+                                                infoMap.forEach(function (keyVal) {
+                                                    var pair = keyVal.split('=');
+                                                    if (pair[0] !== undefined && pair[1] !== undefined) {
+                                                        $scope.landing.push({when: pair[0], what: pair[1]});
+                                                    }
+                                                });
+                                                break;
+                                            case 'Orbit':
+                                                $scope.orbit = [];
+                                                infoMap.forEach(function (keyVal) {
+                                                    var pair = keyVal.split('=');
+                                                    if (pair[0] !== undefined && pair[1] !== undefined) {
+                                                        $scope.orbit.push({when: pair[0], what: pair[1]});
+                                                    }
+                                                });
+                                                break;
+                                        }
                                     }
                                 }
                             });
@@ -158,12 +164,13 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                     $scope.isLoading = false;
                 }
         );
-        $scope.httpRequest('/missions/' + $scope.queryParams.code, 'GET', null,
+        $scope.httpRequest('/missions/' + $scope.queryParams.code[0], 'GET', null,
                 function (data) {
                     var json = data.data;
                     if (json.Mission !== undefined) {
                         if ($scope.queryParams.id === undefined) {
-                            $scope.queryParams.id = json.Mission.livelaunch;
+                            $scope.queryParams.id = [];
+                            $scope.queryParams.id[0] = json.Mission.livelaunch;
                         }
                     }
                     $scope.httpRequest('/launchsites/' + json.Mission.launchsite, 'GET', null,
@@ -179,7 +186,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                     
                     $scope.stageMap = [];
                     
-                    $scope.getEventsFile(0);
+                    $scope.getEventsFile(0, 0);
 
                 }, function (data) {
                     $scope.isLoading = false;
@@ -275,7 +282,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         w.entities = [];
         w.viewer.entities.removeAll();
 
-        $http.get($scope.$parent.server + '/resource/' + $scope.queryParams.code + '.hazard.txt')
+        $http.get($scope.$parent.server + '/resource/' + $scope.queryParams.code[0] + '.hazard.txt')
                 .then(successfn, errorfn);
 
         function successfn(res) {
@@ -305,41 +312,51 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                 }
             }
 
-            $scope.stageMap.forEach(function(stage) {
-                $scope.buildEntitiesFromResponse(stage.id);
+            $scope.queryParams.id.forEach(function(id, key) {
+                $scope.stageMap[0].forEach(function(stage) {
+                    $scope.buildEntitiesFromResponse(key, stage.id);
+                });
             });
             $scope.initialised = true;
         }
 
         function errorfn(res) {
-            $scope.stageMap.forEach(function(stage) {
-                $scope.buildEntitiesFromResponse(stage.id);
+            $scope.queryParams.id.forEach(function(id, key) {
+                $scope.stageMap[0].forEach(function(stage) {
+                    $scope.buildEntitiesFromResponse(key, stage.id);
+                });
             });
         }
     };
 
-    $scope.getDataFile = function (stage) {
+    $scope.getDataFile = function (key, stage) {
         
-        $http.get($scope.$parent.client + '/output/' + $scope.queryParams.id + '_' + stage + '.dat')
+        $http.get($scope.$parent.client + '/output/' + $scope.queryParams.id[key] + '_' + stage + '.dat')
                 .then(successfn, errorfn);
-
+        
         function successfn(data) {
             
-            fileData[stage] = data;
+            if(fileData[key] === undefined)
+                fileData[key] = [];
+            fileData[key][stage] = data;
             
             var lines = data.data.split("\n");
-            $scope.fullData[stage] = [];
-            $scope.stageMap.push({id: stage, name: lines[0].split("#")[1]});
+            if($scope.fullData[key] === undefined)
+                $scope.fullData[key] = [];
+            $scope.fullData[key][stage] = [];
+            if($scope.stageMap[key] === undefined)
+                $scope.stageMap[key] = [];
+            $scope.stageMap[key].push({id: stage, name: lines[0].split("#")[1]});
 
             Object.keys($scope.COLS).forEach(function (label, i) {
-                $scope.fullData[stage][i] = [];
+                $scope.fullData[key][stage][i] = [];
                 lines.forEach(function (line, j) {
                     line = line.split(";");
-                    $scope.fullData[stage][i][j] = parseFloat(line[i]);
+                    $scope.fullData[key][stage][i][j] = parseFloat(line[i]);
                 });
             });
 
-            $scope.getEventsFile(stage+1);
+            $scope.getEventsFile(key, ++stage);
         }
 
         function errorfn(data) {
@@ -347,15 +364,18 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         }
     };
 
-    $scope.getEventsFile = function (stage) {
-
-        $http.get($scope.$parent.client + '/output/' + $scope.queryParams.id + '_' + stage + '_events.dat')
+    $scope.getEventsFile = function (key, stage) {
+        
+        $http.get($scope.$parent.client + '/output/' + $scope.queryParams.id[key] + '_' + stage + '_events.dat')
                 .then(successfn, errorfn);
 
         function successfn(data) {
             
             if(data.data.indexOf("html") !== -1) {
-                if(!$scope.initialised) {
+                if(key !== $scope.queryParams.id.length-1) {
+                    $scope.getEventsFile(++key, 0);
+                }
+                else if(!$scope.initialised) {
                     $scope.initialisePlots();
                     $scope.loadCesium();
                 } else {
@@ -364,24 +384,28 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
             } else {
 
                 var lines = data.data.split("\n");
-                $scope.eventsData[stage] = [];
-                $scope.focusPoints[stage] = [];
+                if($scope.eventsData[key] === undefined) {
+                    $scope.eventsData[key] = [];
+                    $scope.focusPoints[key] = [];
+                }
+                $scope.eventsData[key][stage] = [];
+                $scope.focusPoints[key][stage] = [];
 
                 Object.keys($scope.COLS).forEach(function (label, i) {
-                    $scope.eventsData[stage][i] = [];
+                    $scope.eventsData[key][stage][i] = [];
                     lines.forEach(function (line, j) {
                         line = line.split(";");
-                        $scope.eventsData[stage][i][j] = parseFloat(line[i]);
+                        $scope.eventsData[key][stage][i][j] = parseFloat(line[i]);
                         
                     if (line.length === 1)
                         return;
 
                         if (i === 0)
-                            $scope.focusPoints[stage].push([parseFloat(line[$scope.COLS.time]), parseFloat(line[$scope.COLS.throttle])]);
+                            $scope.focusPoints[key][stage].push([parseFloat(line[$scope.COLS.time]), parseFloat(line[$scope.COLS.throttle])]);
                     });
                 });
 
-                $scope.getDataFile(stage);
+                $scope.getDataFile(key, stage);
             }
         }
 
@@ -394,10 +418,14 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
     $scope.initialisePlots = function () {
         
         var allStages = [], lowerStages = [];
-        $scope.stageMap.forEach(function(el, i) {
-            allStages.push(i);
-            if(i !== $scope.stageMap.length-1)
-                lowerStages.push(i);
+        $scope.queryParams.id.forEach(function (id, key) {
+            allStages[key] = [];
+            lowerStages[key] = [];
+            $scope.stageMap[key].forEach(function (el, i) {
+                allStages[key].push(i);
+                if (i !== $scope.stageMap[key].length - 1)
+                    lowerStages[key].push(i);
+            });
         });
 
         $scope.plotMap.push({id: 'altitude1', stages: allStages, title: "Altitude", events: true,
@@ -480,29 +508,31 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
     $scope.initialisePlot2 = function (plot) {
 
         var data = [];
-        plot.stages.forEach(function(s) {
-            if ($scope.fullData[s] !== undefined) {
-                data.push({
-                    x: $scope.fullData[s][plot.x.axis],
-                    y: $scope.fullData[s][plot.y.axis],
-                    mode: 'lines',
-                    name: $scope.stageMap[s].name
-                });
-            }
-        });
-        if(plot.events) {
-            plot.stages.forEach(function(s) {
-                if ($scope.fullData[s] !== undefined) {
+        $scope.queryParams.id.forEach(function (id, key) {
+            plot.stages[key].forEach(function (s) {
+                if ($scope.fullData[key][s] !== undefined) {
                     data.push({
-                        x: $scope.eventsData[s][plot.x.axis],
-                        y: $scope.eventsData[s][plot.y.axis],
-                        mode: 'markers',
-                        showlegend: false,
-                        name: $scope.stageMap[s].name + ' Event'
+                        x: $scope.fullData[key][s][plot.x.axis],
+                        y: $scope.fullData[key][s][plot.y.axis],
+                        mode: 'lines',
+                        name: $scope.stageMap[key][s].name
                     });
                 }
             });
-        }
+            if (plot.events) {
+                plot.stages[key].forEach(function (s) {
+                    if ($scope.fullData[key][s] !== undefined) {
+                        data.push({
+                            x: $scope.eventsData[key][s][plot.x.axis],
+                            y: $scope.eventsData[key][s][plot.y.axis],
+                            mode: 'markers',
+                            showlegend: false,
+                            name: $scope.stageMap[key][s].name + ' Event'
+                        });
+                    }
+                });
+            }
+        });
 
         var fontColor = $scope.$parent.theme==='fc_dark' ? '#fafafa' : '#181c1f';
         var bgColor = $scope.$parent.theme==='fc_dark' ? '#303030' : '#fafafa';
@@ -618,9 +648,9 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         });
     };
     
-    $scope.buildEntitiesFromResponse = function (stage) {
+    $scope.buildEntitiesFromResponse = function (key, stage) {
         
-        var data = fileData[stage];
+        var data = fileData[key][stage];
         var lines = data.data.split("\n");
 
         var p_stage = new Cesium.SampledPositionProperty();
@@ -644,10 +674,10 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
 
             var focus = false;
             var ign = false;
-            for (var j = 1; j < $scope.focusPoints[stage].length; j++) {
-                if (Math.abs(line[$scope.COLS.time] - $scope.focusPoints[stage][j][0]) <= 0.5) {
+            for (var j = 1; j < $scope.focusPoints[key][stage].length; j++) {
+                if (Math.abs(line[$scope.COLS.time] - $scope.focusPoints[key][stage][j][0]) <= 0.5) {
                     focus = true;
-                    ign = $scope.focusPoints[stage][j - 1][1] > 0.1;
+                    ign = $scope.focusPoints[key][stage][j - 1][1] > 0.1;
                     break;
                 }
             }
@@ -686,7 +716,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
             }
         }
 
-        var ign = $scope.focusPoints[stage][$scope.focusPoints[stage].length - 1][1] > 0.1;
+        var ign = $scope.focusPoints[key][stage][$scope.focusPoints[key][stage].length - 1][1] > 0.1;
         var e = w.viewer.entities.add({
             availability: new Cesium.TimeIntervalCollection([new Cesium.TimeInterval({start: start, stop: stop})]),
             position: trajectory,
@@ -794,7 +824,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
 
     $scope.changeView = function () {
 
-        switch ($scope.queryParams.view) {
+        switch ($scope.queryParams.view[0]) {
             case 'space':
                 $location.search('view', 'earth');
                 offset = 0;

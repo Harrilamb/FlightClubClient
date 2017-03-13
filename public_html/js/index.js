@@ -79,14 +79,11 @@ angular.module('FlightClub').controller('IndexCtrl', function ($http, $scope, $m
         var paramMap = {};
         for (var i = 0; i < keyVals.length; i++) {
             var keyVal = keyVals[i].split("=");
-            var vals = keyVal.length===2 ? keyVal[1].split("%20") : "";
-            if(vals.length===1)
-                paramMap[decodeURIComponent(keyVal[0])] = decodeURIComponent(vals[0] || '');
-            else if(vals.length > 1) {
-                paramMap[decodeURIComponent(keyVal[0])] = [];
-                for (var j = 0; j < vals.length; j++) {
-                    paramMap[decodeURIComponent(keyVal[0])].push(decodeURIComponent(vals[j] || ''));
-                }
+            var vals = keyVal.length === 2 ? keyVal[1].split("%20") : "";
+            
+            paramMap[decodeURIComponent(keyVal[0])] = [];
+            for (var j = 0; j < vals.length; j++) {
+                paramMap[decodeURIComponent(keyVal[0])].push(decodeURIComponent(vals[j] || ''));
             }
         }
         return paramMap;
