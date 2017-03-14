@@ -164,34 +164,43 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                     $scope.isLoading = false;
                 }
         );
-        $scope.httpRequest('/missions/' + $scope.queryParams.code[0], 'GET', null,
-                function (data) {
-                    var json = data.data;
-                    if (json.Mission !== undefined) {
-                        if ($scope.queryParams.id === undefined) {
-                            $scope.queryParams.id = [];
-                            $scope.queryParams.id[0] = json.Mission.livelaunch;
-                        }
-                    }
-                    $scope.httpRequest('/launchsites/' + json.Mission.launchsite, 'GET', null,
-                        function (data) {
-                            var json = data.data;
-                            $scope.launchSite = json.data[0];
-                        }
-                    );
-                    var tempDate = json.Mission.date.replace(/-/g, "/") + ' ' + json.Mission.time + ' UTC';
-                    $scope.launchTime = Date.parse(tempDate);
-                    
-                    $scope.missionName = json.Mission.description;
-                    
-                    $scope.stageMap = [];
-                    
-                    $scope.getEventsFile(0, 0);
 
-                }, function (data) {
-                    $scope.isLoading = false;
-                }
-        );
+        $scope.requireLiveIDs = false;
+        if ($scope.queryParams.id === undefined) {
+            $scope.queryParams.id = [];
+            $scope.requireLiveIDs = true;
+        }
+
+        $scope.queryParams.code.forEach(function (code, key) {
+            $scope.httpRequest('/missions/' + code, 'GET', null,
+                    function (data) {
+                        var json = data.data;
+                        if (json.Mission !== undefined) {
+                            if ($scope.requireLiveIDs) {
+                                $scope.queryParams.id[key] = json.Mission.livelaunch;
+                            }
+                        }
+
+                        if ($scope.queryParams.id.length >= $scope.queryParams.code.length) {
+                            $scope.httpRequest('/launchsites/' + json.Mission.launchsite, 'GET', null,
+                                    function (data) {
+                                        var json = data.data;
+                                        $scope.launchSite = json.data[0];
+                                    }
+                            );
+                    
+                            var tempDate = json.Mission.date.replace(/-/g, "/") + ' ' + json.Mission.time + ' UTC';
+                            $scope.launchTime = Date.parse(tempDate);
+                            $scope.missionName = json.Mission.description;
+                            $scope.stageMap = [];
+                            $scope.getEventsFile(0, 0);
+                        }
+
+                    }, function (data) {
+                        $scope.isLoading = false;
+                    }
+            );
+        });
     };
 
     $scope.animate_rocket();
