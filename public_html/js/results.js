@@ -432,7 +432,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
             lowerStages[key] = [];
             $scope.stageMap[key].forEach(function (el, i) {
                 allStages[key].push(i);
-                if (i !== $scope.stageMap[key].length - 1)
+                if ($scope.stageMap[key].length === 1 || i !== $scope.stageMap[key].length - 1)
                     lowerStages[key].push(i);
             });
         });
