@@ -1,6 +1,7 @@
 #!/bin/bash
 
-LOCAL_DIR=/var/www/html
+#LOCAL_DIR=/var/www/html
+LOCAL_DIR=/Library/WebServer/Documents
 REMOTE_DIR=/var/www/html/flightclub
 SERVER=root@178.62.67.169
 

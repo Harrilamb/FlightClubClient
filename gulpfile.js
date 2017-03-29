@@ -14,7 +14,8 @@ var minify = require('gulp-minify');
 var autoprefix = require('gulp-autoprefixer');
 var minifyCSS = require('gulp-minify-css');
 
-var server = '/var/www/html';
+// var server = '/var/www/html';
+var server = '/Library/WebServer/Documents';
 
 gulp.task('imagemin', function () {
     
