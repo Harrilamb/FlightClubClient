@@ -2,6 +2,10 @@
 
 angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog, $location, $interval, $http) {
     
+    var isTest = function() {
+        return $scope.queryParams !== undefined && $scope.queryParams.test !== undefined;
+    };
+    
     $scope.$emit('viewBroadcast', 'world');
 
     $scope.worldLoading = true;
@@ -152,7 +156,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
 
         switch ($scope.queryParams.view) {
             case 'space':
-                offset = $scope.COLS.xAbs -$scope.COLS.x;
+                offset = 18 - 1;
                 break;
             case 'earth':
             default:
@@ -458,33 +462,33 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                 var line = lines[i].split(";");
                 if(line.length === 1)
                     line = lines[i].split("\t");
-                fullData[stage][parseInt(line[$scope.COLS.time])] 
-                        = parseFloat(line[$scope.COLS.range]) + ":" + parseFloat(line[$scope.COLS.alt]) + ":" + parseFloat(line[$scope.COLS.vel]) 
-                        + ":" + parseFloat(-1*line[$scope.COLS.yaw])*Math.PI/180.0 + ":" + parseFloat(line[$scope.COLS.pitch])*Math.PI/180.0;
+                fullData[stage][parseInt(line[0])] 
+                        = parseFloat(line[6]) + ":" + parseFloat(line[4]) + ":" + parseFloat(line[5]) 
+                        + ":" + parseFloat(-1*line[21])*Math.PI/180.0 + ":" + parseFloat(line[16])*Math.PI/180.0;
 
                 var focus = false;
                 var ign = false;
                 for (var j = 1; j < focusPoints.length; j++) {
-                    if (Math.abs(line[$scope.COLS.time] - focusPoints[j][0]) <= 0.5) {
+                    if (Math.abs(line[0] - focusPoints[j][0]) <= 0.5) {
                         focus = true;
                         ign = focusPoints[j - 1][1] > 0.1;
                         break;
                     }
                 }
 
-                if (!focus && line[$scope.COLS.time] > 1000 && i % 100 !== 0)
+                if (!focus && line[0] > 1000 && i % 100 !== 0)
                     continue;
 
-                if (t < 600 && parseFloat(line[$scope.COLS.alt]) > max[stage]["altitude"] || max[stage]["altitude"] === undefined)
-                    max[stage]["altitude"] = Math.ceil(parseFloat(line[$scope.COLS.alt]) / 100) * 100;
-                if (t < 600 && parseFloat(line[$scope.COLS.vel]) > max[stage]["velocity"] || max[stage]["velocity"] === undefined)
-                    max[stage]["velocity"] = Math.ceil(parseFloat(line[$scope.COLS.vel]) / 500) * 500;
+                if (t < 600 && parseFloat(line[4]) > max[stage]["altitude"] || max[stage]["altitude"] === undefined)
+                    max[stage]["altitude"] = Math.ceil(parseFloat(line[4]) / 100) * 100;
+                if (t < 600 && parseFloat(line[5]) > max[stage]["velocity"] || max[stage]["velocity"] === undefined)
+                    max[stage]["velocity"] = Math.ceil(parseFloat(line[5]) / 500) * 500;
 
-                t = parseInt(line[$scope.COLS.time]);
-                var x = parseFloat(line[$scope.COLS.x + offset]);
-                var y = parseFloat(line[$scope.COLS.y + offset]);
-                var z = parseFloat(line[$scope.COLS.z + offset]);
-                var h = parseFloat(line[$scope.COLS.alt]) * 1e3;
+                t = parseInt(line[0]);
+                var x = parseFloat(line[1 + offset]);
+                var y = parseFloat(line[2 + offset]);
+                var z = parseFloat(line[3 + offset]);
+                var h = parseFloat(line[4]) * 1e3;
 
                 var lat = 180 * Math.atan(z / Math.sqrt(x * x + y * y)) / Math.PI;
                 var lon = 180 * Math.atan2(y, x) / Math.PI;
@@ -493,7 +497,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                 var position = Cesium.Cartesian3.fromDegrees(lon, lat, h);
                 trajectory.addSample(time, position);
                 p_stage.addSample(time, position);
-                o_stage.addSample(time, Cesium.Transforms.headingPitchRollQuaternion(position, new Cesium.HeadingPitchRoll(-1*line[$scope.COLS.yaw]*Math.PI/180.0, line[$scope.COLS.pitch]*Math.PI/180.0, 0)));
+                o_stage.addSample(time, Cesium.Transforms.headingPitchRollQuaternion(position, new Cesium.HeadingPitchRoll(-1*line[21]*Math.PI/180.0, line[16]*Math.PI/180.0, 0)));
 
                 if (focus) {
                     var e = w.viewer.entities.add({
@@ -509,7 +513,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                     trajectory = new Cesium.SampledPositionProperty();
                     trajectory.addSample(time, position);
                 }
-                throttle = parseFloat(line[$scope.COLS.throttle]);
+                throttle = parseFloat(line[12]);
 
             }
 
@@ -526,7 +530,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
 
             if ($scope.queryParams.w !== undefined) {
                 
-                if(false) {
+                if(isTest()) {
                     w.entities[stage] = w.viewer.entities.add({
                         /*
                          * Export .blend as .obj
@@ -536,7 +540,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                          */
                         name: 'Falcon9',
                         model: {
-                            uri: '../Cesium_Ground.gltf',
+                            uri: '../f9r.gltf',
                             minimumPixelSize: 32,
                             maximumScale: 512
                         },
@@ -620,8 +624,8 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                     if (line.length === 1)
                         continue;
 
-                    eventsData[stage][parseInt(line[$scope.COLS.time])] = parseFloat(line[$scope.COLS.throttle]);
-                    focusPoints.push([parseFloat(line[$scope.COLS.time]), parseFloat(line[$scope.COLS.throttle])]);
+                    eventsData[stage][parseInt(line[0])] = parseFloat(line[12]);
+                    focusPoints.push([parseFloat(line[0]), parseFloat(line[12])]);
                 }
 
                 $scope.getDataFile(stage);

@@ -166,17 +166,56 @@ angular.module('FlightClub').controller('IndexCtrl', function ($http, $scope, $m
         $mdPanel.open(config);
     };
     
-    $scope.COLS = {
-        time: 0, x: 1, y: 2, z: 3,
-        alt: 4, vel: 5, range: 6,
-        q: 7, fuel: 8,
-        dV_tot: 9, dV_grav: 10, dv_drag: 11,
-        throttle: 12, accel: 13,
-        aoa: 14, aov: 15, pitch: 16,
-        cd: 17,
-        xAbs: 18, yAbs: 19, zAbs: 20,
-        yaw: 21, c_thrust: 22, incl: 23
-    };
+    $scope.COLS = [
+        { i: 0, display: true, label: "Time (s)"
+        },
+        { i: 1, display: false, label: "x (km)"
+        },
+        { i: 2, display: false, label: "y (km)"
+        },
+        { i: 3, display: false, label: "z (km)"
+        },
+        { i: 4, display: true, label: "Altitude (km)"
+        },
+        { i: 5, display: true, label: "Velocity (m/s)"
+        },
+        { i: 6, display: true, label: "Downrange (km)"
+        },
+        { i: 7, display: true, label: "Aerodynamic Pressure (Q) (kN/m^2)"
+        },
+        { i: 8, display: true, label: "Propellant Mass (t)"
+        },
+        { i: 9, display: true, label: "Total deltaV (m/s)"
+        },
+        { i: 10, display: false, label: "Gravity losses (m/s)"
+        },
+        { i: 11, display: false, label: "Drag losses (m/s)"
+        },
+        { i: 12, display: true, label: "Throttle"
+        },
+        { i: 13, display: true, label: "Acceleration (g)"
+        },
+        { i: 14, display: true, label: "Angle of Attack (°)"
+        },
+        { i: 15, display: true, label: "Velocity Angle (° rel. to surface)"
+        },
+        { i: 16, display: true, label: "Pitch Angle (°)"
+        },
+        { i: 17, display: true, label: "Drag Coefficient"
+        },
+        { i: 18, display: false, label: "xAbs (km)"
+        },
+        { i: 19, display: false, label: "yAbs (km)"
+        },
+        { i: 20, display: false, label: "zAbs (km)"
+        },
+        { i: 21, display: true, label: "Heading (° cc from East)"
+        },
+        { i: 22, display: true, label: "Thrust Coefficient"
+        },
+        { i: 23, display: true, label: "Inclination (°)"
+        }
+    ];
     
     // implementation of jQuery $.getScript
     $scope.getScript = function(source, callback) {

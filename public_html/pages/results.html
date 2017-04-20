@@ -34,6 +34,57 @@
                 </md-grid-list>
             </md-tab-content>
         </md-tab>
+        <md-tab label='Flex'>
+            <md-tab-content>
+
+                <md-content layout-fill flex layout="column">
+
+                    <md-content flex="75">
+                        <md-content id="bigPlot">
+                        </md-content>
+                    </md-content>
+
+                    <md-content flex="25" layout="column" layout-padding>
+
+                        <md-content layout="row">
+                            <md-input-container flex="20">
+                                <label>x axis</label>
+                                <md-select ng-model="plot.x" ng-change="updatePlot()">
+                                    <md-option ng-repeat="col in COLS" ng-value="col" ng-show="col.display">
+                                        {{col.label}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                            <md-input-container flex="20">
+                                <label>y axis</label>
+                                <md-select ng-model="plot.y" ng-change="updatePlot()">
+                                    <md-option ng-repeat="col in COLS" ng-value="col" ng-show="col.display">
+                                        {{col.label}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                            <md-button ng-click="swapPlotAxes()">
+                                <md-tooltip md-direction="bottom">Swap Axes</md-tooltip>
+                                <md-icon class="material-icons">swap_horiz</md-icon>
+                            </md-button>
+                        </md-content>
+
+                        <md-content layout="row">
+                            <md-input-container flex="20" layout-wrap ng-repeat="id in queryParams.id">
+                                <label>Stages</label>
+                                <md-select ng-model="plot.stages[$index]" ng-change="updatePlot()" multiple>
+                                    <md-option ng-repeat="stage in stageMap[$index]" ng-value="stage.id">
+                                        {{stage.name}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                        </md-content>
+
+                    </md-content>
+                </md-content>
+
+            </md-tab-content>
+        </md-tab>
         <md-tab label='3D View'>
             <md-tab-content>
                 <md-content flex>

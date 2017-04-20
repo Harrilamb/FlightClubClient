@@ -72,7 +72,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         if($scope.queryParams.view !== undefined && $scope.queryParams.view.length > 0) {
             switch ($scope.queryParams.view[0]) {
                 case 'space':
-                    offset = $scope.COLS.xAbs - $scope.COLS.x;
+                    offset = 18 - 1;
                     break;
                 case 'earth':
                 default:
@@ -410,7 +410,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                         return;
 
                         if (i === 0)
-                            $scope.focusPoints[key][stage].push([parseFloat(line[$scope.COLS.time]), parseFloat(line[$scope.COLS.throttle])]);
+                            $scope.focusPoints[key][stage].push([parseFloat(line[0]), parseFloat(line[12])]);
                     });
                 });
 
@@ -422,8 +422,35 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
             console.log(data);
         }
     };
+    
 
+    $scope.plot = {
+        x: $scope.COLS[0],
+        y: $scope.COLS[4],
+        stages: []
+    };
+    $scope.updatePlot = function() {
+        if($scope.plot.x === undefined || $scope.plot.y === undefined || $scope.plot.stages === undefined)
+            return;
+        if($scope.plot.stages.length === 0) {
+            $scope.queryParams.id.forEach(function (id, key) {
+                $scope.plot.stages[key] = [];
+                $scope.stageMap[key].forEach(function (el, i) {
+                    $scope.plot.stages[key].push(i);
+                });
+            });
+        }
+        
+        var plot = {stages: $scope.plot.stages, title: $scope.plot.y.label + " vs. " + $scope.plot.x.label, events: true,
+            x: {axis: $scope.plot.x.i, label: $scope.plot.x.label, type: "linear"},
+            y: {axis: $scope.plot.y.i, label: $scope.plot.y.label, type: "linear"}};
+        
+        $scope.initialisePlot2(plot, true);
+        
+    };
+    
     $scope.plotMap = [];
+    
     $scope.initialisePlots = function () {
         
         var allStages = [], lowerStages = [];
@@ -437,57 +464,57 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
             });
         });
 
-        $scope.plotMap.push({id: 'altitude1', stages: allStages, title: "Altitude", events: true,
-            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear"},
-            y: {axis: $scope.COLS.alt, label: "Altitude (km)", type: "linear"}});
+        $scope.plotMap.push({id: 'altitude1', stages: allStages, title: $scope.COLS[4].label, events: true,
+            x: {axis: 0, label: $scope.COLS[0].label, type: "linear"},
+            y: {axis: 4, label: $scope.COLS[4].label, type: "linear"}});
         $scope.plotMap.push({id: 'profile1', stages: allStages, title: "Profile", events: true,
-            x: {axis: $scope.COLS.range, label: "Downrange (km)", type: "linear", range: [0, 300]},
-            y: {axis: $scope.COLS.alt, label: "Altitude (km)", type: "linear", range: [0, 300]}});
+            x: {axis: 6, label: $scope.COLS[6].label, type: "linear", range: [0, 300]},
+            y: {axis: 4, label: $scope.COLS[4].label, type: "linear", range: [0, 300]}});
         $scope.plotMap.push({id: 'inclination', stages: allStages, title: "Inclination", events: false,
-            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear"},
-            y: {axis: $scope.COLS.incl, label: "Incl (°)", type: "linear", range: [-180, 180]}});
+            x: {axis: 0, label: $scope.COLS[0].label, type: "linear"},
+            y: {axis: 23, label: $scope.COLS[23].label, type: "linear", range: [-180, 180]}});
         
         $scope.plotMap.push({id: 'velocity1', stages: allStages, title: "Velocity", events: true,
-            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear"},
-            y: {axis: $scope.COLS.vel, label: "Velocity (m/s)", type: "linear"}});
+            x: {axis: 0, label: $scope.COLS[0].label, type: "linear"},
+            y: {axis: 5, label: $scope.COLS[5].label, type: "linear"}});
         $scope.plotMap.push({id: 'prop', stages: allStages, title: "Propellant Mass", events: false,
-            x: {axis: $scope.COLS.time, label: "Time (s)", type: "log"},
-            y: {axis: $scope.COLS.fuel, label: "Mass (t)", type: "log"}});
+            x: {axis: 0, label: $scope.COLS[0].label, type: "log"},
+            y: {axis: 8, label: $scope.COLS[8].label, type: "log"}});
         $scope.plotMap.push({id: 'phase1', stages: lowerStages, title: "Booster Phasespace", events: true,
-            x: {axis: $scope.COLS.alt, label: "Altitude (km)", type: "linear"},
-            y: {axis: $scope.COLS.vel, label: "Velocity (m/s)", type: "linear"}});
+            x: {axis: 4, label: $scope.COLS[4].label, type: "linear"},
+            y: {axis: 5, label: $scope.COLS[5].label, type: "linear"}});
         
         $scope.plotMap.push({id: 'throttle', stages: allStages, title: "Throttle", events: false,
-            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear", range: [0, 1000]},
-            y: {axis: $scope.COLS.throttle, label: "Throttle", type: "linear"}});
+            x: {axis: 0, label: $scope.COLS[0].label, type: "linear", range: [0, 1000]},
+            y: {axis: 12, label: $scope.COLS[12].label, type: "linear"}});
         $scope.plotMap.push({id: 'accel1', stages: allStages, title: "Acceleration", events: true,
-            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear", range: [0, 1000]},
-            y: {axis: $scope.COLS.accel, label: "Acceleration (g)", type: "linear"}});
+            x: {axis: 0, label: $scope.COLS[0].label, type: "linear", range: [0, 1000]},
+            y: {axis: 13, label: $scope.COLS[13].label, type: "linear"}});
         $scope.plotMap.push({id: 'q', stages: lowerStages, title: "Aerodynamic Pressure", events: true,
-            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear"},
-            y: {axis: $scope.COLS.q, label: "Pressure (kN/m^2)", type: "linear"}});
+            x: {axis: 0, label: $scope.COLS[0].label, type: "linear"},
+            y: {axis: 7, label: $scope.COLS[7].label, type: "linear"}});
         
         $scope.plotMap.push({id: 'aoa', stages: allStages, title: "Angle of Attack", events: true,
-            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear", range: [0, 1000]},
-            y: {axis: $scope.COLS.aoa, label: "Angle (°)", type: "linear", range: [-180, 180]}});
+            x: {axis: 0, label: $scope.COLS[0].label, type: "linear", range: [0, 1000]},
+            y: {axis: 14, label: $scope.COLS[14].label, type: "linear", range: [-180, 180]}});
         $scope.plotMap.push({id: 'aov', stages: allStages, title: "Velocity Angle", events: true,
-            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear", range: [0, 1000]},
-            y: {axis: $scope.COLS.aov, label: "Angle (° rel. to surface)", type: "linear", range: [-180, 180]}});
+            x: {axis: 0, label: $scope.COLS[0].label, type: "linear", range: [0, 1000]},
+            y: {axis: 15, label: $scope.COLS[15].label, type: "linear", range: [-180, 180]}});
         $scope.plotMap.push({id: 'total-dv', stages: allStages, title: "Total dV Expended", events: false,
-            x: {axis: $scope.COLS.time, label: "Time (s)", type: "log"},
-            y: {axis: $scope.COLS.dV_tot, label: "dV (m/s)", type: "log"}});
+            x: {axis: 0, label: $scope.COLS[0].label, type: "log"},
+            y: {axis: 9, label: $scope.COLS[9].label, type: "log"}});
         
         $scope.plotMap.push({id: 'aop', stages: allStages, title: "Pitch", events: true,
-            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear", range: [0, 1000]},
-            y: {axis: $scope.COLS.pitch, label: "Angle (°)", type: "linear", range: [-90, 90]}});
+            x: {axis: 0, label: $scope.COLS[0].label, type: "linear", range: [0, 1000]},
+            y: {axis: 16, label: $scope.COLS[16].label, type: "linear", range: [-90, 90]}});
         $scope.plotMap.push({id: 'heading', stages: allStages, title: "Heading", events: true,
-            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear", range: [0, 1000]},
-            y: {axis: $scope.COLS.yaw, label: "Angle (° cc from East)", type: "linear", range: [-180, 180]}});
+            x: {axis: 0, label: $scope.COLS[0].label, type: "linear", range: [0, 1000]},
+            y: {axis: 21, label: $scope.COLS[21].label, type: "linear", range: [-180, 180]}});
         $scope.plotMap.push({id: 'drag', stages: lowerStages, title: "Drag Coefficient", events: true,
-            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear", range: [0, 1000]},
-            y: {axis: $scope.COLS.cd, label: "Cd", type: "linear"}});
+            x: {axis: 0, label: $scope.COLS[0].label, type: "linear", range: [0, 1000]},
+            y: {axis: 17, label: $scope.COLS[17].label, type: "linear"}});
         /*$scope.plotMap.push({id: 'thrust-coeff', stages: lowerStages, title: "Thrust Coefficient", events: true,
-            x: {axis: $scope.COLS.time, label: "Time (s)", type: "linear", range: [0, 1000]},
+            x: {axis: 0, label: "Time (s)", type: "linear", range: [0, 1000]},
             y: {axis: 22, label: "Ct", type: "linear"}});*/
 
         $timeout(function () {
@@ -497,8 +524,9 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
             $scope.$apply();
             
             $scope.plotMap.forEach(function(plot) {
-                $scope.initialisePlot2(plot);
+                $scope.initialisePlot2(plot, false);
             });
+            $scope.updatePlot(); // <----- bigPlot
 
             if (!$scope.failureMode)
                 setTimeout(askForSupport, 1000);
@@ -514,7 +542,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         
     };
 
-    $scope.initialisePlot2 = function (plot) {
+    $scope.initialisePlot2 = function (plot, isBigPlot) {
 
         var data = [];
         $scope.queryParams.id.forEach(function (id, key) {
@@ -542,7 +570,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                 });
             }
         });
-
+        
         var fontColor = $scope.$parent.theme==='fc_dark' ? '#fafafa' : '#181c1f';
         var bgColor = $scope.$parent.theme==='fc_dark' ? '#303030' : '#fafafa';
         var layout = {
@@ -569,8 +597,25 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
             plot_bgcolor: bgColor
         };
         
-        Plotly.newPlot(plot.id, data, layout);
+        if(isBigPlot) {
+            var tab = document.getElementById("results");
+            layout.height = 0.67*tab.offsetHeight;
+            layout.width = tab.offsetWidth;
+            Plotly.newPlot("bigPlot", data, layout);
+        } else {
+            Plotly.newPlot(plot.id, data, layout);
+        }
 
+    };
+    
+    $scope.swapPlotAxes = function() {
+        
+        var temp = $scope.plot.x;
+        $scope.plot.x = $scope.plot.y;
+        $scope.plot.y = temp;
+        
+        $scope.updatePlot();
+        
     };
     
     $scope.$parent.$watch('theme', function() {
@@ -684,21 +729,21 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
             var focus = false;
             var ign = false;
             for (var j = 1; j < $scope.focusPoints[key][stage].length; j++) {
-                if (Math.abs(line[$scope.COLS.time] - $scope.focusPoints[key][stage][j][0]) <= 0.5) {
+                if (Math.abs(line[0] - $scope.focusPoints[key][stage][j][0]) <= 0.5) {
                     focus = true;
                     ign = $scope.focusPoints[key][stage][j - 1][1] > 0.1;
                     break;
                 }
             }
 
-            if (!focus && line[$scope.COLS.time] > 1000 && i % 100 !== 0)
+            if (!focus && line[0] > 1000 && i % 100 !== 0)
                 continue;
 
-            t = parseInt(line[$scope.COLS.time]);
-            var x = parseFloat(line[$scope.COLS.x + offset]);
-            var y = parseFloat(line[$scope.COLS.y + offset]);
-            var z = parseFloat(line[$scope.COLS.z + offset]);
-            var h = parseFloat(line[$scope.COLS.alt]) * 1e3;
+            t = parseInt(line[0]);
+            var x = parseFloat(line[1 + offset]);
+            var y = parseFloat(line[2 + offset]);
+            var z = parseFloat(line[3 + offset]);
+            var h = parseFloat(line[4]) * 1e3;
 
             var lat = 180 * Math.atan(z / Math.sqrt(x * x + y * y)) / Math.PI;
             var lon = 180 * Math.atan2(y, x) / Math.PI;
@@ -707,7 +752,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
             var position = Cesium.Cartesian3.fromDegrees(lon, lat, h);
             trajectory.addSample(time, position);
             p_stage.addSample(time, position);
-            o_stage.addSample(time, Cesium.Transforms.headingPitchRollQuaternion(position, new Cesium.HeadingPitchRoll(-1 * line[$scope.COLS.yaw] * Math.PI / 180.0, line[$scope.COLS.pitch] * Math.PI / 180.0, 0)));
+            o_stage.addSample(time, Cesium.Transforms.headingPitchRollQuaternion(position, new Cesium.HeadingPitchRoll(-1 * line[21] * Math.PI / 180.0, line[16] * Math.PI / 180.0, 0)));
 
             if (focus) {
                 var e = w.viewer.entities.add({
@@ -833,18 +878,22 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
 
     $scope.changeView = function () {
 
+        if($scope.queryParams.view === undefined)
+            $scope.queryParams.view = [];
+        
         switch ($scope.queryParams.view[0]) {
             case 'space':
                 $location.search('view', 'earth');
+                $scope.queryParams.view[0] = 'earth';
                 offset = 0;
                 break;
             case 'earth':
             default:
                 $location.search('view', 'space');
-                offset = $scope.COLS.xAbs -$scope.COLS.x;
+                $scope.queryParams.view[0] = 'space';
+                offset = 18 - 1;
                 break;
         }
-        $scope.queryParams = $location.search();
         w.viewer.entities.removeAll();
         $scope.getEventsFile(0, true);
 
