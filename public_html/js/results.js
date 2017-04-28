@@ -82,7 +82,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         } else {
             offset = 0;
         }
-        
+                
         if($scope.queryParams.tab !== undefined && $scope.queryParams.tab.length>0) {
             $timeout(function() {
                $scope.selectedIndex = parseInt($scope.queryParams.tab[0]);
@@ -201,6 +201,13 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                     }
             );
         });
+    };
+    
+    var wantStage = function(stage) {
+        if($scope.queryParams.stages === undefined
+                || $scope.queryParams.stages.indexOf(""+stage) !== -1)
+            return true;
+        return false;
     };
 
     $scope.animate_rocket();
@@ -380,7 +387,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
 
         function successfn(data) {
             
-            if(data.data.indexOf("html") !== -1) {
+            if(!wantStage(stage) || data.data.indexOf("html") !== -1) {
                 if(key !== $scope.queryParams.id.length-1) {
                     $scope.getEventsFile(++key, 0);
                 }
