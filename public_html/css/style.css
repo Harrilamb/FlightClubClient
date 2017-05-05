@@ -112,6 +112,16 @@ md-select, md-switch {
     height: auto;
 }
 
+@keyframes goldPulse {
+    from { background-color: #181c1f; }
+    50% { background-color: #ccac55;}
+    to { background-color: #181c1f; }
+}
+
+.pulse {
+    animation: 2s goldPulse linear infinite;
+}
+
 @media 
 only screen and (min-width: 768px)  {
 

@@ -118,7 +118,7 @@
                         <span>{{toolbarTitle}}</span>
                     </h2>
                     <span flex></span>
-                    <md-button ng-show="showSidenav" class="sidenav-open md-icon-button" aria-label="sidenav" ng-click="toggleNav('sidenav')">
+                    <md-button ng-show="showSidenav" class="sidenav-open md-icon-button" ng-class="{'pulse':selectedMission.code==='NONE'}" aria-label="sidenav" ng-click="toggleNav('sidenav')">
                         <md-icon class="material-icons">{{sidenav_button}}</md-icon>
                     </md-button>
                 </div>

@@ -219,7 +219,7 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
     }, true);
 
     $scope.selectMission = function (mission) {
-        $scope.selectedMission = mission;
+        $scope.$parent.selectedMission = mission;            
         $scope.loadingMission = true;
         $scope.httpRequest('/missions/' + mission.code, 'GET', null, function (data) {
             if($mdSidenav("sidenav").isOpen())
