@@ -173,18 +173,18 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
     var loadVars = function(reload) {
 
         $scope.httpRequest('/missions/' + $scope.queryParams.code, 'GET', null,
-                function (data) {
-                    var json = data.data;
-                    if (json.Mission !== undefined && $scope.queryParams.id === undefined) {
-                        $scope.queryParams.id = json.Mission.livelaunch;
+                function (response) {
+                    var json = response.data;
+                    if (json.data[0].Mission !== undefined && $scope.queryParams.id === undefined) {
+                        $scope.queryParams.id = json.data[0].Mission.livelaunch;
                     }
                     
                     if($scope.queryParams.id === undefined) {
                         var errorsHash;
-                        if(json.Mission !== undefined) {
+                        if(json.data[0].Mission !== undefined) {
                             errorsHash = window.btoa(JSON.stringify({
                                 Mission: {
-                                    errors: "There has been no default profile assigned to the mission '" + json.Mission.description + "'.</br>" +
+                                    errors: "There has been no default profile assigned to the mission '" + json.data[0].Mission.description + "'.</br>" +
                                             "Try running your own simulation and then choosing '3D World View' in the top-right menu of the results page!"
                                 },
                                 reportable: false
@@ -202,9 +202,9 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                         $scope.redirect('/error/#' + errorsHash);
                     }
                     
-                    $scope.httpRequest('/launchsites/' + json.Mission.launchsite, 'GET', null,
-                        function (data) {
-                            var json = data.data;
+                    $scope.httpRequest('/launchsites/' + json.data[0].Mission.launchsite, 'GET', null,
+                        function (response) {
+                            var json = response.data;
                             $scope.launchSite = json.data[0];
                         }
                     );
@@ -213,7 +213,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                         startRoller();
                     }
                     
-                    $scope.fillData(json);
+                    $scope.fillData(json.data[0]);
                 }
         );
         

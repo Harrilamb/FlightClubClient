@@ -9,39 +9,35 @@ angular.module('FlightClub').controller('PatreonCtrl', function ($scope, $cookie
     $scope.queryParams = $location.search();
     $scope.chosenTiers = [], $scope.chosenPatrons = [];
 
-    $scope.httpRequest('/patreon/patrons?auth=' + $cookies.get($scope.$parent.cookies.AUTHTOKEN), 'GET', null, function (data) {
-        var json = data.data;
-        if (json.Success) {
-            $scope.rewards = json.data;
-            $scope.rewards.sort(function(a,b) {return (a.amount > b.amount) ? -1 : ((b.amount > a.amount) ? 1 : 0);} );
+    $scope.httpRequest('/patreon/patrons?auth=' + $cookies.get($scope.$parent.cookies.AUTHTOKEN), 'GET', null, function (response) {
+        var json = response.data;
+        $scope.rewards = json.data[0];
+        $scope.rewards.sort(function (a, b) {
+            return (a.amount > b.amount) ? -1 : ((b.amount > a.amount) ? 1 : 0);
+        });
 
-            /*
-             * add fake data for long list
-            for (var i = 0; i < 20; i++) {
-                $scope.rewards[3].patrons.push({
-                    id: i,
-                    name: i,
-                    imageUrl: ''
-                });
-            }*/
+        /*
+         * add fake data for long list
+         for (var i = 0; i < 20; i++) {
+         $scope.rewards[3].patrons.push({
+         id: i,
+         name: i,
+         imageUrl: ''
+         });
+         }*/
 
-            $scope.rewards.forEach(function (tier) {
-                $scope.queryParams.id.split(" ").forEach(function (queryTier) {
-                    if (tier.name.indexOf(queryTier) !== -1) {
-                        $scope.chosenTiers.push(tier); // not using this anymore, apart from to set the titleTier
-                        tier.patrons.forEach(function (patron) {
-                            $scope.chosenPatrons.push(patron);
-                        });
-                    }
-                });
+        $scope.rewards.forEach(function (tier) {
+            $scope.queryParams.id.split(" ").forEach(function (queryTier) {
+                if (tier.name.indexOf(queryTier) !== -1) {
+                    $scope.chosenTiers.push(tier); // not using this anymore, apart from to set the titleTier
+                    tier.patrons.forEach(function (patron) {
+                        $scope.chosenPatrons.push(patron);
+                    });
+                }
             });
-            $scope.titleTier = $scope.chosenTiers[0];
-            
-            setTimeout(scroll, 1000);
-
-        } else {
-
-        }
+        });
+        $scope.titleTier = $scope.chosenTiers[0];
+        setTimeout(scroll, 1000);
         $scope.loading = false;
     }, function (data) {
         $scope.loading = false;
@@ -56,8 +52,8 @@ angular.module('FlightClub').controller('PatreonCtrl', function ($scope, $cookie
         var scrollInterval = setInterval(function () {
             el.scrollTop = target;
             target += scrollStep;
-            
-            if(target > height)
+
+            if (target > height)
                 clearInterval(scrollInterval);
         }, 15);
     };

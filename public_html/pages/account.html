@@ -5,11 +5,11 @@
                 <form name="loginForm" layout-fill flex layout="column" layout-align="center center" class="md-inline-form centre">
                     <md-content layout="column">
                         <div>
-                            <md-input-container>
+                            <md-input-container ng-show="!authorised">
                                 <label>Username</label>
                                 <input ng-model="forms[0].Login.username" ng-change="alert = ''" required>
                             </md-input-container>
-                            <md-input-container>
+                            <md-input-container ng-show="!authorised">
                                 <label>Password</label>
                                 <input type="password" ng-model="forms[0].Login.password" ng-change="alert = ''" required>
                             </md-input-container>

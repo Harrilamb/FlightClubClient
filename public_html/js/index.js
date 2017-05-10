@@ -47,12 +47,12 @@ angular.module('FlightClub').controller('IndexCtrl', function ($http, $scope, $m
 
     if ($scope.token !== undefined) {
         var data = JSON.stringify({auth: {token: $scope.token}});
-        $scope.httpRequest('/auth/', 'POST', data, function (data) {
+        $scope.httpRequest('/user/auth/', 'POST', data, function (response) {
             
-            var json = data.data;
-            $scope.authorised = json.auth;
+            var json = response.data;
+            $scope.authorised = json.data[0].auth;
             
-            json.permissions.split(",").forEach(function(el) {
+            json.data[0].permissions.split(",").forEach(function(el) {
                 $scope.permissions.push(el.toLowerCase());
             });
             $scope.canCreateUser = $scope.hasPermission('createUser');

@@ -90,9 +90,9 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         }
         
         $scope.httpRequest('/simulator/results?' + queryString, 'GET', null,
-                function (data) {
+                function (response) {
                     
-                    var json = data.data;
+                    var json = response.data;
                     
                     var fileMap = new Object();
                     var files = json.Mission.Output.Files;
@@ -173,30 +173,30 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
 
         $scope.queryParams.code.forEach(function (code, key) {
             $scope.httpRequest('/missions/' + code, 'GET', null,
-                    function (data) {
-                        var json = data.data;
-                        if (json.Mission !== undefined) {
+                    function (response) {
+                        var json = response.data;
+                        if (json.data[0].Mission !== undefined) {
                             if ($scope.requireLiveIDs) {
-                                $scope.queryParams.id[key] = json.Mission.livelaunch;
+                                $scope.queryParams.id[key] = json.data[0].Mission.livelaunch;
                             }
                         }
 
                         if ($scope.queryParams.id.length >= $scope.queryParams.code.length) {
-                            $scope.httpRequest('/launchsites/' + json.Mission.launchsite, 'GET', null,
-                                    function (data) {
-                                        var json = data.data;
+                            $scope.httpRequest('/launchsites/' + json.data[0].Mission.launchsite, 'GET', null,
+                                    function (response) {
+                                        var json = response.data;
                                         $scope.launchSite = json.data[0];
                                     }
                             );
                     
-                            var tempDate = json.Mission.date.replace(/-/g, "/") + ' ' + json.Mission.time + ' UTC';
+                            var tempDate = json.data[0].Mission.date.replace(/-/g, "/") + ' ' + json.data[0].Mission.time + ' UTC';
                             $scope.launchTime = Date.parse(tempDate);
-                            $scope.missionName = json.Mission.description;
+                            $scope.missionName = json.data[0].Mission.description;
                             $scope.stageMap = [];
                             $scope.getEventsFile(0, 0);
                         }
 
-                    }, function (data) {
+                    }, function (response) {
                         $scope.isLoading = false;
                     }
             );
@@ -276,14 +276,19 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
 
         $scope.overrideInProgress = true;
         $scope.overrideAttempted = true;
+        
+        var payload = {
+            auth: {
+                token: $cookies.get($scope.$parent.cookies.AUTHTOKEN)
+            },
+            code:$scope.queryParams.code[0],
+            id:$scope.queryParams.id[0]
+        };
 
-        var queryString = window.location.search.substring(1);
-        queryString += '&auth=' + $cookies.get($scope.$parent.cookies.AUTHTOKEN);
-        $scope.httpRequest('/live/init?' + queryString, 'GET', null,
-                function (data) {
-                    var json = data.data;
-                    $scope.overrideStatus = json.Success ? "check" : "close";
-                    $scope.overrideStatusColor = json.Success ? '#82CA9D' : '#F7977A';
+        $scope.httpRequest('/missions/live', 'PUT', payload,
+                function () {
+                    $scope.overrideStatus = "check";
+                    $scope.overrideStatusColor = '#82CA9D';
                     $scope.overrideInProgress = false;
                 },
                 function () {
