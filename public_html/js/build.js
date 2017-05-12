@@ -92,7 +92,7 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
     }, function (data) {
         $scope.serverResponses.push(data);
     });
-    $scope.httpRequest('/stages?engineDetail=true', 'GET', null, function (response) {
+    $scope.httpRequest('/stages', 'GET', null, function (response) {
         var json = response.data.data;
         $scope.stageTypes = fillStages(json);
     }, function (data) {

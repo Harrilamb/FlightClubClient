@@ -86,7 +86,7 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
                     id: el.id,
                     simHash: el.simHash,
                     timestamp: new Date(el.timestamp).toUTCString(),
-                    note: el.note,
+                    usernote: el.usernote,
                     mission: tempForm.Mission.description
                 };
                 $scope.savedSims.push(obj);
