@@ -33,7 +33,7 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
 
             $scope.$parent.httpRequest('/user/login', 'POST', JSON.stringify($scope.forms[0]), function (response) {
                 var json = response.data;
-                
+
                 $scope.$parent.authorised = true;
 
                 $scope.$parent.permissions.length = 0;
@@ -48,10 +48,15 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
             });
 
         } else {
-            $cookies.remove($scope.$parent.cookies.AUTHTOKEN);
-            $scope.$parent.authorised = false;
-            $scope.$parent.permissions.length = 0;
-            $scope.alerts[0] = "Successfully logged out!";
+            $scope.$parent.httpRequest('/user/logout', 'GET', null, function (response) {
+                $cookies.remove($scope.$parent.cookies.AUTHTOKEN, {path: "/"});
+                $scope.$parent.authorised = false;
+                $scope.$parent.permissions.length = 0;
+                $scope.alerts[0] = "Successfully logged out!";
+            }, function (response) {
+                var json = response.data;
+                $scope.alerts[0] = "Error " + response.status + ": " + json.data[0];
+            });
         }
     };
 
@@ -98,7 +103,7 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
     };
 
     $scope.removeSim = function (obj) {
-        $scope.$parent.httpRequest('/user/savedSims/'+obj.id, 'DELETE', null, function (response) {
+        $scope.$parent.httpRequest('/user/savedSims/' + obj.id, 'DELETE', null, function (response) {
             var index = $scope.savedSims.indexOf(obj);
             if (index > -1) {
                 $scope.savedSims.splice(index, 1);

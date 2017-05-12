@@ -7,11 +7,11 @@
                         <div>
                             <md-input-container ng-show="!authorised">
                                 <label>Username</label>
-                                <input ng-model="forms[0].Login.username" ng-change="alert = ''" required>
+                                <input ng-model="forms[0].username" ng-change="alert = ''" required>
                             </md-input-container>
                             <md-input-container ng-show="!authorised">
                                 <label>Password</label>
-                                <input type="password" ng-model="forms[0].Login.password" ng-change="alert = ''" required>
+                                <input type="password" ng-model="forms[0].password" ng-change="alert = ''" required>
                             </md-input-container>
                         </div>
                         <div>
@@ -29,15 +29,15 @@
                         <div>
                             <md-input-container>
                                 <label>Current Password</label>
-                                <input type="password" ng-model="forms[1].Update.currentPass" required>
+                                <input type="password" ng-model="forms[1].currentPass" required>
                             </md-input-container>
                             <md-input-container>
                                 <label>New Password</label>
-                                <input type="password" ng-model="forms[1].Update.newPass1" required>
+                                <input type="password" ng-model="forms[1].newPass1" required>
                             </md-input-container>
                             <md-input-container>
                                 <label>Confirm Password</label>
-                                <input type="password" ng-model="forms[1].Update.newPass2" required>
+                                <input type="password" ng-model="forms[1].newPass2" required>
                             </md-input-container>
                         </div>
                         <div>
@@ -55,21 +55,21 @@
                         <div>
                             <md-input-container>
                                 <label>Your Password</label>
-                                <input type="password" ng-model="forms[2].Create.auth.password" ng-change="alert = ''" required>
+                                <input type="password" ng-model="forms[2].auth.password" ng-change="alert = ''" required>
                             </md-input-container>
                         </div>
                         <div>
                             <md-input-container>
                                 <label>New Username</label>
-                                <input ng-model="forms[2].Create.new.username" required>
+                                <input ng-model="forms[2].new.username" required>
                             </md-input-container>
                             <md-input-container>
                                 <label>New Password</label>
-                                <input type="password" ng-model="forms[2].Create.new.password" required>
+                                <input type="password" ng-model="forms[2].new.password" required>
                             </md-input-container>
                             <md-input-container>
                                 <label>Permissions</label>
-                                <md-select ng-model="forms[2].Create.new.permissions" multiple required>
+                                <md-select ng-model="forms[2].new.permissions" multiple required>
                                     <md-option ng-repeat="obj in permissions" value="{{obj.code}}">{{capitalise(obj.code)}}</md-option>
                                 </md-select>
                             </md-input-container>
