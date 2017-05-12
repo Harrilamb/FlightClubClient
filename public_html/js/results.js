@@ -6,9 +6,9 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
 
     $scope.$parent.toolbarTitle = 'Flight Club | Results';
     $scope.$parent.toolbarClass = "";
-    $scope.loadMessage = "Building plots...";   
+    $scope.loadMessage = "Building plots...";
     $scope.selectedIndex = 0;
-    
+
     $scope.export_icon = 'content_copy';
     $scope.exportStyle = false;
     $scope.padViews = {};
@@ -16,37 +16,37 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
 
     $scope.messageArray = [
         // p is probability of update being skipped until next interval
-        { p: 0.2, message: 'Engine Chill'},
-        { p: 0.2, message: 'Terminal Count'},
-        { p: 0.2, message: 'Main Engine Start'},
-        { p: 0.5, message: 'Liftoff!'},
-        { p: 0.3, message: 'Vehicle is supersonic'},
-        { p: 0.3, message: 'Vehicle is passing through Max Q'},
-        { p: 0.6, message: 'MECO!'},
-        { p: 0.3, message: 'Stage separation. Good luck Stage 1...'},
-        { p: 0.5, message: 'Upper stage ignition'},
-        { p: 0.5, message: 'Boostback looks good'},
-        { p: 0.4, message: 'Entry burn is complete'},
-        { p: 0.3, message: 'Landing burn has begun'},
-        { p: 0.6, message: 'LZ-1, The Falcon has landed'},
-        { p: 0.5, message: 'We have SECO!'},
-        { p: 0.95, message: 'A huge thank you to my GEO Patrons for supporting Flight Club!<ul>'+$scope.$parent.getGEOPatronList()+'</ul><a href="https://www.patreon.com/flightclub" target="_blank">Click here to support me on Patreon!</a>'},
-        { p: 0.0, message: 'Follow me on Twitter: <a href="https://www.twitter.com/flightclubio" target="_blank">@flightclubio</a>'}        
+        {p: 0.2, message: 'Engine Chill'},
+        {p: 0.2, message: 'Terminal Count'},
+        {p: 0.2, message: 'Main Engine Start'},
+        {p: 0.5, message: 'Liftoff!'},
+        {p: 0.3, message: 'Vehicle is supersonic'},
+        {p: 0.3, message: 'Vehicle is passing through Max Q'},
+        {p: 0.6, message: 'MECO!'},
+        {p: 0.3, message: 'Stage separation. Good luck Stage 1...'},
+        {p: 0.5, message: 'Upper stage ignition'},
+        {p: 0.5, message: 'Boostback looks good'},
+        {p: 0.4, message: 'Entry burn is complete'},
+        {p: 0.3, message: 'Landing burn has begun'},
+        {p: 0.6, message: 'LZ-1, The Falcon has landed'},
+        {p: 0.5, message: 'We have SECO!'},
+        {p: 0.95, message: 'A huge thank you to my GEO Patrons for supporting Flight Club!<ul>' + $scope.$parent.getGEOPatronList() + '</ul><a href="https://www.patreon.com/flightclub" target="_blank">Click here to support me on Patreon!</a>'},
+        {p: 0.0, message: 'Follow me on Twitter: <a href="https://www.twitter.com/flightclubio" target="_blank">@flightclubio</a>'}
     ];
-    
+
     var i = 0, offset, fileData = [];
     $scope.missionLoadingMessage = $scope.messageArray[i++].message;
-    var roller = $interval(function() {
+    var roller = $interval(function () {
         if (i === $scope.messageArray.length || $scope.loadSuccess)
             $interval.cancel(roller);
-        else if (Math.random() > $scope.messageArray[i-1].p)
+        else if (Math.random() > $scope.messageArray[i - 1].p)
             $scope.loadMessageSecondary = $scope.messageArray[i++].message;
     }, 350);
-    
+
     $scope.animate_rocket = function () {
 
-        var windowWidth = window.innerWidth 
-                || document.documentElement.clientWidth 
+        var windowWidth = window.innerWidth
+                || document.documentElement.clientWidth
                 || document.getElementsByTagName('body')[0].clientWidth;
         var loadPos = 0;
 
@@ -65,11 +65,11 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
     };
 
     $scope.load = function (queryString) {
-        
+
         $scope.queryString = queryString;
         $scope.queryParams = $scope.$parent.parseQueryString(queryString);
-        
-        if($scope.queryParams.view !== undefined && $scope.queryParams.view.length > 0) {
+
+        if ($scope.queryParams.view !== undefined && $scope.queryParams.view.length > 0) {
             switch ($scope.queryParams.view[0]) {
                 case 'space':
                     offset = 18 - 1;
@@ -82,21 +82,20 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         } else {
             offset = 0;
         }
-                
-        if($scope.queryParams.tab !== undefined && $scope.queryParams.tab.length>0) {
-            $timeout(function() {
-               $scope.selectedIndex = parseInt($scope.queryParams.tab[0]);
+
+        if ($scope.queryParams.tab !== undefined && $scope.queryParams.tab.length > 0) {
+            $timeout(function () {
+                $scope.selectedIndex = parseInt($scope.queryParams.tab[0]);
             });
         }
-        
+
         $scope.httpRequest('/simulator/results?' + queryString, 'GET', null,
                 function (response) {
-                    
+
                     var json = response.data;
-                    
+
                     var fileMap = new Object();
-                    var files = json.Mission.Output.Files;
-                    files.forEach(function (key) {
+                    json.data.forEach(function (key) {
                         fileMap[key.desc] = $scope.$parent.client + key.url;
                     });
 
@@ -106,7 +105,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                             var warnings = txt.data.split(";");
 
                             $scope.warnings = [];
-                            warnings.forEach(function(warning) {
+                            warnings.forEach(function (warning) {
                                 if (warning.length > 0)
                                     $scope.warnings.push(warning);
                             });
@@ -120,12 +119,12 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
 
                             var lines = txt.data.split("\n");
                             $scope.landing = [];
-                            lines.forEach(function(line, i) {
+                            lines.forEach(function (line, i) {
                                 // time-event map
                                 if (i === 0) {
                                     $scope.events = [];
                                     var event = line.split(';');
-                                    event.forEach(function(keyVal) {
+                                    event.forEach(function (keyVal) {
                                         var pair = keyVal.split(':');
                                         if (pair[0] !== undefined && pair[1] !== undefined) {
                                             $scope.events.push({when: pair[0], what: pair[1]});
@@ -133,7 +132,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                                     });
                                 } else {
                                     var map = line.split(':');
-                                    if(map.length>1) {
+                                    if (map.length > 1) {
                                         var infoMap = map[1].split(';');
 
                                         switch (map[0]) {
@@ -162,8 +161,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                     }
                 }, function (data) {
                     $scope.isLoading = false;
-                }
-        );
+                });
 
         $scope.requireLiveIDs = false;
         if ($scope.queryParams.id === undefined) {
@@ -172,7 +170,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         }
 
         $scope.queryParams.code.forEach(function (code, key) {
-            $scope.httpRequest('/missions/' + code, 'GET', null,
+            $scope.httpRequest('/missions/?code=' + code, 'GET', null,
                     function (response) {
                         var json = response.data;
                         if (json.data[0].Mission !== undefined) {
@@ -182,13 +180,13 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                         }
 
                         if ($scope.queryParams.id.length >= $scope.queryParams.code.length) {
-                            $scope.httpRequest('/launchsites/' + json.data[0].Mission.launchsite, 'GET', null,
+                            $scope.httpRequest('/launchsites/?code=' + json.data[0].Mission.launchsite, 'GET', null,
                                     function (response) {
                                         var json = response.data;
                                         $scope.launchSite = json.data[0];
                                     }
                             );
-                    
+
                             var tempDate = json.data[0].Mission.date.replace(/-/g, "/") + ' ' + json.data[0].Mission.time + ' UTC';
                             $scope.launchTime = Date.parse(tempDate);
                             $scope.missionName = json.data[0].Mission.description;
@@ -197,15 +195,15 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                         }
 
                     }, function (response) {
-                        $scope.isLoading = false;
-                    }
+                $scope.isLoading = false;
+            }
             );
         });
     };
-    
-    var wantStage = function(stage) {
-        if($scope.queryParams.stages === undefined
-                || $scope.queryParams.stages.indexOf(""+stage) !== -1)
+
+    var wantStage = function (stage) {
+        if ($scope.queryParams.stages === undefined
+                || $scope.queryParams.stages.indexOf("" + stage) !== -1)
             return true;
         return false;
     };
@@ -215,45 +213,35 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
     var queryString = window.location.search.substring(1);
 
     if (formHash) {
-        $scope.loadMessage = "Calculating trajectory...";    
+        $scope.loadMessage = "Calculating trajectory...";
         var formData = window.atob(formHash);
 
         $scope.httpRequest('/simulator/new', 'POST', formData,
-                function (data) {
-                    var json = data.data;
-                    if (json.Mission.success === true) {
-                        var queryString = json.Mission.output.split('?')[1];
-                        $scope.failureMode = json.Mission.failureMode;
-                        $scope.loadMessage = "Building plots...";
-                        $scope.redirect('/results/?' + queryString);
-                        $scope.load(queryString);
-                    } else {
-                        var errorsHash = window.btoa(JSON.stringify(json));
-                        $scope.redirect('/error/#' + errorsHash);
-                    }
+                function (response) {
+                    var json = response.data;
+                    var queryString = 'id=' + json.data[0].id + '&code=' + json.data[0].code;
+                    $scope.failureMode = json.data[0].failureMode;
+                    $scope.loadMessage = "Building plots...";
+                    $scope.redirect('/results/?' + queryString);
+                    $scope.load(queryString);
                 },
-                function (data) {
-                    var json = data.data;
-                    var errors, errorsHash = '';
-                    if (json.responseJSON !== undefined) {
-                        errors = json.responseJSON.Mission.errors;
-                        errorsHash = window.btoa(errors);
-                    }
-                    $scope.redirect('/error/#' + errorsHash);
-                });    
+                function (response) {
+                    var json = response.data;
+                    $scope.redirect('/error/#' + window.btoa(json.data[0]));
+                });
     } else if (queryString) {
         $scope.load(queryString);
     }
 
-    var PLOTS = ['altitude1', 'profile1', 'inclination', 
+    var PLOTS = ['altitude1', 'profile1', 'inclination',
         'velocity1', 'prop', 'phase1',
-         'throttle', 'accel1', 'q',
-        'aoa', 'aov', 'total-dv', 
+        'throttle', 'accel1', 'q',
+        'aoa', 'aov', 'total-dv',
         'aop', 'heading', 'drag'
-        ];
+    ];
     $scope.plotTiles = (function () {
         var tiles = [];
-        PLOTS.forEach(function(PLOT) {
+        PLOTS.forEach(function (PLOT) {
             tiles.push({title: PLOT});
         });
         return tiles;
@@ -271,21 +259,11 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
     //////////////////////////////////////
 
     $scope.overrideLive = function () {
-        if ($cookies.get($scope.$parent.cookies.AUTHTOKEN) === undefined)
-            return;
 
         $scope.overrideInProgress = true;
         $scope.overrideAttempted = true;
-        
-        var payload = {
-            auth: {
-                token: $cookies.get($scope.$parent.cookies.AUTHTOKEN)
-            },
-            code:$scope.queryParams.code[0],
-            id:$scope.queryParams.id[0]
-        };
 
-        $scope.httpRequest('/missions/live', 'PUT', payload,
+        $scope.httpRequest('/missions/' + $scope.queryParams.code[0] + '/livelaunch/', 'PUT', {id: $scope.queryParams.id[0]},
                 function () {
                     $scope.overrideStatus = "check";
                     $scope.overrideStatusColor = '#82CA9D';
@@ -333,8 +311,8 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                 }
             }
 
-            $scope.queryParams.id.forEach(function(id, key) {
-                $scope.stageMap[0].forEach(function(stage) {
+            $scope.queryParams.id.forEach(function (id, key) {
+                $scope.stageMap[0].forEach(function (stage) {
                     $scope.buildEntitiesFromResponse(key, stage.id);
                 });
             });
@@ -342,8 +320,8 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         }
 
         function errorfn(res) {
-            $scope.queryParams.id.forEach(function(id, key) {
-                $scope.stageMap[0].forEach(function(stage) {
+            $scope.queryParams.id.forEach(function (id, key) {
+                $scope.stageMap[0].forEach(function (stage) {
                     $scope.buildEntitiesFromResponse(key, stage.id);
                 });
             });
@@ -351,21 +329,21 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
     };
 
     $scope.getDataFile = function (key, stage) {
-        
+
         $http.get($scope.$parent.client + '/output/' + $scope.queryParams.id[key] + '_' + stage + '.dat')
                 .then(successfn, errorfn);
-        
+
         function successfn(data) {
-            
-            if(fileData[key] === undefined)
+
+            if (fileData[key] === undefined)
                 fileData[key] = [];
             fileData[key][stage] = data;
-            
+
             var lines = data.data.split("\n");
-            if($scope.fullData[key] === undefined)
+            if ($scope.fullData[key] === undefined)
                 $scope.fullData[key] = [];
             $scope.fullData[key][stage] = [];
-            if($scope.stageMap[key] === undefined)
+            if ($scope.stageMap[key] === undefined)
                 $scope.stageMap[key] = [];
             $scope.stageMap[key].push({id: stage, name: lines[0].split("#")[1]});
 
@@ -386,26 +364,25 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
     };
 
     $scope.getEventsFile = function (key, stage) {
-        
+
         $http.get($scope.$parent.client + '/output/' + $scope.queryParams.id[key] + '_' + stage + '_events.dat')
                 .then(successfn, errorfn);
 
         function successfn(data) {
-            
-            if(!wantStage(stage) || data.data.indexOf("html") !== -1) {
-                if(key !== $scope.queryParams.id.length-1) {
+
+            if (!wantStage(stage) || data.data.indexOf("html") !== -1) {
+                if (key !== $scope.queryParams.id.length - 1) {
                     $scope.getEventsFile(++key, 0);
-                }
-                else if(!$scope.initialised) {
+                } else if (!$scope.initialised) {
                     $scope.initialisePlots();
                     $scope.loadCesium();
                 } else {
-                    $scope.getHazardMap();                    
+                    $scope.getHazardMap();
                 }
             } else {
 
                 var lines = data.data.split("\n");
-                if($scope.eventsData[key] === undefined) {
+                if ($scope.eventsData[key] === undefined) {
                     $scope.eventsData[key] = [];
                     $scope.focusPoints[key] = [];
                 }
@@ -417,9 +394,9 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                     lines.forEach(function (line, j) {
                         line = line.split(";");
                         $scope.eventsData[key][stage][i][j] = parseFloat(line[i]);
-                        
-                    if (line.length === 1)
-                        return;
+
+                        if (line.length === 1)
+                            return;
 
                         if (i === 0)
                             $scope.focusPoints[key][stage].push([parseFloat(line[0]), parseFloat(line[12])]);
@@ -434,17 +411,17 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
             console.log(data);
         }
     };
-    
+
 
     $scope.plot = {
         x: $scope.COLS[0],
         y: $scope.COLS[4],
         stages: []
     };
-    $scope.updatePlot = function() {
-        if($scope.plot.x === undefined || $scope.plot.y === undefined || $scope.plot.stages === undefined)
+    $scope.updatePlot = function () {
+        if ($scope.plot.x === undefined || $scope.plot.y === undefined || $scope.plot.stages === undefined)
             return;
-        if($scope.plot.stages.length === 0) {
+        if ($scope.plot.stages.length === 0) {
             $scope.queryParams.id.forEach(function (id, key) {
                 $scope.plot.stages[key] = [];
                 $scope.stageMap[key].forEach(function (el, i) {
@@ -452,19 +429,19 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                 });
             });
         }
-        
+
         var plot = {stages: $scope.plot.stages, title: $scope.plot.y.label + " vs. " + $scope.plot.x.label, events: true,
             x: {axis: $scope.plot.x.i, label: $scope.plot.x.label, type: "linear"},
             y: {axis: $scope.plot.y.i, label: $scope.plot.y.label, type: "linear"}};
-        
+
         $scope.initialisePlot2(plot, true);
-        
+
     };
-    
+
     $scope.plotMap = [];
-    
+
     $scope.initialisePlots = function () {
-        
+
         var allStages = [], lowerStages = [];
         $scope.queryParams.id.forEach(function (id, key) {
             allStages[key] = [];
@@ -485,7 +462,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         $scope.plotMap.push({id: 'inclination', stages: allStages, title: "Inclination", events: false,
             x: {axis: 0, label: $scope.COLS[0].label, type: "linear"},
             y: {axis: 23, label: $scope.COLS[23].label, type: "linear", range: [-180, 180]}});
-        
+
         $scope.plotMap.push({id: 'velocity1', stages: allStages, title: "Velocity", events: true,
             x: {axis: 0, label: $scope.COLS[0].label, type: "linear"},
             y: {axis: 5, label: $scope.COLS[5].label, type: "linear"}});
@@ -495,7 +472,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         $scope.plotMap.push({id: 'phase1', stages: lowerStages, title: "Booster Phasespace", events: true,
             x: {axis: 4, label: $scope.COLS[4].label, type: "linear"},
             y: {axis: 5, label: $scope.COLS[5].label, type: "linear"}});
-        
+
         $scope.plotMap.push({id: 'throttle', stages: allStages, title: "Throttle", events: false,
             x: {axis: 0, label: $scope.COLS[0].label, type: "linear", range: [0, 1000]},
             y: {axis: 12, label: $scope.COLS[12].label, type: "linear"}});
@@ -505,7 +482,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         $scope.plotMap.push({id: 'q', stages: lowerStages, title: "Aerodynamic Pressure", events: true,
             x: {axis: 0, label: $scope.COLS[0].label, type: "linear"},
             y: {axis: 7, label: $scope.COLS[7].label, type: "linear"}});
-        
+
         $scope.plotMap.push({id: 'aoa', stages: allStages, title: "Angle of Attack", events: true,
             x: {axis: 0, label: $scope.COLS[0].label, type: "linear", range: [0, 1000]},
             y: {axis: 14, label: $scope.COLS[14].label, type: "linear", range: [-180, 180]}});
@@ -515,7 +492,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         $scope.plotMap.push({id: 'total-dv', stages: allStages, title: "Total dV Expended", events: false,
             x: {axis: 0, label: $scope.COLS[0].label, type: "log"},
             y: {axis: 9, label: $scope.COLS[9].label, type: "log"}});
-        
+
         $scope.plotMap.push({id: 'aop', stages: allStages, title: "Pitch", events: true,
             x: {axis: 0, label: $scope.COLS[0].label, type: "linear", range: [0, 1000]},
             y: {axis: 16, label: $scope.COLS[16].label, type: "linear", range: [-90, 90]}});
@@ -526,16 +503,16 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
             x: {axis: 0, label: $scope.COLS[0].label, type: "linear", range: [0, 1000]},
             y: {axis: 17, label: $scope.COLS[17].label, type: "linear"}});
         /*$scope.plotMap.push({id: 'thrust-coeff', stages: lowerStages, title: "Thrust Coefficient", events: true,
-            x: {axis: 0, label: "Time (s)", type: "linear", range: [0, 1000]},
-            y: {axis: 22, label: "Ct", type: "linear"}});*/
+         x: {axis: 0, label: "Time (s)", type: "linear", range: [0, 1000]},
+         y: {axis: 22, label: "Ct", type: "linear"}});*/
 
         $timeout(function () {
-            
+
             $scope.isLoading = false;
             $scope.loadSuccess = true;
             $scope.$apply();
-            
-            $scope.plotMap.forEach(function(plot) {
+
+            $scope.plotMap.forEach(function (plot) {
                 $scope.initialisePlot2(plot, false);
             });
             $scope.updatePlot(); // <----- bigPlot
@@ -551,7 +528,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                         );
             }
         });
-        
+
     };
 
     $scope.initialisePlot2 = function (plot, isBigPlot) {
@@ -582,9 +559,9 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                 });
             }
         });
-        
-        var fontColor = $scope.$parent.theme==='fc_dark' ? '#fafafa' : '#181c1f';
-        var bgColor = $scope.$parent.theme==='fc_dark' ? '#303030' : '#fafafa';
+
+        var fontColor = $scope.$parent.theme === 'fc_dark' ? '#fafafa' : '#181c1f';
+        var bgColor = $scope.$parent.theme === 'fc_dark' ? '#303030' : '#fafafa';
         var layout = {
             title: plot.title,
             showlegend: false,
@@ -595,23 +572,23 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
             },
             xaxis: {
                 color: fontColor,
-                type: plot.x.type, 
-                title: plot.x.label, 
+                type: plot.x.type,
+                title: plot.x.label,
                 range: plot.x.range
             },
             yaxis: {
                 color: fontColor,
-                type: plot.y.type, 
+                type: plot.y.type,
                 title: plot.y.label,
                 range: plot.y.range
             },
             paper_bgcolor: bgColor,
             plot_bgcolor: bgColor
         };
-        
-        if(isBigPlot) {
+
+        if (isBigPlot) {
             var tab = document.getElementById("results");
-            layout.height = 0.67*tab.offsetHeight;
+            layout.height = 0.67 * tab.offsetHeight;
             layout.width = tab.offsetWidth;
             Plotly.newPlot("bigPlot", data, layout);
         } else {
@@ -619,46 +596,51 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         }
 
     };
-    
-    $scope.swapPlotAxes = function() {
-        
+
+    $scope.swapPlotAxes = function () {
+
         var temp = $scope.plot.x;
         $scope.plot.x = $scope.plot.y;
         $scope.plot.y = temp;
-        
+
         $scope.updatePlot();
-        
+
     };
-    
-    $scope.$parent.$watch('theme', function() {
-        
-        if($scope.plotMap) {
-            $scope.plotMap.forEach(function(plot) {
+
+    $scope.$parent.$watch('theme', function () {
+
+        if ($scope.plotMap) {
+            $scope.plotMap.forEach(function (plot) {
                 $scope.initialisePlot2(plot);
             });
         }
-        
+
     });
-    
-    var askForSupport = function() {
-         
+
+    var askForSupport = function () {
+
         if ($scope.supports_html5_storage()) {
             var donateRequest = window['localStorage']['fc_donateRequest'];
             if (donateRequest === undefined && $cookies.get($scope.$parent.cookies.SIMCOUNT) >= 3) {
-                
-                $scope.openThemedDialog('Support me on Patreon!', 
+
+                $scope.openThemedDialog('Support me on Patreon!',
                         'Hi, I\'m really sorry and I hate myself for annoying you with popups, but if you like Flight Club, I\'d really appreciate it if you considered supporting me on Patreon! I promise you\'ll never see this message again either way :)',
-                        'This site sucks', function () {window['localStorage']['fc_donateRequest'] = 1;},
-                        'I love this site!', function () {window['localStorage']['fc_donateRequest'] = 1;window.open('https://www.patreon.com/flightclub', '_blank');}
-                    );
+                        'This site sucks', function () {
+                            window['localStorage']['fc_donateRequest'] = 1;
+                        },
+                        'I love this site!', function () {
+                            window['localStorage']['fc_donateRequest'] = 1;
+                            window.open('https://www.patreon.com/flightclub', '_blank');
+                        }
+                );
             }
         }
     };
-    
+
     var w;
     $scope.worldLoading = true;
     $scope.loadCesium = function () {
-        
+
         window.CESIUM_BASE_URL = '//cesiumjs.org/releases/1.29/Build/Cesium/';
         $scope.getScript(CESIUM_BASE_URL + "Cesium.js", function ()
         {
@@ -713,9 +695,9 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
 
         });
     };
-    
+
     $scope.buildEntitiesFromResponse = function (key, stage) {
-        
+
         var data = fileData[key][stage];
         var lines = data.data.split("\n");
 
@@ -796,7 +778,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         return [p_stage, o_stage];
 
     };
-    
+
     function world() {
 
         this.setCameraLookingAt = function (site) {
@@ -804,50 +786,50 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         };
 
         this.setCameraLookingAtCoordinates = function (longitude, latitude) {
-            
+
             // can probably use this logic to remove launchPadViews altogether and have dynamic calcs based on pad coords
-            var lat1 = $scope.launchSite.latitude*Math.PI/180.0;
-            var lon1 = $scope.launchSite.longitude*Math.PI/180.0;
-            var lat2 = latitude*Math.PI/180.0;
-            var lon2 = longitude*Math.PI/180.0;
-            
-            var y = Math.sin(lon1-lon2)*Math.cos(lat1);
-            var x = Math.cos(lat2)*Math.sin(lat1) - Math.sin(lat2)*Math.cos(lat1)*Math.cos(lon1-lon2);
-            var brng = Math.atan2(y, x)*180/Math.PI;
-            
+            var lat1 = $scope.launchSite.latitude * Math.PI / 180.0;
+            var lon1 = $scope.launchSite.longitude * Math.PI / 180.0;
+            var lat2 = latitude * Math.PI / 180.0;
+            var lon2 = longitude * Math.PI / 180.0;
+
+            var y = Math.sin(lon1 - lon2) * Math.cos(lat1);
+            var x = Math.cos(lat2) * Math.sin(lat1) - Math.sin(lat2) * Math.cos(lat1) * Math.cos(lon1 - lon2);
+            var brng = Math.atan2(y, x) * 180 / Math.PI;
+
             //$scope.httpRequest('/apikeys/google', 'GET', null, // need to design+build the endpoint
             //        function (data) {
-/*
-                        //var json = data.data;
-                        var googleApiKey = "AIzaSyCPznSBxS5RLlWx9eFZv9Cn_L8JkA7kKDA";//json.key;
-
-                        var URL = 'https://maps.googleapis.com/maps/api/elevation/json';
-                        URL += '?locations=' + encodeURIComponent(latitude) + ',' + encodeURIComponent(longitude); // is encode() a real fn?
-                        URL += '&key=' + encodeURIComponent(googleApiKey);
-
-                        $http.get(URL).then(function (txt) { // what if this request fails? need contingency
-                            var json = JSON.parse(txt); // don't think this will work
-                            w.viewer.camera.flyTo({
-                                destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, 5.0 + parseFloat(json.results[0].elevation)),
-                                orientation: {
-                                    heading: Cesium.Math.toRadians(brng),
-                                    pitch: Cesium.Math.toRadians(0),
-                                    roll: Cesium.Math.toRadians(0)
-                                }
-                            });
-                        });
-                    },
-                    function (data) {
-                    */
-                        w.viewer.camera.flyTo({
-                            destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, 5.0), // fall back to 1.0? what's the default?
-                            orientation: {
-                                heading: Cesium.Math.toRadians(brng),
-                                pitch: Cesium.Math.toRadians(0),
-                                roll: Cesium.Math.toRadians(0)
-                            }
-                        });
-                    //});            
+            /*
+             //var json = data.data;
+             var googleApiKey = "AIzaSyCPznSBxS5RLlWx9eFZv9Cn_L8JkA7kKDA";//json.key;
+             
+             var URL = 'https://maps.googleapis.com/maps/api/elevation/json';
+             URL += '?locations=' + encodeURIComponent(latitude) + ',' + encodeURIComponent(longitude); // is encode() a real fn?
+             URL += '&key=' + encodeURIComponent(googleApiKey);
+             
+             $http.get(URL).then(function (txt) { // what if this request fails? need contingency
+             var json = JSON.parse(txt); // don't think this will work
+             w.viewer.camera.flyTo({
+             destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, 5.0 + parseFloat(json.results[0].elevation)),
+             orientation: {
+             heading: Cesium.Math.toRadians(brng),
+             pitch: Cesium.Math.toRadians(0),
+             roll: Cesium.Math.toRadians(0)
+             }
+             });
+             });
+             },
+             function (data) {
+             */
+            w.viewer.camera.flyTo({
+                destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, 5.0), // fall back to 1.0? what's the default?
+                orientation: {
+                    heading: Cesium.Math.toRadians(brng),
+                    pitch: Cesium.Math.toRadians(0),
+                    roll: Cesium.Math.toRadians(0)
+                }
+            });
+            //});            
         };
 
         var w = this, entities, viewer, launchPadViews = {};
@@ -890,9 +872,9 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
 
     $scope.changeView = function () {
 
-        if($scope.queryParams.view === undefined)
+        if ($scope.queryParams.view === undefined)
             $scope.queryParams.view = [];
-        
+
         switch ($scope.queryParams.view[0]) {
             case 'space':
                 $location.search('view', 'earth');
@@ -918,7 +900,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
 
                 $scope.padViews = JSON.parse(JSON.stringify(lPadViews));
                 $scope.site = lSite;
-                
+
                 $scope.cancel = function () {
                     $mdDialog.cancel();
                 };
@@ -944,7 +926,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
             }
         });
     };
-    
+
     $scope.openCesiumCreditsDialog = function ($event) {
         $mdDialog.show({
             controller: function () {
@@ -965,6 +947,6 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
             targetEvent: $event,
             clickOutsideToClose: true
         });
-    };    
+    };
 
 });

@@ -220,7 +220,7 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
     $scope.selectMission = function (mission) {
         $scope.$parent.selectedMission = mission;
         $scope.loadingMission = true;
-        $scope.httpRequest('/missions/' + mission.code, 'GET', null, function (response) {
+        $scope.httpRequest('/missions/?code=' + mission.code, 'GET', null, function (response) {
             if ($mdSidenav("sidenav").isOpen())
                 $scope.toggleNav("sidenav");
             $scope.loadingMission = false;
@@ -242,7 +242,7 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
     };
 
     $scope.selectMissionVehicle = function (code) {
-        $scope.httpRequest('/missions/' + code, 'GET', null, function (data) {
+        $scope.httpRequest('/missions/?code=' + code, 'GET', null, function (data) {
             var tempForm = data.data;
 
             var currentStages = $scope.form.Mission.Vehicle.Stages.length;
@@ -428,11 +428,8 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
 
     $scope.export = function (ev) {
 
-        $scope.form.auth = {token: $scope.$parent.token};
         var formAsJSON_string = JSON.stringify($scope.form);
-        $scope.form.auth = {token: null};
         var formHash = window.btoa(formAsJSON_string);
-
 
         $scope.exportStyle = true;
         if ($scope.supports_html5_storage()) {
@@ -589,9 +586,7 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
 
     var processSubmit = function () {
 
-        $scope.form.auth = {token: $scope.$parent.token};
         var formHash = $scope.updateUrl();
-        $scope.form.auth = {token: null};
 
         var simCount = parseInt($cookies.get($scope.$parent.cookies.SIMCOUNT));
         $cookies.put($scope.$parent.cookies.SIMCOUNT, simCount ? simCount + 1 : 1);
@@ -601,36 +596,16 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
 
     $scope.save = function (event)
     {
-        $scope.httpRequest('/missions/' + $scope.form.Mission.code, 'GET', null, function (response) {
-            if (response.status === 200) {
-                $scope.form.auth = {token: $scope.$parent.token};
-                var formAsJSON_string = JSON.stringify($scope.form);
-                $scope.openThemedDialog(
-                        'Update ' + $scope.form.Mission.code,
-                        'This will update ' + $scope.form.Mission.description,
-                        'Cancel', null,
-                        'Ok', function () {
-                            $scope.saving = true;
-                            $scope.httpRequest('/missions/' + $scope.form.Mission.code, 'PUT', formAsJSON_string, saveSuccess, saveError);
-                        }
-                );
-            }
-        }, function (response) {
-
-            if (response.status === 404) {
-                $scope.form.auth = {token: $scope.$parent.token};
-                var formAsJSON_string = JSON.stringify($scope.form);
-                $scope.openThemedDialog(
-                        $scope.form.Mission.code + " doesn't exist yet",
-                        "This will create a new mission called '" + $scope.form.Mission.description + "'",
-                        'Cancel', null,
-                        'Ok', function () {
-                            $scope.saving = true;
-                            $scope.httpRequest('/missions/', 'POST', formAsJSON_string, saveSuccess, saveError);
-                        }
-                );
-            }
-        });
+        var formAsJSON_string = JSON.stringify($scope.form);
+        $scope.openThemedDialog(
+                "PUT /missions/" + $scope.form.Mission.code,
+                "This will create/update a mission designated '" + $scope.form.Mission.code + "'",
+                'Cancel', null,
+                'Ok', function () {
+                    $scope.saving = true;
+                    $scope.httpRequest('/missions/' + $scope.form.Mission.code, 'PUT', formAsJSON_string, saveSuccess, saveError);
+                }
+        );
 
     };
 
@@ -676,13 +651,10 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
     {
         var data = {
             simHash: $location.hash(),
-            usernote: note,
-            auth: {
-                token: $scope.$parent.token
-            }
+            usernote: note
         };
         $scope.savingSim = true;
-        $scope.httpRequest('/user/saveSim', 'POST', JSON.stringify(data),
+        $scope.httpRequest('/user/savedSims', 'PUT', JSON.stringify(data),
                 function () {
                     $scope.savingSim = false;
                     $scope.saveSimStatusColor = '#82CA9D';

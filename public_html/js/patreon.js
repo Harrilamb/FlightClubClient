@@ -9,7 +9,7 @@ angular.module('FlightClub').controller('PatreonCtrl', function ($scope, $cookie
     $scope.queryParams = $location.search();
     $scope.chosenTiers = [], $scope.chosenPatrons = [];
 
-    $scope.httpRequest('/patreon/patrons?auth=' + $cookies.get($scope.$parent.cookies.AUTHTOKEN), 'GET', null, function (response) {
+    $scope.httpRequest('/patreon/patrons', 'GET', null, function (response) {
         var json = response.data;
         $scope.rewards = json.data[0];
         $scope.rewards.sort(function (a, b) {

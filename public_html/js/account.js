@@ -31,14 +31,9 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
     $scope.loginToggle = function () {
         if (!$scope.$parent.authorised) {
 
-            var data = JSON.stringify($scope.forms[0]);
-            $scope.$parent.httpRequest('/user/login', 'POST', data, function (response) {
+            $scope.$parent.httpRequest('/user/login', 'POST', JSON.stringify($scope.forms[0]), function (response) {
                 var json = response.data;
-                var now = new Date();
-                var expiryDate = new Date(now.getTime() + 1000 * parseInt(json.data[0].maxAge));
-
-                $cookies.put($scope.$parent.cookies.AUTHTOKEN, json.data[0].authToken, {'expires': expiryDate});
-                $scope.$parent.token = json.data[0].authToken;
+                
                 $scope.$parent.authorised = true;
 
                 $scope.$parent.permissions.length = 0;
@@ -56,16 +51,12 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
             $cookies.remove($scope.$parent.cookies.AUTHTOKEN);
             $scope.$parent.authorised = false;
             $scope.$parent.permissions.length = 0;
-            $scope.$parent.token = undefined;
             $scope.alerts[0] = "Successfully logged out!";
         }
     };
 
     $scope.updatePassword = function () {
-        $scope.forms[1].auth = {token: $scope.$parent.token};
-        var data = JSON.stringify($scope.forms[1]);
-        $scope.forms[1].auth = {token: ''};
-        $scope.$parent.httpRequest('/user/updatePass', 'POST', data, function (response) {
+        $scope.$parent.httpRequest('/user/updatePass', 'POST', JSON.stringify($scope.forms[1]), function (response) {
             $scope.alerts[1] = 'Password updated successfully!';
             $scope.forms[1] = {};
         }, function (response) {
@@ -75,10 +66,7 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
     };
 
     $scope.create = function () {
-        $scope.forms[2].auth = {token: $scope.$parent.token};
-        var data = JSON.stringify($scope.forms[2]);
-        $scope.forms[2].auth = {token: ''};
-        $scope.$parent.httpRequest('/user/new', 'POST', data, function (data) {
+        $scope.$parent.httpRequest('/user/new', 'POST', JSON.stringify($scope.forms[2]), function (data) {
             $scope.alerts[2] = 'User \"' + $scope.forms[2].Create.new.username + '\" created successfully!';
             $scope.forms[2] = {};
         }, function (response) {
@@ -88,7 +76,7 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
     };
 
     $scope.reloadSavedSims = function () {
-        $scope.$parent.httpRequest('/user/savedSims', 'POST', JSON.stringify({auth: {token: $scope.$parent.token}}), function (response) {
+        $scope.$parent.httpRequest('/user/savedSims', 'GET', null, function (response) {
             var json = response.data;
             $scope.savedSims = [];
             for (var i = 0; i < json.data.length; i++) {
@@ -110,11 +98,7 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
     };
 
     $scope.removeSim = function (obj) {
-        var data = {
-            id: obj.id,
-            auth: {token: $scope.$parent.token}
-        };
-        $scope.$parent.httpRequest('/user/removeSim', 'POST', JSON.stringify(data), function (response) {
+        $scope.$parent.httpRequest('/user/savedSims/'+obj.id, 'DELETE', null, function (response) {
             var index = $scope.savedSims.indexOf(obj);
             if (index > -1) {
                 $scope.savedSims.splice(index, 1);

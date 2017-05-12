@@ -128,7 +128,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
     };
 
     $scope.pollLaunchTime = function () {
-        $scope.httpRequest('/missions/' + $scope.queryParams.code, 'GET', null,
+        $scope.httpRequest('/missions/?code=' + $scope.queryParams.code, 'GET', null,
                 function (data) {
 
                     var json = data.data;
@@ -172,7 +172,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
     
     var loadVars = function(reload) {
 
-        $scope.httpRequest('/missions/' + $scope.queryParams.code, 'GET', null,
+        $scope.httpRequest('/missions/?code=' + $scope.queryParams.code, 'GET', null,
                 function (response) {
                     var json = response.data;
                     if (json.data[0].Mission !== undefined && $scope.queryParams.id === undefined) {
@@ -202,7 +202,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                         $scope.redirect('/error/#' + errorsHash);
                     }
                     
-                    $scope.httpRequest('/launchsites/' + json.data[0].Mission.launchsite, 'GET', null,
+                    $scope.httpRequest('/launchsites/?code=' + json.data[0].Mission.launchsite, 'GET', null,
                         function (response) {
                             var json = response.data;
                             $scope.launchSite = json.data[0];
