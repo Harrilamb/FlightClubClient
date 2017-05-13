@@ -173,23 +173,23 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
             $scope.httpRequest('/missions/?code=' + code, 'GET', null,
                     function (response) {
                         var json = response.data;
-                        if (json.data[0].Mission !== undefined) {
+                        if (json.data[0].mission !== undefined) {
                             if ($scope.requireLiveIDs) {
-                                $scope.queryParams.id[key] = json.data[0].Mission.livelaunch;
+                                $scope.queryParams.id[key] = json.data[0].mission.livelaunch;
                             }
                         }
 
                         if ($scope.queryParams.id.length >= $scope.queryParams.code.length) {
-                            $scope.httpRequest('/launchsites/?code=' + json.data[0].Mission.launchsite, 'GET', null,
+                            $scope.httpRequest('/launchsites/?code=' + json.data[0].mission.launchsite, 'GET', null,
                                     function (response) {
                                         var json = response.data;
                                         $scope.launchSite = json.data[0];
                                     }
                             );
 
-                            var tempDate = json.data[0].Mission.date.replace(/-/g, "/") + ' ' + json.data[0].Mission.time + ' UTC';
+                            var tempDate = json.data[0].mission.date.replace(/-/g, "/") + ' ' + json.data[0].mission.time + ' UTC';
                             $scope.launchTime = Date.parse(tempDate);
-                            $scope.missionName = json.data[0].Mission.description;
+                            $scope.missionName = json.data[0].mission.description;
                             $scope.stageMap = [];
                             $scope.getEventsFile(0, 0);
                         }
@@ -898,7 +898,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         $mdDialog.show({
             controller: function ($scope, lW, lPadViews, lSite, $mdDialog) {
 
-                $scope.padViews = JSON.parse(JSON.stringify(lPadViews));
+                $scope.padViews = JSON.parse(angular.toJson(lPadViews));
                 $scope.site = lSite;
 
                 $scope.cancel = function () {

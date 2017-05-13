@@ -133,7 +133,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
 
                     var json = data.data;
 
-                    var tempDate = json.Mission.date.replace(/-/g, "/") + ' ' + json.Mission.time + ' UTC';
+                    var tempDate = json.mission.date.replace(/-/g, "/") + ' ' + json.mission.time + ' UTC';
                     var newTime = Date.parse(tempDate);
 
                     if (newTime !== $scope.launchTime) {
@@ -175,22 +175,22 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
         $scope.httpRequest('/missions/?code=' + $scope.queryParams.code, 'GET', null,
                 function (response) {
                     var json = response.data;
-                    if (json.data[0].Mission !== undefined && $scope.queryParams.id === undefined) {
-                        $scope.queryParams.id = json.data[0].Mission.livelaunch;
+                    if (json.data[0].mission !== undefined && $scope.queryParams.id === undefined) {
+                        $scope.queryParams.id = json.data[0].mission.livelaunch;
                     }
                     
                     if($scope.queryParams.id === undefined) {
                         var errorsHash;
-                        if(json.data[0].Mission !== undefined) {
-                            errorsHash = window.btoa(JSON.stringify({
+                        if(json.data[0].mission !== undefined) {
+                            errorsHash = window.btoa(angular.toJson({
                                 Mission: {
-                                    errors: "There has been no default profile assigned to the mission '" + json.data[0].Mission.description + "'.</br>" +
+                                    errors: "There has been no default profile assigned to the mission '" + json.data[0].mission.description + "'.</br>" +
                                             "Try running your own simulation and then choosing '3D World View' in the top-right menu of the results page!"
                                 },
                                 reportable: false
                             }));
                         } else {
-                            errorsHash = window.btoa(JSON.stringify({
+                            errorsHash = window.btoa(angular.toJson({
                                 Mission: {
                                     errors: "<p>The Flight Club server doesn't know of any missions assigned the code '" + $scope.queryParams.code + "'.</br>" +
                                             "Did you type the URL wrong? If not, there may be an issue with the server!</p>" +
@@ -202,7 +202,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
                         $scope.redirect('/error/#' + errorsHash);
                     }
                     
-                    $scope.httpRequest('/launchsites/?code=' + json.data[0].Mission.launchsite, 'GET', null,
+                    $scope.httpRequest('/launchsites/?code=' + json.data[0].mission.launchsite, 'GET', null,
                         function (response) {
                             var json = response.data;
                             $scope.launchSite = json.data[0];
@@ -221,11 +221,11 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
 
     $scope.fillData = function (data) {
 
-        $scope.missionName = data.Mission.description;
+        $scope.missionName = data.mission.description;
         $scope.missionCode = $scope.queryParams.code;
-        $scope.numStages = data.Mission.Vehicle.Stages.length;
+        $scope.numStages = data.mission.vehicle.stages.length;
 
-        var tempDate = data.Mission.date.replace(/-/g, "/") + ' ' + data.Mission.time + ' UTC';
+        var tempDate = data.mission.date.replace(/-/g, "/") + ' ' + data.mission.time + ' UTC';
         $scope.launchTime = Date.parse(tempDate);
 
         var now = new Date();
@@ -600,7 +600,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
 
             if (res.data.indexOf("html") !== -1) {
                 if (stage === 0) {
-                    var errorsHash = window.btoa(JSON.stringify({
+                    var errorsHash = window.btoa(angular.toJson({
                         Mission: {
                             errors: "There has been a error fetching the default profile for this mission: '" + $scope.queryParams.id + "'.</br>" +
                                     "Try running your own simulation and then choosing '3D World View' in the top-right menu of the results page!"
@@ -944,7 +944,7 @@ angular.module('FlightClub').controller('WorldCtrl', function ($scope, $mdDialog
         $mdDialog.show({
             controller: function ($scope, lW, lPadViews, lSite, $mdDialog) {
 
-                $scope.padViews = JSON.parse(JSON.stringify(lPadViews));
+                $scope.padViews = JSON.parse(angular.toJson(lPadViews));
                 $scope.site = lSite;
                 
                 $scope.cancel = function () {

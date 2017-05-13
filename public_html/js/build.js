@@ -58,7 +58,7 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
         if ($location.hash()) {
             var formData = window.atob($location.hash());
             $scope.form = JSON.parse(formData);
-            setNewMission($scope.form.Mission.code);
+            setNewMission($scope.form.mission.code);
         } else {
             blankCanvas = true;
             $scope.selectMission($scope.past[$scope.past.length - 1]);
@@ -205,7 +205,7 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
 
     $scope.updateUrl = function () {
         if ($scope.form) {
-            var formAsJSON_string = JSON.stringify($scope.form);
+            var formAsJSON_string = angular.toJson($scope.form);
 
             var formHash = window.btoa(formAsJSON_string);
             $location.hash(formHash);
@@ -234,7 +234,7 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
 
     var setNewMission = function (code) {
         $scope.sortEvents();
-        $scope.$parent.toolbarTitle = $scope.form.Mission.description;
+        $scope.$parent.toolbarTitle = $scope.form.mission.description;
         $scope.selectedEvent = null;
         $scope.builderType = 'previous';
         $scope.selectedVeh = code;
@@ -245,23 +245,23 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
         $scope.httpRequest('/missions/?code=' + code, 'GET', null, function (data) {
             var tempForm = data.data;
 
-            var currentStages = $scope.form.Mission.Vehicle.Stages.length;
-            var newStages = tempForm.Mission.Vehicle.Stages.length;
+            var currentStages = $scope.form.mission.vehicle.stages.length;
+            var newStages = tempForm.mission.vehicle.stages.length;
 
-            $scope.form.Mission.Vehicle = tempForm.Mission.Vehicle;
+            $scope.form.mission.vehicle = tempForm.mission.vehicle;
             $scope.recalcDV();
 
             if (currentStages > newStages) {
-                for (var i = $scope.form.Mission.Events.length - 1; i >= 0; i--) {
-                    if ($scope.form.Mission.Events[i].stage > newStages - 1)
-                        $scope.form.Mission.Events.splice(i, 1);
+                for (var i = $scope.form.mission.events.length - 1; i >= 0; i--) {
+                    if ($scope.form.mission.events[i].stage > newStages - 1)
+                        $scope.form.mission.events.splice(i, 1);
                 }
             }
         }, null);
     };
 
     $scope.selectSite = function (site) {
-        $scope.form.Mission.launchsite = site.code;
+        $scope.form.mission.launchsite = site.code;
         if ($scope.runTutorial && site.code === 'BOCA') {
             $scope.processTutorial(4);
         }
@@ -280,15 +280,15 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
         var arr = [];
         for (var k = 0; k < numArray.length; k++) {
             var num = numArray[k];
-            for (var i = 0; i < $scope.form.Mission.Vehicle.Stages.length; i++) {
-                if ($scope.form.Mission.Vehicle.Stages[i].stageNumber === num) {
-                    arr.push($scope.form.Mission.Vehicle.Stages[i]);
+            for (var i = 0; i < $scope.form.mission.vehicle.stages.length; i++) {
+                if ($scope.form.mission.vehicle.stages[i].stageNumber === num) {
+                    arr.push($scope.form.mission.vehicle.stages[i]);
                     continue;
                 }
 
-                for (var j = 0; j < $scope.form.Mission.Vehicle.Stages[i].Boosters.length; j++) {
-                    if ($scope.form.Mission.Vehicle.Stages[i].Boosters[j].stageNumber === num) {
-                        arr.push($scope.form.Mission.Vehicle.Stages[i].Boosters[j]);
+                for (var j = 0; j < $scope.form.mission.vehicle.stages[i].boosters.length; j++) {
+                    if ($scope.form.mission.vehicle.stages[i].boosters[j].stageNumber === num) {
+                        arr.push($scope.form.mission.vehicle.stages[i].boosters[j]);
                         continue;
                     }
                 }
@@ -302,12 +302,12 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
     var resetstageNumbersAndEvents = function () {
 
         var i = 0;
-        for (var index = 0; index < $scope.form.Mission.Vehicle.Stages.length; index++) {
+        for (var index = 0; index < $scope.form.mission.vehicle.stages.length; index++) {
 
-            var obj = $scope.form.Mission.Vehicle.Stages[index];
+            var obj = $scope.form.mission.vehicle.stages[index];
             obj.stageNumber = i++;
 
-            $scope.form.Mission.Vehicle.Stages[index].Boosters.forEach(function (obj) {
+            $scope.form.mission.vehicle.stages[index].boosters.forEach(function (obj) {
                 obj.stageNumber = i++;
             });
         }
@@ -317,9 +317,9 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
 
         // remove entity by stageNumber
         if (parentStage) {
-            parentStage.Boosters.splice($index, 1);
+            parentStage.boosters.splice($index, 1);
         } else {
-            $scope.form.Mission.Vehicle.Stages.splice($index, 1);
+            $scope.form.mission.vehicle.stages.splice($index, 1);
         }
 
         resetstageNumbersAndEvents();
@@ -328,14 +328,14 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
 
     $scope.incrementEntity = function (parentStage) {
         if (parentStage) {
-            parentStage.Boosters[parentStage.Boosters.length] = {
-                Engines: [],
-                Boosters: []
+            parentStage.boosters[parentStage.boosters.length] = {
+                engines: [],
+                boosters: []
             };
         } else {
-            $scope.form.Mission.Vehicle.Stages[$scope.form.Mission.Vehicle.Stages.length] = {
-                Engines: [],
-                Boosters: []
+            $scope.form.mission.vehicle.stages[$scope.form.mission.vehicle.stages.length] = {
+                engines: [],
+                boosters: []
             };
         }
         resetstageNumbersAndEvents();
@@ -344,24 +344,24 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
     $scope.recalcDV = function () {
 
         var totalDV = 0;
-        var stages = $scope.form.Mission.Vehicle.Stages;
+        var stages = $scope.form.mission.vehicle.stages;
 
         for (var i = 0; i < stages.length; i++) {
 
-            if (stages[i].Engines[0] === undefined)
+            if (stages[i].engines[0] === undefined)
                 continue;
 
             // Use Vac ISP of first engine by default
-            var isp = stages[i].Engines[0].Engine.ispVac;
+            var isp = stages[i].engines[0].engine.ispVac;
 
-            if (i === 0 && stages[i].Engines[0].Engine.ispSL !== undefined) {
+            if (i === 0 && stages[i].engines[0].engine.ispSL !== undefined) {
                 // for lower stages, take midpoint of SL and Vac ISP
-                isp = 0.5 * (stages[i].Engines[0].Engine.ispSL + stages[i].Engines[0].Engine.ispVac);
-            } else if (stages[i].Engines.length > 1) {
+                isp = 0.5 * (stages[i].engines[0].engine.ispSL + stages[i].engines[0].engine.ispVac);
+            } else if (stages[i].engines.length > 1) {
                 // for upper stages, specifically look for Vac engines and use them
-                for (var e = 0; e < stages[i].Engines.length; e++) {
-                    if (stages[i].Engines[e].Engine.ispSL === null) {
-                        isp = stages[i].Engines[e].Engine.ispVac;
+                for (var e = 0; e < stages[i].engines.length; e++) {
+                    if (stages[i].engines[e].engine.ispSL === null) {
+                        isp = stages[i].engines[e].engine.ispVac;
                         break;
                     }
                 }
@@ -370,19 +370,19 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
             var aboveMass = 0;
             for (var j = i + 1; j < stages.length; j++) {
                 aboveMass += stages[j].dryMass + stages[j].propMass;
-                for (var k = 0; k < stages[j].Boosters.length; k++) {
-                    aboveMass += stages[j].Boosters[k].dryMass + stages[j].Boosters[k].propMass;
+                for (var k = 0; k < stages[j].boosters.length; k++) {
+                    aboveMass += stages[j].boosters[k].dryMass + stages[j].boosters[k].propMass;
                 }
                 if (stages[j].fairingMass)
                     aboveMass += stages[j].fairingMass;
             }
-            aboveMass += parseFloat($scope.form.Mission.Payload.mass);
+            aboveMass += parseFloat($scope.form.mission.payload.mass);
 
             var m0 = aboveMass + stages[i].dryMass + stages[i].propMass;
             var m1 = aboveMass + stages[i].dryMass;
-            for (var j = 0; j < stages[i].Boosters.length; j++) {
-                m0 += stages[i].Boosters[j].dryMass + stages[i].Boosters[j].propMass;
-                m1 += stages[i].Boosters[j].dryMass;
+            for (var j = 0; j < stages[i].boosters.length; j++) {
+                m0 += stages[i].boosters[j].dryMass + stages[i].boosters[j].propMass;
+                m1 += stages[i].boosters[j].dryMass;
             }
             var mf = m0 / m1;
 
@@ -404,20 +404,20 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                 gt: null,
                 throttle: null
             },
-            Engines: []
+            engines: []
         };
-        $scope.form.Mission.Events.push(newEvent);
+        $scope.form.mission.events.push(newEvent);
         $scope.sortEvents();
         $scope.selectedEvent = newEvent;
     };
     $scope.removeEvent = function (index) {
-        if ($scope.selectedEvent === $scope.form.Mission.Events[index])
+        if ($scope.selectedEvent === $scope.form.mission.events[index])
             $scope.selectedEvent = null;
-        $scope.form.Mission.Events.splice(index, 1);
+        $scope.form.mission.events.splice(index, 1);
     };
 
     $scope.sortEvents = function () {
-        $scope.form.Mission.Events.sort(function (a, b) {
+        $scope.form.mission.events.sort(function (a, b) {
             if (a.time === null || a.time === undefined)
                 return 1;
             if (b.time === null || b.time === undefined)
@@ -428,7 +428,7 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
 
     $scope.export = function (ev) {
 
-        var formAsJSON_string = JSON.stringify($scope.form);
+        var formAsJSON_string = angular.toJson($scope.form);
         var formHash = window.btoa(formAsJSON_string);
 
         $scope.exportStyle = true;
@@ -466,7 +466,7 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
             try {
                 var formData = window.atob(formHash);
                 $scope.form = JSON.parse(formData);
-                setNewMission($scope.form.Mission.code);
+                setNewMission($scope.form.mission.code);
                 $scope.importStatusColor = '#82CA9D';
                 $scope.import_icon = 'check';
                 $timeout(function () {
@@ -518,15 +518,15 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
 
         var stagesReferencedInEvents = [];
         var maxStageNumber = -1;
-        $scope.form.Mission.Vehicle.Stages.forEach(function (stage) {
+        $scope.form.mission.vehicle.stages.forEach(function (stage) {
             maxStageNumber++;
-            stage.Boosters.forEach(function () {
+            stage.boosters.forEach(function () {
                 maxStageNumber++;
             });
         });
 
         // check for events that reference non-existent stages
-        $scope.form.Mission.Events.forEach(function (event) {
+        $scope.form.mission.events.forEach(function (event) {
             if (event.stageNumbers === undefined)
                 returnObj.invalidEvents.push(event);
             else {
@@ -539,10 +539,10 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
         });
 
         // check for stages that have no attached events
-        $scope.form.Mission.Vehicle.Stages.forEach(function (stage) {
+        $scope.form.mission.vehicle.stages.forEach(function (stage) {
             if (stagesReferencedInEvents.indexOf(stage.stageNumber) === -1)
                 returnObj.unusedStages.push(stage);
-            stage.Boosters.forEach(function (booster) {
+            stage.boosters.forEach(function (booster) {
                 if (stagesReferencedInEvents.indexOf(booster.stageNumber) === -1)
                     returnObj.unusedStages.push(booster);
             });
@@ -596,14 +596,14 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
 
     $scope.save = function (event)
     {
-        var formAsJSON_string = JSON.stringify($scope.form);
+        var formAsJSON_string = angular.toJson($scope.form);
         $scope.openThemedDialog(
-                "PUT /missions/" + $scope.form.Mission.code,
-                "This will create/update a mission designated '" + $scope.form.Mission.code + "'",
+                "PUT /missions/" + $scope.form.mission.code,
+                "This will create/update a mission designated '" + $scope.form.mission.code + "'",
                 'Cancel', null,
                 'Ok', function () {
                     $scope.saving = true;
-                    $scope.httpRequest('/missions/' + $scope.form.Mission.code, 'PUT', formAsJSON_string, saveSuccess, saveError);
+                    $scope.httpRequest('/missions/' + $scope.form.mission.code, 'PUT', formAsJSON_string, saveSuccess, saveError);
                 }
         );
 
@@ -654,7 +654,7 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
             usernote: note
         };
         $scope.savingSim = true;
-        $scope.httpRequest('/user/savedSims', 'PUT', JSON.stringify(data),
+        $scope.httpRequest('/user/savedSims', 'PUT', angular.toJson(data),
                 function () {
                     $scope.savingSim = false;
                     $scope.saveSimStatusColor = '#82CA9D';
@@ -729,33 +729,33 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
 
                 $scope.parentScope = lParent;
 
-                $scope.selectedStage = JSON.parse(JSON.stringify(lStage));
-                $scope.tempEvents = JSON.parse(JSON.stringify(lForm.Mission.Events));
+                $scope.selectedStage = JSON.parse(angular.toJson(lStage));
+                $scope.tempEvents = JSON.parse(angular.toJson(lForm.mission.events));
                 $scope.stageTypes = $scope.parentScope.stageTypes;
                 $scope.engineTypes = $scope.parentScope.engineTypes;
 
                 $scope.selectStageType = function (newStage) {
 
-                    newStage.Engines = $scope.selectedStage.Engines;
-                    newStage.Boosters = $scope.selectedStage.Boosters;
-                    $scope.selectedStage = JSON.parse(JSON.stringify(newStage));
+                    newStage.engines = $scope.selectedStage.engines;
+                    newStage.boosters = $scope.selectedStage.boosters;
+                    $scope.selectedStage = JSON.parse(angular.toJson(newStage));
                     $scope.selectedStage.stageName = newStage.name;
 
                 };
-                $scope.removeEngine = function ($index) {
+                $scope.removeengine = function ($index) {
 
-                    $scope.selectedStage.Engines.splice($index, 1);
-                    $scope.selectedStage.Engines.forEach(function (obj, i) {
+                    $scope.selectedStage.engines.splice($index, 1);
+                    $scope.selectedStage.engines.forEach(function (obj, i) {
                         obj.engineId = i;
                     });
                     $scope.tempEvents.forEach(function (event) {
 
                         if (event.stage === $scope.selectedStage.stageNumber) {
-                            for (var i = event.Engines.length - 1; i >= 0; i--) {
-                                if (event.Engines[i].engineId === $index) {
-                                    event.Engines.splice(event.Engines[i], 1);
-                                } else if (event.Engines[i].engineId > $index) {
-                                    event.Engines[i].engineId--;
+                            for (var i = event.engines.length - 1; i >= 0; i--) {
+                                if (event.engines[i].engineId === $index) {
+                                    event.engines.splice(event.engines[i], 1);
+                                } else if (event.engines[i].engineId > $index) {
+                                    event.engines[i].engineId--;
                                 }
                             }
                         }
@@ -763,25 +763,25 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                     $scope.parentScope.recalcDV();
 
                 };
-                $scope.incrementEngines = function ($event) {
-                    $scope.selectedStage.Engines.push({
-                        engineId: $scope.selectedStage.Engines.length
+                $scope.incrementengines = function ($event) {
+                    $scope.selectedStage.engines.push({
+                        engineId: $scope.selectedStage.engines.length
                     });
 
-                    $scope.openEngineEditDialog($event, $scope.selectedStage.Engines.length - 1, $scope.selectedStage.Engines[$scope.selectedStage.Engines.length - 1]);
+                    $scope.openengineEditDialog($event, $scope.selectedStage.engines.length - 1, $scope.selectedStage.engines[$scope.selectedStage.engines.length - 1]);
                 };
 
-                $scope.openEngineEditDialog = function ($event, $engineIndex, engineConfig) {
+                $scope.openengineEditDialog = function ($event, $engineIndex, engineConfig) {
 
                     var obj = {
-                        controller: function ($scope, lEngineTypes, lEngineConfig, $mdDialog, lStage) {
+                        controller: function ($scope, lengineTypes, lengineConfig, $mdDialog, lStage) {
 
-                            $scope.selectedEngineConfig = JSON.parse(JSON.stringify(lEngineConfig));
-                            $scope.engineTypes = lEngineTypes;
+                            $scope.selectedengineConfig = JSON.parse(angular.toJson(lengineConfig));
+                            $scope.engineTypes = lengineTypes;
                             $scope.stage = lStage;
 
-                            $scope.selectEngineType = function (newEngine) {
-                                $scope.selectedEngineConfig.Engine = newEngine;
+                            $scope.selectengineType = function (newengine) {
+                                $scope.selectedengineConfig.engine = newengine;
                             };
                             $scope.cancel = function () {
                                 $mdDialog.cancel();
@@ -790,11 +790,11 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                                 $mdDialog.hide();
                             };
                             $scope.save = function () {
-                                $scope.stage.Engines[$engineIndex] = $scope.selectedEngineConfig;
+                                $scope.stage.engines[$engineIndex] = $scope.selectedengineConfig;
                                 $mdDialog.hide();
                             };
                         },
-                        templateUrl: '/pages/editEngine.tmpl.html',
+                        templateUrl: '/pages/editengine.tmpl.html',
                         parent: angular.element(document.body),
                         targetEvent: $event,
                         clickOutsideToClose: true,
@@ -803,8 +803,8 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                         skipHide: true,
                         locals: {
                             lStage: $scope.selectedStage,
-                            lEngineTypes: $scope.engineTypes,
-                            lEngineConfig: engineConfig
+                            lengineTypes: $scope.engineTypes,
+                            lengineConfig: engineConfig
                         }
                     };
                     $mdDialog.show(obj);
@@ -816,8 +816,8 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                     $mdDialog.hide();
                 };
                 $scope.save = function () {
-                    lForm.Mission.Vehicle.Stages[$stageIndex] = $scope.selectedStage;
-                    lForm.Mission.Events = $scope.tempEvents;
+                    lForm.mission.vehicle.stages[$stageIndex] = $scope.selectedStage;
+                    lForm.mission.events = $scope.tempEvents;
                     resetstageNumbersAndEvents();
                     lParent.recalcDV();
                     $mdDialog.hide();
@@ -845,33 +845,33 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
 
                 $scope.parentScope = lParent;
 
-                $scope.selectedStage = JSON.parse(JSON.stringify(lBooster));
-                $scope.tempEvents = JSON.parse(JSON.stringify(lForm.Mission.Events));
+                $scope.selectedStage = JSON.parse(angular.toJson(lBooster));
+                $scope.tempEvents = JSON.parse(angular.toJson(lForm.mission.events));
                 $scope.stageTypes = $scope.parentScope.stageTypes;
                 $scope.engineTypes = $scope.parentScope.engineTypes;
 
                 $scope.selectStageType = function (newStage) {
 
-                    newStage.Engines = $scope.selectedStage.Engines;
-                    newStage.Boosters = $scope.selectedStage.Boosters;
-                    $scope.selectedStage = JSON.parse(JSON.stringify(newStage));
+                    newStage.engines = $scope.selectedStage.engines;
+                    newStage.boosters = $scope.selectedStage.boosters;
+                    $scope.selectedStage = JSON.parse(angular.toJson(newStage));
                     $scope.selectedStage.stageName = newStage.name;
 
                 };
-                $scope.removeEngine = function ($index) {
+                $scope.removeengine = function ($index) {
 
-                    $scope.selectedStage.Engines.splice($index, 1);
-                    $scope.selectedStage.Engines.forEach(function (obj, i) {
+                    $scope.selectedStage.engines.splice($index, 1);
+                    $scope.selectedStage.engines.forEach(function (obj, i) {
                         obj.engineId = i;
                     });
                     $scope.tempEvents.forEach(function (event) {
 
                         if (event.stage === $scope.selectedStage.stageNumber) {
-                            for (var i = event.Engines.length - 1; i >= 0; i--) {
-                                if (event.Engines[i].engineId === $index) {
-                                    event.Engines.splice(event.Engines[i], 1);
-                                } else if (event.Engines[i].engineId > $index) {
-                                    event.Engines[i].engineId--;
+                            for (var i = event.engines.length - 1; i >= 0; i--) {
+                                if (event.engines[i].engineId === $index) {
+                                    event.engines.splice(event.engines[i], 1);
+                                } else if (event.engines[i].engineId > $index) {
+                                    event.engines[i].engineId--;
                                 }
                             }
                         }
@@ -879,25 +879,25 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                     $scope.parentScope.recalcDV();
 
                 };
-                $scope.incrementEngines = function ($event) {
-                    $scope.selectedStage.Engines.push({
-                        engineId: $scope.selectedStage.Engines.length
+                $scope.incrementengines = function ($event) {
+                    $scope.selectedStage.engines.push({
+                        engineId: $scope.selectedStage.engines.length
                     });
 
-                    $scope.openEngineEditDialog($event, $scope.selectedStage.Engines.length - 1, $scope.selectedStage.Engines[$scope.selectedStage.Engines.length - 1]);
+                    $scope.openengineEditDialog($event, $scope.selectedStage.engines.length - 1, $scope.selectedStage.engines[$scope.selectedStage.engines.length - 1]);
                 };
 
-                $scope.openEngineEditDialog = function ($event, $engineIndex, engineConfig) {
+                $scope.openengineEditDialog = function ($event, $engineIndex, engineConfig) {
 
                     var obj = {
-                        controller: function ($scope, lEngineTypes, lEngineConfig, $mdDialog, lStage) {
+                        controller: function ($scope, lengineTypes, lengineConfig, $mdDialog, lStage) {
 
-                            $scope.selectedEngineConfig = JSON.parse(JSON.stringify(lEngineConfig));
-                            $scope.engineTypes = lEngineTypes;
+                            $scope.selectedengineConfig = JSON.parse(angular.toJson(lengineConfig));
+                            $scope.engineTypes = lengineTypes;
                             $scope.stage = lStage;
 
-                            $scope.selectEngineType = function (newEngine) {
-                                $scope.selectedEngineConfig.Engine = newEngine;
+                            $scope.selectengineType = function (newengine) {
+                                $scope.selectedengineConfig.engine = newengine;
                             };
                             $scope.cancel = function () {
                                 $mdDialog.cancel();
@@ -906,11 +906,11 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                                 $mdDialog.hide();
                             };
                             $scope.save = function () {
-                                $scope.stage.Engines[$engineIndex] = $scope.selectedEngineConfig;
+                                $scope.stage.engines[$engineIndex] = $scope.selectedengineConfig;
                                 $mdDialog.hide();
                             };
                         },
-                        templateUrl: '/pages/editEngine.tmpl.html',
+                        templateUrl: '/pages/editengine.tmpl.html',
                         parent: angular.element(document.body),
                         targetEvent: $event,
                         clickOutsideToClose: true,
@@ -919,8 +919,8 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                         skipHide: true,
                         locals: {
                             lStage: $scope.selectedStage,
-                            lEngineTypes: $scope.engineTypes,
-                            lEngineConfig: engineConfig
+                            lengineTypes: $scope.engineTypes,
+                            lengineConfig: engineConfig
                         }
                     };
                     $mdDialog.show(obj);
@@ -932,8 +932,8 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                     $mdDialog.hide();
                 };
                 $scope.save = function () {
-                    lStage.Boosters[$boosterIndex] = $scope.selectedStage;
-                    lForm.Mission.Events = $scope.tempEvents;
+                    lStage.boosters[$boosterIndex] = $scope.selectedStage;
+                    lForm.mission.events = $scope.tempEvents;
                     resetstageNumbersAndEvents();
                     lParent.recalcDV();
                     $mdDialog.hide();
@@ -958,10 +958,10 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
             controller: function ($scope, lParent, lForm, lEvent, $mdDialog) {
 
                 $scope.parentScope = lParent;
-                $scope.selectedEvent = JSON.parse(JSON.stringify(lEvent));
+                $scope.selectedEvent = JSON.parse(angular.toJson(lEvent));
                 $scope.type = $scope.parentScope.type;
-                $scope.stages = $scope.parentScope.form.Mission.Vehicle.Stages;
-                $scope.stageEngines = $scope.parentScope.form.Mission.Vehicle.Stages[$scope.selectedEvent.stageNumbers[0]].Engines;
+                $scope.stages = $scope.parentScope.form.mission.vehicle.stages;
+                $scope.stageengines = $scope.parentScope.form.mission.vehicle.stages[$scope.selectedEvent.stageNumbers[0]].engines;
                 $scope.gravTurnSelect = $scope.parentScope.gravTurnSelect;
 
                 $scope.cancel = function () {
@@ -971,7 +971,7 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                     $mdDialog.hide();
                 };
                 $scope.save = function () {
-                    lForm.Mission.Events[$eventIndex] = $scope.selectedEvent;
+                    lForm.mission.events[$eventIndex] = $scope.selectedEvent;
                     lParent.recalcDV();
                     $mdDialog.hide();
                 };
@@ -996,14 +996,14 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
         $mdDialog.show({
             controller: function ($scope, lParent, lForm, $mdDialog) {
 
-                $scope.form = JSON.parse(JSON.stringify(lForm));
+                $scope.form = JSON.parse(angular.toJson(lForm));
                 $scope.companies = lParent.companies;
 
                 // offset stuff necessary if client is not UTC. Date() returns time in local TZ >:|
                 var today = new Date();
                 var offset = -(today.getTimezoneOffset() / 60);
-                var tempDate = new Date($scope.form.Mission.date);
-                $scope.form.Mission.date = new Date(tempDate.getTime() - offset * 60 * 60 * 1000);
+                var tempDate = new Date($scope.form.mission.date);
+                $scope.form.mission.date = new Date(tempDate.getTime() - offset * 60 * 60 * 1000);
 
                 Date.prototype.yyyymmdd = function () {
                     var mm = this.getMonth() + 1; // getMonth() is zero-based
@@ -1022,13 +1022,13 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                     $mdDialog.hide();
                 };
                 $scope.save = function () {
-                    lForm.Mission.code = $scope.form.Mission.code;
-                    lForm.Mission.description = $scope.form.Mission.description;
-                    lForm.Mission.date = $scope.form.Mission.date.yyyymmdd();
-                    lForm.Mission.time = $scope.form.Mission.time;
-                    lForm.Mission.company = $scope.form.Mission.company;
-                    lForm.Mission.orbits = $scope.form.Mission.orbits;
-                    lForm.Mission.display = $scope.form.Mission.display;
+                    lForm.mission.code = $scope.form.mission.code;
+                    lForm.mission.description = $scope.form.mission.description;
+                    lForm.mission.date = $scope.form.mission.date.yyyymmdd();
+                    lForm.mission.time = $scope.form.mission.time;
+                    lForm.mission.company = $scope.form.mission.company;
+                    lForm.mission.orbits = $scope.form.mission.orbits;
+                    lForm.mission.display = $scope.form.mission.display;
                     $mdDialog.hide();
                 };
             },

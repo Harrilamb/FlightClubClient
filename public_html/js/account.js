@@ -31,7 +31,7 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
     $scope.loginToggle = function () {
         if (!$scope.$parent.authorised) {
 
-            $scope.$parent.httpRequest('/user/login', 'POST', JSON.stringify($scope.forms[0]), function (response) {
+            $scope.$parent.httpRequest('/user/login', 'POST', angular.toJson($scope.forms[0]), function (response) {
                 var json = response.data;
 
                 $scope.$parent.authorised = true;
@@ -61,7 +61,7 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
     };
 
     $scope.updatePassword = function () {
-        $scope.$parent.httpRequest('/user/updatePass', 'POST', JSON.stringify($scope.forms[1]), function (response) {
+        $scope.$parent.httpRequest('/user/updatePass', 'POST', angular.toJson($scope.forms[1]), function (response) {
             $scope.alerts[1] = 'Password updated successfully!';
             $scope.forms[1] = {};
         }, function (response) {
@@ -71,8 +71,8 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
     };
 
     $scope.create = function () {
-        $scope.$parent.httpRequest('/user/new', 'POST', JSON.stringify($scope.forms[2]), function (data) {
-            $scope.alerts[2] = 'User \"' + $scope.forms[2].Create.new.username + '\" created successfully!';
+        $scope.$parent.httpRequest('/user/new', 'POST', angular.toJson($scope.forms[2]), function (response) {
+            $scope.alerts[2] = 'User \"' + $scope.forms[2].create.username + '\" created successfully!';
             $scope.forms[2] = {};
         }, function (response) {
             var json = response.data;
@@ -87,12 +87,19 @@ angular.module('FlightClub').controller('AccountCtrl', function ($timeout, $docu
             for (var i = 0; i < json.data.length; i++) {
                 var el = json.data[i];
                 var tempForm = JSON.parse(window.atob(el.simHash));
+
+                // temporary
+                var m = tempForm.mission;
+                if (m === undefined)
+                    m = tempForm.Mission;
+                //
+                
                 var obj = {
                     id: el.id,
                     simHash: el.simHash,
                     timestamp: new Date(el.timestamp).toUTCString(),
                     usernote: el.usernote,
-                    mission: tempForm.Mission.description
+                    mission: m.description
                 };
                 $scope.savedSims.push(obj);
             }
