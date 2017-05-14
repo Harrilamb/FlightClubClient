@@ -25,9 +25,9 @@
                                           md-rowspan="1"
                                           md-colspan="1"
                                           md-colspan-gt-sm="2">
-                                <md-button ng-class="{'md-accent':launchSites[form.mission.launchsite] === site,'md-primary':launchSites[form.mission.launchsite] !== site}" layout-padding layout-fill class="bolder md-raised" ng-click='selectSite(site)'>
+                                <md-button ng-class="{'md-accent':form.mission.launchsite === site.code,'md-primary':form.mission.launchsite !== site.code}" layout-padding layout-fill class="bolder md-raised" ng-click='selectSite(site)'>
                                     <md-icon style="height:160px;width:160px" md-svg-src="{{'images/launchpad/' + site.code + '.svg'}}"></md-icon>
-                                    <md-grid-tile-footer><h3>{{site.name}}</h3></md-grid-tile-footer>
+                                    <md-grid-tile-footer><h3>{{site.description}}</h3></md-grid-tile-footer>
                                 </md-button>
                             </md-grid-tile>
                         </md-grid-list>

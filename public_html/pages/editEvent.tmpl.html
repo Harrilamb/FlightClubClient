@@ -49,7 +49,7 @@
                             <label>Event Type</label>
                             <md-select ng-model="selectedEvent.type" name="type" ng-required="selectedEvent!==null">
                                 <md-option ng-repeat="obj in type" value="{{obj.code}}" 
-                                           ng-disabled="obj.code === 'FAIRING_SEP' && form.Mission.Payload.code !== 'SATL'">{{obj.name}}</md-option>
+                                           ng-disabled="obj.code === 'FAIRING_SEP' && form.mission.Payload.code !== 'SATL'">{{obj.name}}</md-option>
                             </md-select>
                             <div ng-messages="profileForm.type.$error" multiple md-auto-hide="true">
                                 <div ng-message="required">
@@ -99,9 +99,9 @@
                                 layout="row" layout-align="space-around center">
                         <md-content flex class="md-block" ng-repeat="engineConfig in stageEngines">
                             <md-input-container flex>
-                                <label># of {{engineConfig.Engine.name}} engines</label>
-                                <input ng-model="selectedEvent.Engines[$index].engineId" name="id" ng-value="engineConfig.engineId" type="hidden"/>
-                                <input ng-model="selectedEvent.Engines[$index].number" name="engines" required ng-change="selectedEvent.Engines[$index].engineId = engineConfig.engineId"/>
+                                <label># of {{engineConfig.engine.name}} engines</label>
+                                <input ng-model="selectedEvent.engines[$index].engineId" name="id" ng-value="engineConfig.engineId" type="hidden"/>
+                                <input ng-model="selectedEvent.engines[$index].number" name="engines" required ng-change="selectedEvent.engines[$index].engineId = engineConfig.engineId"/>
                                 <div ng-messages="profileForm.engines.$error" multiple md-auto-hide="true">
                                     <div ng-message="required">
                                         Insert 0 if you don't want to use these engines
