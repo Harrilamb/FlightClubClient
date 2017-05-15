@@ -43,27 +43,6 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
             $scope.loadMessageSecondary = $scope.messageArray[i++].message;
     }, 350);
 
-    $scope.animate_rocket = function () {
-
-        var windowWidth = window.innerWidth
-                || document.documentElement.clientWidth
-                || document.getElementsByTagName('body')[0].clientWidth;
-        var loadPos = 0;
-
-        var elem = document.getElementById("rocket");
-        var id = setInterval(frame, 5);
-        function frame() {
-            if ($scope.loadSuccess || loadPos > 99.9) {
-                clearInterval(id);
-            } else {
-                loadPos += 0.002 * (100 - loadPos);
-                var margin = 0.01 * loadPos * windowWidth + 'px';
-                elem.style.marginLeft = margin;
-            }
-        }
-
-    };
-
     $scope.load = function (queryString) {
 
         $scope.queryString = queryString;
@@ -208,7 +187,6 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
         return false;
     };
 
-    $scope.animate_rocket();
     var formHash = window.location.hash.substring(1);
     var queryString = window.location.search.substring(1);
 

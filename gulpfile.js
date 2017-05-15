@@ -13,6 +13,8 @@ var minify = require('gulp-minify');
 // minify css
 var autoprefix = require('gulp-autoprefixer');
 var minifyCSS = require('gulp-minify-css');
+// sass
+var sass = require('gulp-sass');
 
 // var server = '/var/www/html';
 var server = '/Library/WebServer/Documents';
@@ -50,15 +52,14 @@ gulp.task('imagemin', function () {
 
 }).task('styles', function () {
 
-    gulp.src(['./public_html/css/*.css'])
+    gulp.src(['./public_html/sass/*.scss'])
             .pipe(concat('flightclub.min.css'))
-            .pipe(autoprefix('last 2 versions'))
-            .pipe(minifyCSS())
+            .pipe(sass({ outputStyle: 'compressed' }))
             .pipe(gulp.dest(server+'/css'));
     
 }).task('static_scripts', function () {
     /*
-     * concatenate local angular/jquery/flot/cesium source files for offline dev. Should be a once off...
+     * concatenate local angular/flot/cesium source files for offline dev. Should be a once off...
      */
     gulp.src(['./public_html/angular-1.5.8/angular.min.js', './public_html/angular-1.5.8/*.js'])
             .pipe(concat('angular-1.5.8.js'))
@@ -81,7 +82,7 @@ gulp.task('imagemin', function () {
     gulp.watch('./public_html/images/**/*', ["imagemin"]);
     gulp.watch('./public_html/**/*.html', ["htmlpage"]);
     gulp.watch('./public_html/js/*.js', ["scripts"]);
-    gulp.watch('./public_html/css/*.css', ["styles"]);
+    gulp.watch('./public_html/sass/*.scss', ["styles"]);
     gulp.watch(['./public_html/angular-1.5.8/angular.min.js', './public_html/angular-1.5.8/*.js', './public_html/angular-material-1.1.1/*.js', './public_html/jquery-3.1.1/*.js', './public_html/flot/*.js'], ["static_scripts"]);
     gulp.watch(['./public_html/cesium/*.css', './public_html/angular-material-1.1.1/*.css'], ["static_styles"]);
 

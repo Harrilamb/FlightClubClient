@@ -1,12 +1,18 @@
 <md-content id="results" layout-fill flex layout="column">
 
-    <md-content ng-show="!loadSuccess" flex layout-fill layout-padding layout="column" layout-align="center center">
-        <div ng-show="isLoading" flex layout="column" layout-align="center center" layout-padding>
+    <md-content ng-show="!loadSuccess" flex layout-fill layout-padding>
+        <div ng-show="isLoading" style="height:100vh" layout="column" layout-align="center center">
             <h2>{{loadMessage}}</h2>
-            <p ng-bind-html="loadMessageSecondary"></p>
-            <md-content style="width:100%;overflow-x:hidden">
-                <div id="rocket"><img/></div>
-            </md-content>
+            <p flex="33" ng-bind-html="loadMessageSecondary"></p>
+            <div class='loading'>
+                <div class='loading__square'></div>
+                <div class='loading__square'></div>
+                <div class='loading__square'></div>
+                <div class='loading__square'></div>
+                <div class='loading__square'></div>
+                <div class='loading__square'></div>
+                <div class='loading__square'></div>
+            </div>
         </div>
         <div ng-show="!isLoading">
             <p>
