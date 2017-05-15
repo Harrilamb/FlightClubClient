@@ -1,4 +1,4 @@
-<md-dialog aria-label="Edit Stage Detail Dialog">
+<md-dialog class="editor" aria-label="Edit Stage Detail Dialog">
     <md-toolbar>
         <div class="md-toolbar-tools">
             <h2>Edit Stage Properties</h2>
@@ -31,6 +31,7 @@
                     </md-content>
                 </md-content>
             </md-content>
+            <md-divider></md-divider>
             <form role="form">
                 <md-content flex layout-align='space-around center'>
                     <md-content layout-padding flex layout="row">
@@ -41,13 +42,13 @@
                             </md-content>
                         </md-content>
                     </md-content>                            
-                    <md-content class="vehicle2" layout-fill layout-align="space-between center" layout="row">
+                    <md-content class="vehicle2" layout-padding layout-align="space-between center" layout="row">
                         <md-list layout-fill layout='column'>
                             <md-list-item class="md-3-line" ng-repeat="engineConfig in selectedStage.engines">
                                 <div class="md-list-item-text">
                                     <h3>{{engineConfig.number}} x {{engineConfig.engine.name}}</h3>
                                     <h4>{{engineConfig.engine.mass}}kg</h4>
-                                    <p>Thrust: {{engineConfig.engine.thrustSL/1000.0}}kN (SL) // {{engineConfig.engine.thrustVac/1000.0}}kN (Vac)</p>
+                                    <p>Thrust: {{engineConfig.engine.thrustSL / 1000.0}}kN (SL) // {{engineConfig.engine.thrustVac / 1000.0}}kN (Vac)</p>
                                     <p>Isp: {{engineConfig.engine.ispSL}}s (SL) // {{engineConfig.engine.ispVac}}s (Vac)</p>
                                 </div>
                                 <md-button style="min-width:0" ng-click="openEngineEditDialog($event, $index, engineConfig)">
@@ -61,85 +62,87 @@
                         </md-list>
                     </md-content>
                     <md-divider></md-divider>
-                    <md-content class="vehicle3" layout-padding flex layout="row">
-                        <div flex="15" style="margin:auto">3)</div>
-                        <md-content layout-padding flex>
-                            <label>Customize:</label>
+                    <md-content layout-padding>
+                        <md-content class="vehicle3" layout-padding flex layout="row">
+                            <div flex="15" style="margin:auto">3)</div>
+                            <md-content layout-padding flex>
+                                <label>Customize:</label>
+                            </md-content>
                         </md-content>
-                    </md-content>
-                    <md-content layout="column" layout-gt-sm="row" layout-align="space-around center">
-                        <md-input-container flex class="md-block">
-                            <label>Name</label>
-                            <input ng-model="selectedStage.stageName" name="stageName" required aria-label="StageName">
-                            <div ng-messages="profileForm.stageName.$error" multiple md-auto-hide="true">
-                                <div ng-message="required">This can be whatever you want, but make it descriptive!</div>
-                            </div>
-                        </md-input-container>
-                        <md-input-container flex class="md-block">
-                            <label>Radius (m)</label>
-                            <input ng-model="selectedStage.radius" name="stageRadius" required aria-label="StageRadius" float>
-                            <div ng-messages="profileForm.stageRadius.$error" multiple md-auto-hide="true">
-                                <div ng-message="required">This is required!</div>
-                            </div>
-                        </md-input-container>
-                    </md-content>
-                    <md-content layout="column" layout-gt-sm="row" layout-align="space-around center">
-                        <md-input-container flex class="md-block">
-                            <label>Length (m)</label>
-                            <input ng-model="selectedStage.length" name="stageLength" required aria-label="StageLength" float>
-                            <div ng-messages="profileForm.stageLength.$error" multiple md-auto-hide="true">
-                                <div ng-message="required">This is required!</div>
-                            </div>
-                        </md-input-container>
-                        <md-input-container flex class="md-block">
-                            <label>Dry Mass (kg)</label>
-                            <input ng-model="selectedStage.dryMass" name="stageDryMass" required aria-label="StageDryMass" float>
-                            <div ng-messages="profileForm.stageDryMass.$error" multiple md-auto-hide="true">
-                                <div ng-message="required">This is required!</div>
-                            </div>
-                        </md-input-container>
-                    </md-content>
-                    <md-content layout="column" layout-gt-sm="row" layout-align="space-around center">
-                        <md-input-container flex class="md-block">
-                            <label>Propellant Mass (kg)</label>
-                            <input ng-model="selectedStage.propMass" name="stagePropMass" required aria-label="StagePropellantMass" float>
-                            <div ng-messages="profileForm.stagePropMass.$error" multiple md-auto-hide="true">
-                                <div ng-message="required">This is required!</div>
-                            </div>
-                        </md-input-container>
-                        <md-input-container flex class="md-block">
-                            <label>Fuel Capacity (kg)</label>
-                            <input ng-model="selectedStage.fuelCapacity" name="stageFuelCapacity" required aria-label="StageFuelCapacity" float>
-                            <div ng-messages="profileForm.stageFuelCapacity.$error" multiple md-auto-hide="true">
-                                <div ng-message="required">This is required!</div>
-                            </div>
-                        </md-input-container>
-                    </md-content>
-                    <md-content layout="column" layout-gt-sm="row" layout-align="space-around center">
-                        <md-input-container flex class="md-block">
-                            <label>Minimum Fuel Limit (kg)</label>
-                            <input ng-model="selectedStage.minimumFuel" name="minimumFuel" required aria-label="StageMinimumFuel" float>
-                            <div ng-messages="profileForm.minimumFuel.$error" multiple md-auto-hide="true">
-                                <div ng-message="required">This is required!</div>
-                            </div>
-                        </md-input-container>
-                        <md-input-container flex class="md-block">
-                            <label>Max Acceleration (g's)</label>
-                            <input ng-model="selectedStage.maxAccel" name="maxAccel" required aria-label="Maximum Accleration" float>
-                            <div ng-messages="profileForm.maxAccel.$error" multiple md-auto-hide="true">
-                                <div ng-message="required">This is required!</div>
-                            </div>
-                        </md-input-container>
-                    </md-content>
-                    <md-content layout="column" layout-gt-sm="row" layout-align="space-around center">
-                        <md-input-container flex class="md-block">
-                            <label>Fairing Radius (m)</label>
-                            <input ng-model="selectedStage.fairingRadius" name="stageFairingRadius" aria-label="StageFairingRadius" float>
-                        </md-input-container>
-                        <md-input-container flex class="md-block">
-                            <label>Fairing Mass (kg)</label>
-                            <input ng-model="selectedStage.fairingMass" name="stageFairingMass" aria-label="StageFairingMass" float>
-                        </md-input-container>
+                        <md-content layout="column" layout-gt-sm="row" layout-align="space-around center">
+                            <md-input-container flex class="md-block">
+                                <label>Name</label>
+                                <input ng-model="selectedStage.stageName" name="stageName" required aria-label="StageName">
+                                <div ng-messages="profileForm.stageName.$error" multiple md-auto-hide="true">
+                                    <div ng-message="required">This can be whatever you want, but make it descriptive!</div>
+                                </div>
+                            </md-input-container>
+                            <md-input-container flex class="md-block">
+                                <label>Radius (m)</label>
+                                <input ng-model="selectedStage.radius" name="stageRadius" required aria-label="StageRadius" float>
+                                <div ng-messages="profileForm.stageRadius.$error" multiple md-auto-hide="true">
+                                    <div ng-message="required">This is required!</div>
+                                </div>
+                            </md-input-container>
+                        </md-content>
+                        <md-content layout="column" layout-gt-sm="row" layout-align="space-around center">
+                            <md-input-container flex class="md-block">
+                                <label>Length (m)</label>
+                                <input ng-model="selectedStage.length" name="stageLength" required aria-label="StageLength" float>
+                                <div ng-messages="profileForm.stageLength.$error" multiple md-auto-hide="true">
+                                    <div ng-message="required">This is required!</div>
+                                </div>
+                            </md-input-container>
+                            <md-input-container flex class="md-block">
+                                <label>Dry Mass (kg)</label>
+                                <input ng-model="selectedStage.dryMass" name="stageDryMass" required aria-label="StageDryMass" float>
+                                <div ng-messages="profileForm.stageDryMass.$error" multiple md-auto-hide="true">
+                                    <div ng-message="required">This is required!</div>
+                                </div>
+                            </md-input-container>
+                        </md-content>
+                        <md-content layout="column" layout-gt-sm="row" layout-align="space-around center">
+                            <md-input-container flex class="md-block">
+                                <label>Propellant Mass (kg)</label>
+                                <input ng-model="selectedStage.propMass" name="stagePropMass" required aria-label="StagePropellantMass" float>
+                                <div ng-messages="profileForm.stagePropMass.$error" multiple md-auto-hide="true">
+                                    <div ng-message="required">This is required!</div>
+                                </div>
+                            </md-input-container>
+                            <md-input-container flex class="md-block">
+                                <label>Fuel Capacity (kg)</label>
+                                <input ng-model="selectedStage.fuelCapacity" name="stageFuelCapacity" required aria-label="StageFuelCapacity" float>
+                                <div ng-messages="profileForm.stageFuelCapacity.$error" multiple md-auto-hide="true">
+                                    <div ng-message="required">This is required!</div>
+                                </div>
+                            </md-input-container>
+                        </md-content>
+                        <md-content layout="column" layout-gt-sm="row" layout-align="space-around center">
+                            <md-input-container flex class="md-block">
+                                <label>Minimum Fuel Limit (kg)</label>
+                                <input ng-model="selectedStage.minimumFuel" name="minimumFuel" required aria-label="StageMinimumFuel" float>
+                                <div ng-messages="profileForm.minimumFuel.$error" multiple md-auto-hide="true">
+                                    <div ng-message="required">This is required!</div>
+                                </div>
+                            </md-input-container>
+                            <md-input-container flex class="md-block">
+                                <label>Max Acceleration (g's)</label>
+                                <input ng-model="selectedStage.maxAccel" name="maxAccel" required aria-label="Maximum Accleration" float>
+                                <div ng-messages="profileForm.maxAccel.$error" multiple md-auto-hide="true">
+                                    <div ng-message="required">This is required!</div>
+                                </div>
+                            </md-input-container>
+                        </md-content>
+                        <md-content layout="column" layout-gt-sm="row" layout-align="space-around center">
+                            <md-input-container flex class="md-block">
+                                <label>Fairing Radius (m)</label>
+                                <input ng-model="selectedStage.fairingRadius" name="stageFairingRadius" aria-label="StageFairingRadius" float>
+                            </md-input-container>
+                            <md-input-container flex class="md-block">
+                                <label>Fairing Mass (kg)</label>
+                                <input ng-model="selectedStage.fairingMass" name="stageFairingMass" aria-label="StageFairingMass" float>
+                            </md-input-container>
+                        </md-content>
                     </md-content>
                 </md-content>
             </form>

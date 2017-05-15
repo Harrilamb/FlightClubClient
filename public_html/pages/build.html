@@ -38,8 +38,8 @@
                 <md-tab-content>
                     <md-content flex layout='column' layout-gt-sm="row" layout-align='space-around center' layout-align-gt-sm='space-around start'>
                         <md-radio-group flex-gt-sm="33" style="width:100%" layout-padding layout="column" layout-align="start center" ng-model="builderType">
-                            <md-content layout="column" layout-sm="row" layout-align="space-around center" layout-fill>
-                                <md-content class="vehicleRadio1" layout-padding layout="row" layout-align="center center" layout-fill>
+                            <md-content layout="column" layout-sm="row" layout-align="space-around center">
+                                <md-content style="width:100%" class="vehicleRadio1" layout-padding layout="row" layout-align="center center">
                                     <md-radio-button flex value="previous">
                                         <label>Use vehicle from existing mission:</label>
                                     </md-radio-button>
@@ -49,13 +49,13 @@
                                         </md-select>
                                     </md-input-container>
                                 </md-content>
-                                <md-content class="vehicleRadio2" layout-padding layout="row" layout-align="center center" layout-fill>
+                                <md-content style="width:100%" class="vehicleRadio2" layout-padding layout="row" layout-align="center center">
                                     <md-radio-button flex value="custom">
                                         <label>Customize</label>
                                         <md-tooltip md-direction="bottom">Allow Editing Of This Vehicle</md-tooltip>
                                     </md-radio-button>
-                                    <md-content>
-                                        <md-button class="md-raised" aria-label="add" ng-click='incrementEntity()' ng-disabled="builderType !== 'custom'">
+                                    <md-content flex>
+                                        <md-button style="width:100%;margin:0" class="md-raised" aria-label="add" ng-click='incrementEntity()' ng-disabled="builderType !== 'custom'">
                                             <md-tooltip md-direction="bottom">Add Stage</md-tooltip>
                                             <md-icon class="material-icons">add</md-icon>
                                         </md-button>
@@ -63,7 +63,7 @@
                                 </md-content>
                             </md-content>
                             <md-divider layout-fill></md-divider>
-                            <md-content flex layout="column" layout-sm="row" layout-align='space-around center' layout-fill>
+                            <md-content flex layout="column" layout-sm="row" layout-align='space-around center'>
                                 <md-input-container class="md-block">
                                     <md-tooltip md-direction="bottom">The entire mass of the stuff on top of the top stage</md-tooltip>
                                     <label>Payload Mass (kg)</label>

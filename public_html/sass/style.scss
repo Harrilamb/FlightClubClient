@@ -48,6 +48,16 @@ md-divider {
     }
 }
 
+.dialog-panel {
+    width: 50%;
+}
+
+md-dialog {
+    &.editor {
+        min-width: 50%;
+    }
+}
+
 /*******************************/
 /*   I hate myself for this    */
 /*******************************/
