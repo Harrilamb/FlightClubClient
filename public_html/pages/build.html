@@ -281,17 +281,17 @@
                                         <md-input-container flex class="md-block">
                                             <md-tooltip md-direction="bottom">Manually control your heading: 0° pitch is level to the ground, 90° is flying vertically, etc</md-tooltip>
                                             <label>Pitch</label>
-                                            <input ng-model="selectedEvent.Attitude.pitch">
+                                            <input ng-model="selectedEvent.attitude.pitch">
                                         </md-input-container>
                                         <md-input-container flex class="md-block">
                                             <md-tooltip md-direction="bottom">Manually control your heading: 0° yaw is flying East, 90° is flying North, etc.</md-tooltip>
                                             <label>Yaw</label>
-                                            <input ng-model="selectedEvent.Attitude.yaw">
+                                            <input ng-model="selectedEvent.attitude.yaw">
                                         </md-input-container>
                                         <md-input-container flex class="md-block">
                                             <md-tooltip md-direction="bottom">Set the target throttle for this Guidance event. Must be between 0 and 1.</md-tooltip>
                                             <label>Throttle</label>
-                                            <input type="number" name="throttle" min="0" max="1" step="any" ng-disabled="selectedEvent.dynamic" ng-model="selectedEvent.Attitude.throttle">
+                                            <input type="number" name="throttle" min="0" max="1" step="any" ng-disabled="selectedEvent.dynamic" ng-model="selectedEvent.attitude.throttle">
                                             <div ng-messages="profileForm.throttle.$error" multiple md-auto-hide="true">
                                                 <div ng-message="min">Throttle must be between 0 and 1, inclusive</div>
                                                 <div ng-message="max">Throttle must be between 0 and 1, inclusive</div>
@@ -300,7 +300,7 @@
                                         <md-input-container flex class="md-block">
                                             <md-tooltip md-direction="bottom">Set this to do a forward or reverse gravity turn for the duration of the event.</md-tooltip>
                                             <label>Gravity Turn</label>
-                                            <md-select ng-model="selectedEvent.Attitude.gt">
+                                            <md-select ng-model="selectedEvent.attitude.gt">
                                                 <md-option ng-repeat="obj in gravTurnSelect" value="{{obj.code}}">{{obj.name}}</md-option>
                                             </md-select>
                                         </md-input-container>

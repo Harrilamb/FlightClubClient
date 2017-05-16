@@ -76,19 +76,19 @@
                                         flex layout="row" class="md-block">
                                 <md-input-container flex class="md-block">
                                     <label>Pitch</label>
-                                    <input ng-model="selectedEvent.Attitude.pitch">
+                                    <input ng-model="selectedEvent.attitude.pitch">
                                 </md-input-container>
                                 <md-input-container flex class="md-block">
                                     <label>Yaw</label>
-                                    <input ng-model="selectedEvent.Attitude.yaw">
+                                    <input ng-model="selectedEvent.attitude.yaw">
                                 </md-input-container>
                                 <md-input-container flex class="md-block">
                                     <label>Throttle</label>
-                                    <input ng-disabled="selectedEvent.dynamic" ng-model="selectedEvent.Attitude.throttle">
+                                    <input ng-disabled="selectedEvent.dynamic" ng-model="selectedEvent.attitude.throttle">
                                 </md-input-container>
                                 <md-input-container flex class="md-block">
                                     <label>Gravity Turn</label>
-                                    <md-select ng-model="selectedEvent.Attitude.gt">
+                                    <md-select ng-model="selectedEvent.attitude.gt">
                                         <md-option ng-repeat="obj in gravTurnSelect" value="{{obj.code}}">{{obj.name}}</md-option>
                                     </md-select>
                                 </md-input-container>
