@@ -386,11 +386,11 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
     $scope.addEvent = function () {
         var newEvent = {
             type: null,
-            stage: null,
             name: null,
+            stageNumbers: [],
             time: null,
             dynamic: null,
-            Attitude: {
+            attitude: {
                 pitch: null,
                 yaw: null,
                 gt: null,
@@ -953,7 +953,7 @@ angular.module('FlightClub').controller('BuildCtrl', function ($scope, $mdDialog
                 $scope.selectedEvent = JSON.parse(angular.toJson(lEvent));
                 $scope.type = $scope.parentScope.type;
                 $scope.stages = $scope.parentScope.form.mission.vehicle.stages;
-                $scope.stageEngines = $scope.parentScope.form.mission.vehicle.stages[$scope.selectedEvent.stageNumbers[0]].engines;
+                $scope.stageEngines = $scope.selectedEvent.stageNumbers.length>0 ? $scope.parentScope.form.mission.vehicle.stages[$scope.selectedEvent.stageNumbers[0]].engines : [];
                 $scope.gravTurnSelect = $scope.parentScope.gravTurnSelect;
 
                 $scope.cancel = function () {
