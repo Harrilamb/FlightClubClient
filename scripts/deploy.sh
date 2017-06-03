@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Long options require GNU-based implementation of getopt. BSD implementation doesn't work
+
 #LOCAL_DIR=/var/www/html
 LOCAL_DIR=/Library/WebServer/Documents
 REMOTE_DIR=/var/www/html/flightclub
