@@ -668,7 +668,17 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
             var timeline = document.getElementsByClassName("cesium-viewer-timelineContainer")[0];
             timeline.className += " hide";
 
-            w.setCameraLookingAt($scope.launchSite.code);
+            var lat = $scope.queryParams.lat;
+            var lon = $scope.queryParams.lon;
+            if(lat && lon) {
+                $scope.padViews.latitude = lat[0];
+                $scope.padViews.longitude = lon[0];
+                $scope.padViews.z = $scope.queryParams.z ? $scope.queryParams.z[0] : 5.0;
+                w.setCameraLookingAtCoordinates($scope.padViews.longitude, $scope.padViews.latitude, $scope.padViews.z);
+            }
+            else {
+                w.setCameraLookingAt($scope.launchSite.code);
+            }
             $scope.getHazardMap();
 
         });
@@ -763,7 +773,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
             w.viewer.camera.flyTo(launchPadViews[site]);
         };
 
-        this.setCameraLookingAtCoordinates = function (longitude, latitude) {
+        this.setCameraLookingAtCoordinates = function (longitude, latitude, z) { 
 
             // can probably use this logic to remove launchPadViews altogether and have dynamic calcs based on pad coords
             var lat1 = $scope.launchSite.latitude * Math.PI / 180.0;
@@ -800,7 +810,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
              function (data) {
              */
             w.viewer.camera.flyTo({
-                destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, 5.0), // fall back to 1.0? what's the default?
+                destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, z), // fall back to 1.0? what's the default?
                 orientation: {
                     heading: Cesium.Math.toRadians(brng),
                     pitch: Cesium.Math.toRadians(0),
@@ -874,7 +884,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
     $scope.openPadViewPointEditDialog = function ($trigger) {
 
         $mdDialog.show({
-            controller: function ($scope, lW, lPadViews, lSite, $mdDialog) {
+            controller: function ($scope, location, lW, lPadViews, lSite, $mdDialog) {
 
                 $scope.padViews = JSON.parse(angular.toJson(lPadViews));
                 $scope.site = lSite;
@@ -888,6 +898,8 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
                 $scope.save = function () {
                     lPadViews.longitude = $scope.padViews.longitude;
                     lPadViews.latitude = $scope.padViews.latitude;
+                    location.search('lat', $scope.padViews.latitude);
+                    location.search('lon', $scope.padViews.longitude);
                     lW.setCameraLookingAtCoordinates($scope.padViews.longitude, $scope.padViews.latitude);
                     $mdDialog.hide();
                 };
@@ -898,6 +910,7 @@ angular.module('FlightClub').controller('ResultsCtrl', function ($scope, $cookie
             clickOutsideToClose: true,
             locals: {
                 lParent: $scope,
+                location: $location,
                 lPadViews: $scope.padViews,
                 lSite: $scope.launchSite,
                 lW: w
